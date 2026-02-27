@@ -1815,7 +1815,7 @@ const NA_LAB_INTERPRETATION = {
     sections: [
         {
             heading: 'Step 1: Serum Osmolality',
-            body: '**Osm >275 mOsm/kg → Non-hypotonic hyponatremia**\n• Check glucose — add 1.6 mEq/L to Na for every 100 mg/dL glucose above 100 (corrected Na)\n• Check lipids, total protein — pseudohyponatremia (artifact of indirect ISE method)\n• Check for mannitol, glycine, sorbitol infusions\n\n**Osm <275 mOsm/kg → True hypotonic hyponatremia** → proceed to Step 2',
+            body: '**Osm >275 mOsm/kg → Non-hypotonic hyponatremia**\n• [Check glucose → Corrected Na Calculator](#/calculator/corrected-na) — add 1.6 mEq/L to Na for every 100 mg/dL glucose above 100 (factor 2.4 if glucose >400)\n• Check lipids, total protein — pseudohyponatremia (artifact of indirect ISE method)\n• Check for mannitol, glycine, sorbitol infusions\n\n**Osm <275 mOsm/kg → True hypotonic hyponatremia** → proceed to Step 2',
         },
         {
             heading: 'Step 2: Urine Osmolality',
@@ -1977,6 +1977,9 @@ function renderInfoBodyLine(container, line) {
                             detail: slashIdx !== -1 ? { id: linkId.slice(0, slashIdx), hint: linkId.slice(slashIdx + 1) } : { id: linkId }
                         }));
                     }, 50);
+                }
+                else if (linkType === 'calculator') {
+                    window.location.hash = '#/calculator/' + linkId;
                 }
             });
             container.appendChild(btn);

@@ -517,6 +517,92 @@ const FWD_CALCULATOR = {
     },
 };
 // -------------------------------------------------------------------
+// Corrected Sodium Calculator (Formula-Based)
+// -------------------------------------------------------------------
+const CORRECTED_NA_CALCULATOR = {
+    id: 'corrected-na',
+    title: 'Corrected Sodium',
+    subtitle: 'Hyperglycemia Correction',
+    description: 'Corrects measured sodium for hyperglycemia. Formula: Corrected Na = Measured Na + 1.6 × [(Glucose - 100) / 100]. Uses correction factor of 2.4 when glucose exceeds 400 mg/dL.',
+    fields: [
+        {
+            name: 'measured-na',
+            label: 'Measured Sodium',
+            type: 'number',
+            points: 0,
+            valueIsPoints: true,
+            unit: 'mEq/L',
+            description: 'Lab-reported serum sodium',
+        },
+        {
+            name: 'glucose',
+            label: 'Serum Glucose',
+            type: 'number',
+            points: 0,
+            valueIsPoints: true,
+            unit: 'mg/dL',
+            description: 'Serum glucose level',
+        },
+    ],
+    results: [],
+    thresholdNote: 'If corrected Na is normal (≥135), the hyponatremia is translocational — treat the hyperglycemia, not the sodium. If corrected Na remains low, true hypotonic hyponatremia coexists with hyperglycemia.',
+    citations: [
+        'Katz MA. Hyperglycemia-Induced Hyponatremia — Calculation of Expected Serum Sodium Depression. NEJM. 1973;289(16):843-844.',
+        'Hillier TA et al. Hyponatremia: Evaluating the Correction Factor for Hyperglycemia. Am J Med. 1999;106(4):399-403.',
+    ],
+    computeResult: (values) => {
+        const na = values['measured-na'] || 0;
+        const glucose = values['glucose'] || 0;
+        if (na <= 0 || glucose <= 0) {
+            return {
+                value: '--',
+                label: 'Enter values',
+                description: 'Enter measured sodium and serum glucose to calculate corrected sodium.',
+                colorVar: '--color-text-muted',
+            };
+        }
+        if (glucose <= 100) {
+            return {
+                value: `${na} mEq/L`,
+                label: 'No Correction Needed',
+                description: `Glucose ≤100 mg/dL — no hyperglycemic correction needed. Measured Na = corrected Na.`,
+                colorVar: '--color-primary',
+            };
+        }
+        // Use 1.6 factor for glucose ≤400, 2.4 factor for >400
+        const factor = glucose > 400 ? 2.4 : 1.6;
+        const correction = factor * ((glucose - 100) / 100);
+        const correctedNa = Math.round((na + correction) * 10) / 10;
+        let label;
+        let colorVar;
+        if (correctedNa >= 135) {
+            label = 'Normal (Translocational)';
+            colorVar = '--color-primary';
+        }
+        else if (correctedNa >= 130) {
+            label = 'Mild Hyponatremia';
+            colorVar = '--color-warning';
+        }
+        else if (correctedNa >= 120) {
+            label = 'Moderate Hyponatremia';
+            colorVar = '--color-warning';
+        }
+        else {
+            label = 'Severe Hyponatremia';
+            colorVar = '--color-danger';
+        }
+        const factorNote = glucose > 400
+            ? '2.4 mEq/L per 100 mg/dL (glucose >400)'
+            : '1.6 mEq/L per 100 mg/dL';
+        return {
+            value: `${correctedNa} mEq/L`,
+            label,
+            description: `Correction: +${Math.round(correction * 10) / 10} mEq/L (factor: ${factorNote}). ${correctedNa >= 135 ? 'Hyponatremia is translocational — treat hyperglycemia, not sodium.' : 'True hypotonic hyponatremia coexists with hyperglycemia — proceed with hyponatremia workup.'}`,
+            colorVar,
+        };
+    },
+};
+// -------------------------------------------------------------------
 // Calculator Registry
 // -------------------------------------------------------------------
 const CALCULATORS = {
@@ -527,6 +613,7 @@ const CALCULATORS = {
     'timi': TIMI_CALCULATOR,
     'bas': BAS_CALCULATOR,
     'fwd': FWD_CALCULATOR,
+    'corrected-na': CORRECTED_NA_CALCULATOR,
 };
 /** Get all available calculators sorted alphabetically by title */
 export function getAllCalculators() {
