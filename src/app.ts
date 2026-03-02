@@ -74,27 +74,63 @@ function renderPlaceholder(title: string, subtitle: string, icon: string): void 
 }
 
 // -------------------------------------------------------------------
-// Route Handlers (placeholders — replaced by real components later)
+// Theme & Tab Bar Management
+// -------------------------------------------------------------------
+
+/** Toggle home-light theme on body */
+function setHomeTheme(isHome: boolean): void {
+  if (isHome) {
+    document.body.classList.add('home-light');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#F5F5F7');
+  } else {
+    document.body.classList.remove('home-light');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0f0f1a');
+  }
+}
+
+/** Update bottom tab bar active state */
+function updateTabBar(activeTab: string): void {
+  const tabs = document.querySelectorAll('.tab-item');
+  tabs.forEach(tab => {
+    const tabId = tab.getAttribute('data-tab');
+    if (tabId === activeTab) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+}
+
+// -------------------------------------------------------------------
+// Route Handlers
 // -------------------------------------------------------------------
 
 function handleHome(_params: RouteParams): void {
+  setHomeTheme(true);
+  updateTabBar('home');
   const main = clearMain();
   renderCategoryGrid(main);
 }
 
 function handleCategory(params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('');
   const id = params['id'] ?? 'unknown';
   const main = clearMain();
   renderCategoryView(main, id);
 }
 
 function handleTree(params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('');
   const id = params['id'] ?? 'unknown';
   const main = clearMain();
   renderTreeWizard(main, id);
 }
 
 function handleTreeNode(params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('');
   const treeId = params['id'] ?? 'unknown';
   const nodeId = params['nodeId'] ?? 'unknown';
   renderPlaceholder(
@@ -105,28 +141,38 @@ function handleTreeNode(params: RouteParams): void {
 }
 
 function handleReference(params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('');
   const main = clearMain();
   const treeId = params['treeId'];
   renderReferencePanel(main, treeId);
 }
 
 function handleDrugList(_params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('pharmacy');
   const main = clearMain();
   renderDrugList(main);
 }
 
 function handleCalculatorList(_params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('med-calc');
   const main = clearMain();
   renderCalculatorList(main);
 }
 
 function handleCalculator(params: RouteParams): void {
+  setHomeTheme(false);
+  updateTabBar('med-calc');
   const id = params['id'] ?? 'unknown';
   const main = clearMain();
   renderCalculator(main, id);
 }
 
 function handleNotFound(): void {
+  setHomeTheme(false);
+  updateTabBar('');
   renderPlaceholder(
     'Page Not Found',
     'This route doesn\u2019t exist. Tap back or go home.',
@@ -148,6 +194,21 @@ function handleNotFound(): void {
 
 function init(): void {
   registerServiceWorker();
+
+  // Tab bar click delegation
+  const tabBar = document.getElementById('bottom-tab-bar');
+  if (tabBar) {
+    tabBar.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).closest('.tab-item') as HTMLAnchorElement | null;
+      if (!target) return;
+      e.preventDefault();
+      const href = target.getAttribute('href');
+      if (href) {
+        const path = href.replace('#', '');
+        router.navigate(path);
+      }
+    });
+  }
 
   // Register routes
   router.on('/', handleHome);

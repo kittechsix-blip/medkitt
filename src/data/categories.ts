@@ -245,6 +245,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     ],
     isCustom: false,
   },
+  { id: 'ophthalmology',         name: 'Ophthalmology',          icon: 'ophthalmology.png',     decisionTrees: [], isCustom: false },
   {
     id: 'orthopedics',
     name: 'Ortho',
@@ -431,6 +432,28 @@ export const DEFAULT_CATEGORIES: Category[] = [
     isCustom: false,
   },
 ];
+
+/** Category color definitions for rolodex cards */
+export const CATEGORY_COLORS: Record<string, { card: string; iconBg: string; textColor?: string; outline?: string }> = {
+  'anesthesia-airway':   { card: '#3D4F5F', iconBg: '#3D4F5F' },
+  'cardiology':          { card: '#C62828', iconBg: '#C62828' },
+  'critical-care':       { card: '#37474F', iconBg: '#37474F' },
+  'emergency-medicine':  { card: '#1565C0', iconBg: '#1565C0' },
+  'gastroenterology':    { card: '#6D4C41', iconBg: '#6D4C41' },
+  'heme-onc':            { card: '#AD1457', iconBg: '#AD1457' },
+  'infectious-disease':  { card: '#2E7D32', iconBg: '#2E7D32' },
+  'nephro-rheum-endo':   { card: '#4E342E', iconBg: '#4E342E' },
+  'neurology':           { card: '#00695C', iconBg: '#00695C' },
+  'ob-gyn':              { card: '#880E4F', iconBg: '#880E4F' },
+  'ophthalmology':       { card: '#00838F', iconBg: '#00838F' },
+  'orthopedics':         { card: '#455A64', iconBg: '#455A64' },
+  'pediatrics':          { card: '#1B5E20', iconBg: '#1B5E20' },
+  'procedures':          { card: '#283593', iconBg: '#283593' },
+  'toxicology':          { card: '#9E9D24', iconBg: '#9E9D24', textColor: '#1A1A2E' },
+  'trauma-surg':         { card: '#E65100', iconBg: '#E65100' },
+  'us-rads':             { card: '#1A237E', iconBg: '#1A237E' },
+  'urology':             { card: '#F57F17', iconBg: '#F57F17', textColor: '#1A1A2E' },
+};
 
 const STORAGE_KEY = 'em-custom-categories';
 

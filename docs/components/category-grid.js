@@ -1,6 +1,6 @@
 // MedKitt — Category Grid (Home Screen)
-// Renders category cards with 3D PNG icons in alphabetical order + global search.
-import { getAllCategories, addCustomCategory } from '../data/categories.js';
+// Renders rolodex-style horizontal cards with 3D icons + global search.
+import { getAllCategories, addCustomCategory, CATEGORY_COLORS } from '../data/categories.js';
 import { getAllCalculators } from './calculator.js';
 import { getAllDrugs } from '../data/drug-store.js';
 import { showDrugModal } from './drug-store.js';
@@ -10,43 +10,64 @@ const TOOL_ROUTES = {
     'pharmacy': { route: '/drugs', getCount: () => getAllDrugs().length, unit: 'drug' },
     'med-calc': { route: '/calculators', getCount: () => getAllCalculators().length, unit: 'tool' },
 };
-/** Render the category grid into the given container */
+/** Darken or lighten a hex color by a percentage (-15 = 15% darker) */
+function adjustBrightness(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.min(255, Math.max(0, ((num >> 16) & 0xFF) + Math.round(2.55 * percent)));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0xFF) + Math.round(2.55 * percent)));
+    const b = Math.min(255, Math.max(0, (num & 0xFF) + Math.round(2.55 * percent)));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+/** Check if a hex color is perceptually dark (ITU-R BT.601) */
+function isDark(hex) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = (num >> 16) & 0xFF;
+    const g = (num >> 8) & 0xFF;
+    const b = num & 0xFF;
+    return (r * 0.299 + g * 0.587 + b * 0.114) < 140;
+}
+/** Get a contrasting channel color — darker for bright cards, lighter for dark cards */
+function getChannelColor(cardHex) {
+    return isDark(cardHex)
+        ? adjustBrightness(cardHex, 22)
+        : adjustBrightness(cardHex, -22);
+}
+/** Render the category rolodex into the given container */
 export function renderCategoryGrid(container) {
     container.innerHTML = '';
-    // Heading row with search
-    const headingRow = document.createElement('div');
-    headingRow.className = 'home-heading-row';
-    const heading = document.createElement('h2');
-    heading.textContent = 'Categories';
-    heading.style.fontSize = '20px';
-    heading.style.fontWeight = '600';
+    // Search bar
+    const searchBar = document.createElement('div');
+    searchBar.className = 'home-search-bar';
+    const searchIcon = document.createElement('span');
+    searchIcon.className = 'search-icon';
+    searchIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
     const searchInput = document.createElement('input');
     searchInput.type = 'search';
-    searchInput.className = 'home-search-input';
-    searchInput.placeholder = 'Search\u2026';
+    searchInput.placeholder = 'Search consults, drugs, calculators\u2026';
     searchInput.setAttribute('aria-label', 'Search categories, consults, drugs, and calculators');
-    headingRow.appendChild(heading);
-    headingRow.appendChild(searchInput);
-    container.appendChild(headingRow);
-    const grid = document.createElement('div');
-    grid.className = 'category-grid';
+    searchBar.appendChild(searchIcon);
+    searchBar.appendChild(searchInput);
+    container.appendChild(searchBar);
+    // Rolodex container
+    const rolodex = document.createElement('div');
+    rolodex.className = 'rolodex';
     const categories = getAllCategories();
     for (const cat of categories) {
+        // Skip pharmacy and med-calc — they're in the bottom tab bar
+        if (cat.id === 'pharmacy' || cat.id === 'med-calc')
+            continue;
         const toolInfo = TOOL_ROUTES[cat.id];
         if (toolInfo) {
             const count = toolInfo.getCount();
-            const card = createCategoryCard(cat.icon, cat.name, cat.id, count, toolInfo.route, toolInfo.unit);
-            grid.appendChild(card);
+            rolodex.appendChild(createRolodexCard(cat, count, toolInfo.route, toolInfo.unit));
         }
         else {
-            const card = createCategoryCard(cat.icon, cat.name, cat.id, cat.decisionTrees.length);
-            grid.appendChild(card);
+            rolodex.appendChild(createRolodexCard(cat, cat.decisionTrees.length));
         }
     }
     // Add button
-    const addCard = createAddCard();
-    grid.appendChild(addCard);
-    container.appendChild(grid);
+    rolodex.appendChild(createAddCard());
+    container.appendChild(rolodex);
     // Disclaimer
     const disclaimer = document.createElement('p');
     disclaimer.className = 'home-disclaimer';
@@ -56,14 +77,14 @@ export function renderCategoryGrid(container) {
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim().toLowerCase();
         if (query.length === 0) {
-            grid.style.display = '';
+            rolodex.style.display = '';
             disclaimer.style.display = '';
             const existingResults = container.querySelector('.search-results');
             if (existingResults)
                 existingResults.remove();
             return;
         }
-        grid.style.display = 'none';
+        rolodex.style.display = 'none';
         disclaimer.style.display = 'none';
         const existingResults = container.querySelector('.search-results');
         if (existingResults)
@@ -73,63 +94,77 @@ export function renderCategoryGrid(container) {
         container.appendChild(resultsEl);
     });
 }
-/** Create a single category card element */
-function createCategoryCard(icon, name, id, count, route, unit) {
-    const effectiveRoute = route || `/category/${id}`;
+/** Create a rolodex card for a category */
+function createRolodexCard(cat, count, route, unit) {
+    const effectiveRoute = route || `/category/${cat.id}`;
     const effectiveUnit = unit || 'consult';
+    const colors = CATEGORY_COLORS[cat.id] || { card: '#607D8B', iconBg: '#ECEFF1' };
     const card = document.createElement('a');
-    card.className = 'category-card';
+    card.className = 'rolodex-card';
     card.href = '#' + effectiveRoute;
-    card.setAttribute('role', 'link');
-    card.setAttribute('aria-label', `${name} \u2014 ${count} ${effectiveUnit}${count !== 1 ? 's' : ''}`);
+    card.style.background = `linear-gradient(135deg, ${colors.card}, ${adjustBrightness(colors.card, -15)})`;
+    if (colors.outline) {
+        card.style.border = `2px solid ${colors.outline}`;
+    }
+    card.setAttribute('aria-label', `${cat.name} \u2014 ${count} ${effectiveUnit}${count !== 1 ? 's' : ''}`);
     card.addEventListener('click', (e) => {
         e.preventDefault();
         router.navigate(effectiveRoute);
     });
-    // Count badge — above icon (only when count > 0)
-    if (count > 0) {
-        const countEl = document.createElement('span');
-        countEl.className = 'category-count';
-        countEl.textContent = `${count} ${effectiveUnit}${count !== 1 ? 's' : ''}`;
-        card.appendChild(countEl);
-    }
-    // Icon — PNG image or emoji fallback (for custom categories)
-    const iconEl = document.createElement('span');
-    iconEl.className = 'category-icon';
-    iconEl.setAttribute('aria-hidden', 'true');
-    if (icon.endsWith('.png')) {
+    // Icon (left side)
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'rolodex-icon';
+    iconWrap.style.background = colors.iconBg;
+    if (cat.icon.endsWith('.png')) {
         const img = document.createElement('img');
-        img.src = `assets/icons/${icon}`;
+        img.src = `assets/icons/${cat.icon}`;
         img.alt = '';
-        img.width = 80;
-        img.height = 80;
+        img.width = 52;
+        img.height = 52;
         img.loading = 'lazy';
-        iconEl.appendChild(img);
+        iconWrap.appendChild(img);
     }
     else {
-        iconEl.textContent = icon;
+        iconWrap.textContent = cat.icon;
+        iconWrap.style.fontSize = '24px';
     }
-    card.appendChild(iconEl);
-    // Name — below icon
-    const nameEl = document.createElement('span');
-    nameEl.className = 'category-name';
-    nameEl.textContent = name;
+    card.appendChild(iconWrap);
+    // Name (center)
+    const nameEl = document.createElement('div');
+    nameEl.className = 'rolodex-name';
+    nameEl.textContent = cat.name;
+    if (colors.textColor) {
+        nameEl.style.color = colors.textColor;
+    }
     card.appendChild(nameEl);
+    // Contrasting channel color for indent + bottom line
+    const channelColor = getChannelColor(colors.card);
+    // Bottom line — thin strip extending full width of card bottom
+    const bottomLine = document.createElement('div');
+    bottomLine.className = 'rolodex-bottom-line';
+    bottomLine.style.background = channelColor;
+    card.appendChild(bottomLine);
+    // Badge — recessed inlet at bottom-right corner
+    if (count > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'rolodex-badge';
+        badge.style.background = channelColor;
+        badge.textContent = `${count} ${effectiveUnit}${count !== 1 ? 's' : ''}`.toUpperCase();
+        if (colors.textColor) {
+            badge.style.color = colors.textColor;
+        }
+        card.appendChild(badge);
+    }
     return card;
 }
-/** Create the "+ Add" card */
+/** Create the "+ Add Category" card */
 function createAddCard() {
     const card = document.createElement('button');
-    card.className = 'category-card category-card--add';
+    card.className = 'rolodex-card rolodex-card--add';
     card.setAttribute('aria-label', 'Add custom category');
-    const iconEl = document.createElement('span');
-    iconEl.className = 'category-icon';
-    iconEl.setAttribute('aria-hidden', 'true');
-    iconEl.textContent = '\u2795'; // ➕
-    const nameEl = document.createElement('span');
-    nameEl.className = 'category-name';
-    nameEl.textContent = 'Add';
-    card.appendChild(iconEl);
+    const nameEl = document.createElement('div');
+    nameEl.className = 'rolodex-name';
+    nameEl.textContent = '+ Add Category';
     card.appendChild(nameEl);
     card.addEventListener('click', () => {
         const name = prompt('Enter category name:');
