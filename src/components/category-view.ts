@@ -1,7 +1,7 @@
 // MedKitt — Category View & Tree List
 // Shows available decision trees within a selected category.
 
-import { getAllCategories } from '../data/categories.js';
+import { getAllCategories } from '../services/category-service.js';
 import { router } from '../services/router.js';
 
 /** Render the category view (tree list) into the given container */

@@ -1,7 +1,7 @@
 // MedKitt — Category Grid (Home Screen)
 // Renders rolodex-style horizontal cards with 3D icons + global search.
 
-import { getAllCategories, addCustomCategory, CATEGORY_COLORS } from '../data/categories.js';
+import { getAllCategories, addCustomCategory, getCategoryColors } from '../services/category-service.js';
 import { getAllCalculators } from './calculator.js';
 import { getAllDrugs } from '../services/drug-service.js';
 import { showDrugModal } from './drug-store.js';
@@ -123,7 +123,7 @@ function createRolodexCard(
   const effectiveRoute = route || `/category/${cat.id}`;
   const effectiveUnit = unit || 'consult';
 
-  const colors = CATEGORY_COLORS[cat.id] || { card: '#607D8B', iconBg: '#ECEFF1' };
+  const colors = getCategoryColors()[cat.id] || { card: '#607D8B', iconBg: '#ECEFF1' };
 
   const card = document.createElement('a');
   card.className = 'rolodex-card';

@@ -3,9 +3,9 @@
 // Each data type gets its own object store with version tracking.
 
 const DB_NAME = 'medkitt-cache';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
-export type StoreName = 'drugs' | 'sync_meta';
+export type StoreName = 'drugs' | 'categories' | 'category_trees' | 'sync_meta';
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -19,6 +19,12 @@ function openDB(): Promise<IDBDatabase> {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains('drugs')) {
         db.createObjectStore('drugs', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('categories')) {
+        db.createObjectStore('categories', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('category_trees')) {
+        db.createObjectStore('category_trees', { keyPath: ['category_id', 'tree_id'] });
       }
       if (!db.objectStoreNames.contains('sync_meta')) {
         db.createObjectStore('sync_meta', { keyPath: 'key' });

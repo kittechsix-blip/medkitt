@@ -10,6 +10,7 @@ import { renderReferencePanel } from './components/reference-table.js';
 import { renderCalculator, renderCalculatorList } from './components/calculator.js';
 import { renderDrugList } from './components/drug-store.js';
 import { initDrugs } from './services/drug-service.js';
+import { initCategories } from './services/category-service.js';
 
 // -------------------------------------------------------------------
 // Service Worker Registration
@@ -197,7 +198,7 @@ async function init(): Promise<void> {
   registerServiceWorker();
 
   // Initialize data services (loads from IndexedDB/Supabase/hardcoded fallback)
-  await initDrugs();
+  await Promise.all([initDrugs(), initCategories()]);
 
   // Tab bar click delegation
   const tabBar = document.getElementById('bottom-tab-bar');

@@ -2,7 +2,7 @@
 // Stores Supabase data locally for offline access.
 // Each data type gets its own object store with version tracking.
 const DB_NAME = 'medkitt-cache';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 let dbPromise = null;
 function openDB() {
     if (dbPromise)
@@ -15,6 +15,12 @@ function openDB() {
             const db = event.target.result;
             if (!db.objectStoreNames.contains('drugs')) {
                 db.createObjectStore('drugs', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('categories')) {
+                db.createObjectStore('categories', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('category_trees')) {
+                db.createObjectStore('category_trees', { keyPath: ['category_id', 'tree_id'] });
             }
             if (!db.objectStoreNames.contains('sync_meta')) {
                 db.createObjectStore('sync_meta', { keyPath: 'key' });
