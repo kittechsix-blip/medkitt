@@ -3,7 +3,7 @@
 
 import { getAllCategories, addCustomCategory, CATEGORY_COLORS } from '../data/categories.js';
 import { getAllCalculators } from './calculator.js';
-import { getAllDrugs } from '../data/drug-store.js';
+import { getAllDrugs } from '../services/drug-service.js';
 import { showDrugModal } from './drug-store.js';
 import { router } from '../services/router.js';
 import type { Category } from '../models/types.js';

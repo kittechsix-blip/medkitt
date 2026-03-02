@@ -7,6 +7,7 @@ import { renderTreeWizard } from './components/tree-wizard.js';
 import { renderReferencePanel } from './components/reference-table.js';
 import { renderCalculator, renderCalculatorList } from './components/calculator.js';
 import { renderDrugList } from './components/drug-store.js';
+import { initDrugs } from './services/drug-service.js';
 // -------------------------------------------------------------------
 // Service Worker Registration
 // -------------------------------------------------------------------
@@ -157,8 +158,10 @@ function handleNotFound() {
 // -------------------------------------------------------------------
 // Initialize
 // -------------------------------------------------------------------
-function init() {
+async function init() {
     registerServiceWorker();
+    // Initialize data services (loads from IndexedDB/Supabase/hardcoded fallback)
+    await initDrugs();
     // Tab bar click delegation
     const tabBar = document.getElementById('bottom-tab-bar');
     if (tabBar) {

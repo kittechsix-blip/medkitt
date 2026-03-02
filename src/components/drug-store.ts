@@ -2,7 +2,7 @@
 // Searchable alphabetical drug list + detail modal overlay.
 // Drug names in tree body text use [name](#/drug/id) to open the modal.
 
-import { getAllDrugs, getDrug } from '../data/drug-store.js';
+import { getAllDrugs, getDrug } from '../services/drug-service.js';
 import type { WeightCalc } from '../data/drug-store.js';
 import { router } from '../services/router.js';
 
