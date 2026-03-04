@@ -15,8 +15,7 @@ import type { ConsultTree } from '../../types/consult-tree';
  * Registry of all available consult trees
  */
 export const consultRegistry: Record<string, () => Promise<{ default: ConsultTree }>> = {
-  // neurosyphilis and pe-treatment use new flat DecisionNode[] format — loaded via tree-service.ts
-  pneumothorax: () => import('./pneumothorax'),
+  // pneumothorax now uses new flat DecisionNode[] format — loaded via tree-service.ts
   'echo-views': () => import('./echo-views'),
 };
 

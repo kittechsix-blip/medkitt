@@ -59,7 +59,7 @@ export const PNEUMOTHORAX_NODES = [
         title: 'Normal: Pneumothorax Excluded',
         body: '**Lung sliding, comet tails, and B-lines exclude pneumothorax** at the scanned locations.\n\n**Negative predictive value >99%**\n\nIf clinical suspicion persists despite normal POCUS:\n• Scan additional rib spaces\n• Consider CT chest\n• Repeat imaging if symptoms change',
         citation: [2, 4],
-        confidence: 'strong',
+        confidence: 'definitive',
     },
     // =====================================================================
     // MODULE 3: PNEUMOTHORAX CONFIRMATION
@@ -144,7 +144,7 @@ export const PNEUMOTHORAX_NODES = [
         title: 'Immediate Needle Decompression',
         body: '**Needle decompression STAT:**\n• **14-gauge angiocath**\n• **2nd ICS, mid-clavicular line**\n• OR **4th-5th ICS, anterior axillary line**\n\n**Follow with chest tube placement.**\n\nSee [Chest Tube / Pneumothorax Management](#/tree/chest-tube) for tube thoracostomy procedure.',
         citation: [1],
-        confidence: 'strong',
+        confidence: 'definitive',
     },
     {
         id: 'stable-ptx-management',
@@ -173,7 +173,7 @@ export const PNEUMOTHORAX_NODES = [
         title: 'Small Pneumothorax — Observation',
         body: '**Observation with high-flow O2** (if not COPD):\n• Repeat imaging in **6 hours**\n• Admit for observation\n• Supplemental O2 increases reabsorption rate (~2%/day → ~4%/day)\n\n**Discharge criteria:**\n• Stable or improving on repeat imaging\n• No respiratory distress\n• Reliable follow-up available',
         citation: [1],
-        confidence: 'moderate',
+        confidence: 'consider',
     },
     {
         id: 'large-ptx',
@@ -182,7 +182,7 @@ export const PNEUMOTHORAX_NODES = [
         title: 'Large Pneumothorax — Intervention',
         body: '**Chest tube placement** indicated.\n\nSimple aspiration may be considered for **primary spontaneous pneumothorax** in select patients.\n\nSee [Chest Tube / Pneumothorax Management](#/tree/chest-tube) for:\n• Tube thoracostomy procedure\n• Insertion technique\n• Post-placement management',
         citation: [1],
-        confidence: 'strong',
+        confidence: 'recommended',
     },
     // Trauma-specific eFAST branch
     {
