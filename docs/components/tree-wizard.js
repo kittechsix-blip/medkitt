@@ -13,6 +13,8 @@ let currentConfig = null;
 let currentEntryNodeId = null;
 let delegatedContainer = null;
 let jumpNodeListenerRegistered = false;
+let visitedModules = new Set();
+let moduleFirstNodeMap = new Map();
 /** Handle clicks on inline links via event delegation (most reliable on iOS Safari) */
 function handleInlineLinkClick(e) {
     const target = e.target.closest('[data-link-type]');
@@ -57,6 +59,14 @@ export async function renderTreeWizard(container, treeId) {
     currentTreeId = treeId;
     currentConfig = config;
     engine = new TreeEngine(config.nodes);
+    // Build module → first node map and reset visited tracking
+    visitedModules = new Set();
+    moduleFirstNodeMap = new Map();
+    for (const node of config.nodes) {
+        if (!moduleFirstNodeMap.has(node.module)) {
+            moduleFirstNodeMap.set(node.module, node.id);
+        }
+    }
     // Set up delegated click handler for inline links (once per container)
     if (delegatedContainer !== container) {
         if (delegatedContainer) {
@@ -100,6 +110,7 @@ function renderCurrentNode(container) {
     const node = engine.getCurrentNode();
     if (!node)
         return;
+    visitedModules.add(node.module);
     container.innerHTML = '';
     // Disclaimer banner on the first node of each consult
     if (currentEntryNodeId && node.id === currentEntryNodeId) {
@@ -108,9 +119,14 @@ function renderCurrentNode(container) {
         banner.textContent = 'This tool is for educational and clinical decision support purposes only. It does not replace clinical judgment. All treatment decisions should be verified against current guidelines and institutional protocols.';
         container.appendChild(banner);
     }
-    // Header bar: back button + progress
+    // Header bar: back button + nav
     const header = renderHeader(node);
     container.appendChild(header);
+    // Module progress bubble bar
+    if (currentConfig && currentConfig.moduleLabels.length > 1) {
+        const moduleBar = renderModuleBar(node.module);
+        container.appendChild(moduleBar);
+    }
     // Node content
     const content = document.createElement('div');
     content.className = 'wizard-content';
@@ -155,14 +171,10 @@ function renderHeader(node) {
         backBtn.addEventListener('click', () => {
             if (engine)
                 engine.reset();
+            visitedModules = new Set();
             router.navigate(`/category/${currentConfig?.categoryId ?? ''}`);
         });
     }
-    // Progress indicator
-    const progress = document.createElement('span');
-    progress.className = 'wizard-progress';
-    const totalModules = engine?.getTotalModules() ?? currentConfig?.moduleLabels.length ?? 1;
-    progress.textContent = `Module ${node.module} of ${totalModules}`;
     // "Top" button — right-aligned, hidden on entry node
     const isOnEntry = currentEntryNodeId && node.id === currentEntryNodeId;
     const topBtn = document.createElement('button');
@@ -205,9 +217,50 @@ function renderHeader(node) {
     rightGroup.appendChild(shareBtn);
     rightGroup.appendChild(topBtn);
     header.appendChild(backBtn);
-    header.appendChild(progress);
     header.appendChild(rightGroup);
     return header;
+}
+// -------------------------------------------------------------------
+// Module Progress Bubble Bar
+// -------------------------------------------------------------------
+function renderModuleBar(currentModuleNumber) {
+    const bar = document.createElement('div');
+    bar.className = 'wizard-module-bar';
+    const labels = currentConfig.moduleLabels;
+    const totalModules = labels.length;
+    for (let i = 0; i < totalModules; i++) {
+        const moduleNum = i + 1;
+        const label = labels[i] ?? `Module ${moduleNum}`;
+        const isVisited = visitedModules.has(moduleNum);
+        const isCurrent = moduleNum === currentModuleNumber;
+        const firstNodeId = moduleFirstNodeMap.get(moduleNum);
+        const bubble = document.createElement('button');
+        bubble.className = 'wizard-module-bubble';
+        bubble.textContent = label;
+        if (isCurrent) {
+            bubble.classList.add('wizard-module-bubble--current');
+        }
+        else if (isVisited) {
+            bubble.classList.add('wizard-module-bubble--visited');
+        }
+        if (firstNodeId) {
+            bubble.addEventListener('click', () => {
+                if (!engine || !delegatedContainer)
+                    return;
+                engine.jumpToNode(firstNodeId);
+                renderCurrentNode(delegatedContainer);
+            });
+        }
+        bar.appendChild(bubble);
+    }
+    // Auto-scroll to current bubble after paint
+    requestAnimationFrame(() => {
+        const currentBubble = bar.querySelector('.wizard-module-bubble--current');
+        if (currentBubble) {
+            currentBubble.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    });
+    return bar;
 }
 // -------------------------------------------------------------------
 // Question Node
@@ -392,6 +445,7 @@ function renderResultNode(content, node, _container) {
     restartBtn.addEventListener('click', () => {
         if (engine)
             engine.reset();
+        visitedModules = new Set();
         const container = document.getElementById('main-content');
         if (container && currentTreeId) {
             container.innerHTML = '';
@@ -404,6 +458,7 @@ function renderResultNode(content, node, _container) {
     homeBtn.addEventListener('click', () => {
         if (engine)
             engine.reset();
+        visitedModules = new Set();
         router.navigate('/');
     });
     actions.appendChild(restartBtn);

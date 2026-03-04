@@ -26,6 +26,7 @@
   --color-forest: #1B5E20;
   --color-umber-light: #B87333;
   --color-umber-deep: #8B6914;
+  --color-umber-burnt: #8A3324;
 
   /* Category badge colors (inherited from em-medkitt) */
   --color-cardiac: #ff6b6b;
@@ -1099,10 +1100,77 @@ body.home-light .search-empty { color: var(--color-home-text-muted); }
   padding-left: 0;
 }
 
-.wizard-progress {
-  font-size: 13px;
-  font-weight: 500;
+/* ----------------------------------------
+   Module Progress Bubble Bar
+   ---------------------------------------- */
+
+.wizard-module-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 2px 14px 2px;
+  margin: -8px -2px 8px -2px;
+}
+
+.wizard-module-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.wizard-module-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: transparent;
+  border: 1.5px solid rgba(138, 51, 36, 0.3);
   color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.wizard-module-bubble::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+}
+
+.wizard-module-bubble--visited {
+  background: rgba(138, 51, 36, 0.18);
+  border-color: rgba(138, 51, 36, 0.55);
+  color: #c47060;
+}
+
+.wizard-module-bubble--current {
+  background: var(--color-umber-burnt);
+  border-color: var(--color-umber-burnt);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px rgba(138, 51, 36, 0.22);
+}
+
+.wizard-module-bubble:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.wizard-module-bubble:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .wizard-header-right {

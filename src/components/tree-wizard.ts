@@ -18,6 +18,8 @@ let currentConfig: TreeConfig | null = null;
 let currentEntryNodeId: string | null = null;
 let delegatedContainer: HTMLElement | null = null;
 let jumpNodeListenerRegistered = false;
+let visitedModules: Set<number> = new Set();
+let moduleFirstNodeMap: Map<number, string> = new Map();
 
 /** Handle clicks on inline links via event delegation (most reliable on iOS Safari) */
 function handleInlineLinkClick(e: Event): void {
@@ -58,6 +60,15 @@ export async function renderTreeWizard(container: HTMLElement, treeId: string): 
   currentTreeId = treeId;
   currentConfig = config;
   engine = new TreeEngine(config.nodes);
+
+  // Build module → first node map and reset visited tracking
+  visitedModules = new Set();
+  moduleFirstNodeMap = new Map();
+  for (const node of config.nodes) {
+    if (!moduleFirstNodeMap.has(node.module)) {
+      moduleFirstNodeMap.set(node.module, node.id);
+    }
+  }
 
   // Set up delegated click handler for inline links (once per container)
   if (delegatedContainer !== container) {
@@ -106,6 +117,8 @@ function renderCurrentNode(container: HTMLElement): void {
   const node = engine.getCurrentNode();
   if (!node) return;
 
+  visitedModules.add(node.module);
+
   container.innerHTML = '';
 
   // Disclaimer banner on the first node of each consult
@@ -116,9 +129,15 @@ function renderCurrentNode(container: HTMLElement): void {
     container.appendChild(banner);
   }
 
-  // Header bar: back button + progress
+  // Header bar: back button + nav
   const header = renderHeader(node);
   container.appendChild(header);
+
+  // Module progress bubble bar
+  if (currentConfig && currentConfig.moduleLabels.length > 1) {
+    const moduleBar = renderModuleBar(node.module);
+    container.appendChild(moduleBar);
+  }
 
   // Node content
   const content = document.createElement('div');
@@ -166,16 +185,10 @@ function renderHeader(node: DecisionNode): HTMLElement {
     backBtn.textContent = '\u2190 Exit';
     backBtn.addEventListener('click', () => {
       if (engine) engine.reset();
-      
+      visitedModules = new Set();
       router.navigate(`/category/${currentConfig?.categoryId ?? ''}`);
     });
   }
-
-  // Progress indicator
-  const progress = document.createElement('span');
-  progress.className = 'wizard-progress';
-  const totalModules = engine?.getTotalModules() ?? currentConfig?.moduleLabels.length ?? 1;
-  progress.textContent = `Module ${node.module} of ${totalModules}`;
 
   // "Top" button — right-aligned, hidden on entry node
   const isOnEntry = currentEntryNodeId && node.id === currentEntryNodeId;
@@ -221,10 +234,59 @@ function renderHeader(node: DecisionNode): HTMLElement {
   rightGroup.appendChild(topBtn);
 
   header.appendChild(backBtn);
-  header.appendChild(progress);
   header.appendChild(rightGroup);
 
   return header;
+}
+
+// -------------------------------------------------------------------
+// Module Progress Bubble Bar
+// -------------------------------------------------------------------
+
+function renderModuleBar(currentModuleNumber: number): HTMLElement {
+  const bar = document.createElement('div');
+  bar.className = 'wizard-module-bar';
+
+  const labels = currentConfig!.moduleLabels;
+  const totalModules = labels.length;
+
+  for (let i = 0; i < totalModules; i++) {
+    const moduleNum = i + 1;
+    const label = labels[i] ?? `Module ${moduleNum}`;
+    const isVisited = visitedModules.has(moduleNum);
+    const isCurrent = moduleNum === currentModuleNumber;
+    const firstNodeId = moduleFirstNodeMap.get(moduleNum);
+
+    const bubble = document.createElement('button');
+    bubble.className = 'wizard-module-bubble';
+    bubble.textContent = label;
+
+    if (isCurrent) {
+      bubble.classList.add('wizard-module-bubble--current');
+    } else if (isVisited) {
+      bubble.classList.add('wizard-module-bubble--visited');
+    }
+
+    if (firstNodeId) {
+      bubble.addEventListener('click', () => {
+        if (!engine || !delegatedContainer) return;
+        engine.jumpToNode(firstNodeId);
+        renderCurrentNode(delegatedContainer);
+      });
+    }
+
+    bar.appendChild(bubble);
+  }
+
+  // Auto-scroll to current bubble after paint
+  requestAnimationFrame(() => {
+    const currentBubble = bar.querySelector('.wizard-module-bubble--current') as HTMLElement | null;
+    if (currentBubble) {
+      currentBubble.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  });
+
+  return bar;
 }
 
 // -------------------------------------------------------------------
@@ -440,7 +502,7 @@ function renderResultNode(content: HTMLElement, node: DecisionNode, _container: 
   restartBtn.textContent = 'Start Over';
   restartBtn.addEventListener('click', () => {
     if (engine) engine.reset();
-    
+    visitedModules = new Set();
     const container = document.getElementById('main-content');
     if (container && currentTreeId) {
       container.innerHTML = '';
@@ -453,7 +515,7 @@ function renderResultNode(content: HTMLElement, node: DecisionNode, _container: 
   homeBtn.textContent = '\u2190 All Categories';
   homeBtn.addEventListener('click', () => {
     if (engine) engine.reset();
-    
+    visitedModules = new Set();
     router.navigate('/');
   });
 
