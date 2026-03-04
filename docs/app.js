@@ -105,7 +105,10 @@ function handleHome(_params) {
     updateTabBar('home');
     const main = clearMain();
     renderCategoryGrid(main);
-    main.scrollTop = homeScrollTop;
+    // Restore scroll after layout completes
+    requestAnimationFrame(() => {
+        main.scrollTop = homeScrollTop;
+    });
 }
 function handleCategory(params) {
     setHomeTheme(false);
