@@ -1,0 +1,505 @@
+/* MedKitt — Consult Wizard (Mayo/Stroke MD Pattern)
+ * Burnt umber brand theme with clean, minimal UI
+ * Based on JMIR 2025 clinical app design guidelines
+ */
+
+/* -------------------------------------------------------------------
+ * Container
+ * ------------------------------------------------------------------- */
+
+.consult-wizard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #FFFFFF;
+  color: #1A1A2E;
+}
+
+/* -------------------------------------------------------------------
+ * Header
+ * ------------------------------------------------------------------- */
+
+.cw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cw-back-btn,
+.cw-restart-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.cw-back-btn:hover,
+.cw-restart-btn:hover {
+  background: #F8F9FA;
+}
+
+.cw-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.cw-header-spacer {
+  width: 40px;
+}
+
+/* -------------------------------------------------------------------
+ * Progress Bar
+ * ------------------------------------------------------------------- */
+
+.cw-progress {
+  padding: 8px 16px;
+  background: #F8F9FA;
+}
+
+.cw-progress-track {
+  height: 4px;
+  background: #E5E7EB;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cw-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.cw-progress-text {
+  display: block;
+  font-size: 11px;
+  color: #9A9AB0;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* -------------------------------------------------------------------
+ * Running Summary (Path Chips)
+ * ------------------------------------------------------------------- */
+
+.cw-running-summary {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid #E5E7EB;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cw-chip {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFF;
+}
+
+/* -------------------------------------------------------------------
+ * Main Content
+ * ------------------------------------------------------------------- */
+
+.cw-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+/* -------------------------------------------------------------------
+ * Step Header
+ * ------------------------------------------------------------------- */
+
+.cw-step-header {
+  margin-bottom: 16px;
+}
+
+.cw-step-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1A2E;
+  margin: 0 0 4px;
+}
+
+.cw-step-subtitle {
+  font-size: 14px;
+  color: #4A4A5A;
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------
+ * Question Card
+ * ------------------------------------------------------------------- */
+
+.cw-question-card {
+  background: #F8F9FA;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cw-question-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1A1A2E;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cw-info-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cw-info-toggle:hover {
+  opacity: 0.8;
+}
+
+.cw-info-content {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.cw-info-content p {
+  font-size: 14px;
+  color: #4A4A5A;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------
+ * Options (Decision Buttons)
+ * ------------------------------------------------------------------- */
+
+.cw-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cw-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px; /* 45px+ tap target per JMIR guidelines */
+  padding: 16px 20px;
+  border: 2px solid #8B4513;
+  border-radius: 12px;
+  background: #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.cw-option:hover {
+  background: #FDF5F0;
+}
+
+.cw-option:active {
+  transform: scale(0.98);
+}
+
+.cw-option-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #8B4513;
+  flex: 1;
+}
+
+/* Variants */
+.cw-option-urgent {
+  background: #FEF2F2;
+  border-color: #DC2626;
+}
+
+.cw-option-urgent .cw-option-label {
+  color: #DC2626;
+}
+
+.cw-option-urgent:hover {
+  background: #FEE2E2;
+}
+
+.cw-option-safe {
+  background: #F0FDF4;
+  border-color: #059669;
+}
+
+.cw-option-safe .cw-option-label {
+  color: #059669;
+}
+
+.cw-option-safe:hover {
+  background: #DCFCE7;
+}
+
+.cw-option-warning {
+  background: #FFFBEB;
+  border-color: #D97706;
+}
+
+.cw-option-warning .cw-option-label {
+  color: #D97706;
+}
+
+.cw-option-warning:hover {
+  background: #FEF3C7;
+}
+
+.cw-option-info {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cw-option-info-content {
+  background: #F8F9FA;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: -4px;
+}
+
+.cw-option-info-content p {
+  font-size: 14px;
+  color: #4A4A5A;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------
+ * Footer
+ * ------------------------------------------------------------------- */
+
+.cw-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-top: 1px solid #E5E7EB;
+  background: #F8F9FA;
+}
+
+.cw-footer span {
+  font-size: 11px;
+  color: #9A9AB0;
+}
+
+/* -------------------------------------------------------------------
+ * Completion Screen
+ * ------------------------------------------------------------------- */
+
+.cw-completion {
+  padding-bottom: 32px;
+}
+
+.cw-summary-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.cw-summary-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFF;
+  flex: 1;
+}
+
+/* Sections */
+.cw-section {
+  margin-bottom: 24px;
+}
+
+.cw-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9A9AB0;
+  letter-spacing: 1px;
+  margin: 0 0 12px;
+}
+
+/* Path */
+.cw-path-container {
+  background: #F8F9FA;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cw-path-item {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.cw-path-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 12px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.cw-path-line {
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  width: 2px;
+  height: 32px;
+}
+
+.cw-path-content {
+  flex: 1;
+  padding-bottom: 16px;
+}
+
+.cw-path-step {
+  display: block;
+  font-size: 12px;
+  color: #9A9AB0;
+}
+
+.cw-path-choice {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-top: 2px;
+}
+
+/* Summary */
+.cw-summary-text {
+  font-size: 15px;
+  color: #1A1A2E;
+  line-height: 1.6;
+  background: #F8F9FA;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  margin: 0;
+}
+
+/* Actions */
+.cw-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cw-action-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.cw-action-item span {
+  font-size: 15px;
+  color: #1A1A2E;
+  line-height: 1.5;
+}
+
+/* Precautions */
+.cw-precaution-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cw-precaution-item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cw-precaution-item span {
+  font-size: 14px;
+  color: #4A4A5A;
+  line-height: 1.5;
+}
+
+/* Share Button */
+.cw-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFF;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+
+.cw-share-btn:hover {
+  opacity: 0.9;
+}
+
+.cw-share-btn:active {
+  transform: scale(0.98);
+}
+
+/* -------------------------------------------------------------------
+ * Responsive Adjustments
+ * ------------------------------------------------------------------- */
+
+@media (max-width: 380px) {
+  .cw-step-title {
+    font-size: 20px;
+  }
+
+  .cw-question-text {
+    font-size: 16px;
+  }
+
+  .cw-option {
+    padding: 14px 16px;
+  }
+
+  .cw-option-label {
+    font-size: 15px;
+  }
+}

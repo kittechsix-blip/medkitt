@@ -7,6 +7,8 @@ import { renderTreeWizard } from './components/tree-wizard.js';
 import { renderReferencePanel } from './components/reference-table.js';
 import { renderCalculator, renderCalculatorList } from './components/calculator.js';
 import { renderDrugList } from './components/drug-store.js';
+import { renderConsultWizard } from './components/consult-wizard.js';
+import { ACUTE_STROKE_WIZARD } from './data/wizard-consults/acute-stroke.js';
 import { initDrugs } from './services/drug-service.js';
 import { initCategories } from './services/category-service.js';
 import { initInfoPages } from './services/info-service.js';
@@ -145,6 +147,23 @@ function handleCalculator(params) {
     const main = clearMain();
     renderCalculator(main, id);
 }
+function handleWizard(params) {
+    setHomeTheme(false);
+    updateTabBar('');
+    const id = params['id'] ?? 'unknown';
+    const main = clearMain();
+    // Map wizard IDs to data
+    const wizardData = {
+        'acute-stroke': ACUTE_STROKE_WIZARD,
+    };
+    const consult = wizardData[id];
+    if (consult) {
+        renderConsultWizard(main, consult);
+    }
+    else {
+        renderPlaceholder(`Wizard: ${id}`, 'Consult wizard data not found.', '\u{1F50D}');
+    }
+}
 function handleNotFound() {
     setHomeTheme(false);
     updateTabBar('');
@@ -189,6 +208,7 @@ async function init() {
     router.on('/drugs', handleDrugList);
     router.on('/calculators', handleCalculatorList);
     router.on('/calculator/:id', handleCalculator);
+    router.on('/wizard/:id', handleWizard); // New wizard route
     router.onNotFound(handleNotFound);
     // Start routing
     router.start();
