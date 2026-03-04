@@ -117,6 +117,25 @@ async function loadHardcodedFallback(): Promise<void> {
   setCategoryCache(mod.getAllCategories(), mod.CATEGORY_COLORS);
 }
 
+/** Merge hardcoded consults that are missing from the current cache.
+ *  Solves: new consults deployed in code but not yet in Supabase/IndexedDB. */
+async function mergeHardcodedConsults(): Promise<void> {
+  const mod = await import('../data/categories.js');
+  const hardcoded = mod.getAllCategories() as Category[];
+
+  for (const hCat of hardcoded) {
+    const cached = categoryCache.find(c => c.id === hCat.id);
+    if (!cached) continue;
+
+    // Find consults in hardcoded that are missing from cached
+    const cachedIds = new Set(cached.decisionTrees.map(t => t.id));
+    const missing = hCat.decisionTrees.filter(t => !cachedIds.has(t.id));
+    if (missing.length > 0) {
+      cached.decisionTrees.push(...missing);
+    }
+  }
+}
+
 /** Initialize category data. Called once at app boot. */
 export async function initCategories(): Promise<void> {
   if (initialized) return;
@@ -135,10 +154,14 @@ export async function initCategories(): Promise<void> {
     // IndexedDB unavailable
   }
 
-  // 2. Hardcoded fallback
+  // 2. Hardcoded fallback (or merge missing consults)
   if (!initialized) {
     await loadHardcodedFallback();
     initialized = true;
+  } else {
+    // Merge any hardcoded consults missing from IndexedDB/Supabase
+    // This ensures newly deployed consults appear immediately
+    await mergeHardcodedConsults();
   }
 
   // 3. Background refresh if stale
