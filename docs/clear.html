@@ -30,9 +30,10 @@
         status.textContent = 'Cache cleared...';
 
         // Delete IndexedDB (stale Supabase/category data)
-        var dbs = await indexedDB.databases();
-        for (var db of dbs) { indexedDB.deleteDatabase(db.name); }
-        status.textContent = 'IndexedDB cleared...';
+        try {
+          indexedDB.deleteDatabase('medkitt-cache');
+          status.textContent = 'IndexedDB cleared...';
+        } catch(e2) { /* IndexedDB may not be available */ }
 
         // Clear sessionStorage (stale tree sessions)
         sessionStorage.clear();
