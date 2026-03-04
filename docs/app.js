@@ -41,9 +41,15 @@ function getMain() {
         throw new Error('Missing #main-content element');
     return el;
 }
+/** Saved scroll position for the home screen */
+let homeScrollTop = 0;
 /** Clear main content and return the container */
 function clearMain() {
     const main = getMain();
+    // Save home scroll position before clearing
+    if (main.querySelector('.rolodex')) {
+        homeScrollTop = main.scrollTop;
+    }
     main.innerHTML = '';
     return main;
 }
@@ -99,6 +105,7 @@ function handleHome(_params) {
     updateTabBar('home');
     const main = clearMain();
     renderCategoryGrid(main);
+    main.scrollTop = homeScrollTop;
 }
 function handleCategory(params) {
     setHomeTheme(false);
