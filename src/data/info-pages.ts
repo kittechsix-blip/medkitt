@@ -2008,6 +2008,162 @@ const NA_NON_HYPOTONIC_INFO: InfoPage = {
   ],
 };
 
+const RABIES_SUMMARY: InfoPage = {
+  id: 'rabies-summary',
+  title: 'Rabies Steps Summary',
+  subtitle: 'Quick-reference for clinical rabies workup and post-exposure prophylaxis',
+  sections: [
+    {
+      heading: 'Clinical Rabies Workup',
+      body: '• [Recognize clinical forms: furious (80%), paralytic (20%), atypical](#/node/rabies-form)\n• [Prodromal clue: pain/paresthesia at prior bite site](#/node/rabies-clinical)\n• [Collect 4 specimens: saliva, nuchal biopsy, CSF, serum](#/node/rabies-dx-workup)\n• [Contact CDC/public health — testing not available at most labs](#/node/rabies-dx-workup)\n• [Management: palliative (most) vs aggressive/ICU (select)](#/node/rabies-mgmt)',
+    },
+    {
+      heading: 'Post-Exposure Prophylaxis',
+      body: '• [Classify WHO exposure category: I (intact skin), II (minor), III (severe/bite)](#/node/rabies-contact)\n• [Bat exposure — lower threshold: sleeping, child, intoxicated = exposure](#/node/rabies-bat)\n• [Dog/cat/ferret — 10-day observation if healthy and available](#/node/rabies-observe)\n• [Raccoon, skunk, fox, coyote — high risk, immediate PEP](#/node/rabies-wildlife-cat3)\n• [Rodents/rabbits — generally NOT indicated](#/node/rabies-rodent)',
+    },
+    {
+      heading: 'Wound Management',
+      body: '• [Wash wound with soap and water ≥15 minutes](#/node/rabies-wound)\n• [Irrigate with povidone-iodine if available](#/node/rabies-wound)\n• [Delay suturing — if needed, infiltrate RIG first](#/node/rabies-wound)',
+    },
+    {
+      heading: 'PEP Protocol',
+      body: '• [Unvaccinated: RIG 20 IU/kg (infiltrate wound) + vaccine days 0, 3, 7, 14](#/node/rabies-full-pep)\n• [Previously vaccinated: vaccine days 0 and 3 only, no RIG](#/node/rabies-prevax-regimen)\n• [Immunocompromised: 5-dose series (add day 28) + serology + RIG even if prev. vaccinated](#/node/rabies-immunocomp-pep)',
+    },
+    {
+      heading: 'Follow-Up',
+      body: '• [Schedule remaining vaccine doses — do NOT restart if delayed](#/node/rabies-followup)\n• [Monitor observation animal (dogs/cats/ferrets)](#/node/rabies-followup)\n• [Deltoid only (adults) — NEVER gluteal](#/node/rabies-schedule)\n• [Report to animal control / public health](#/node/rabies-followup)',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Manning SE, et al. Human Rabies Prevention — ACIP, 2008. MMWR Recomm Rep. 2008;57(RR-3):1-28.' },
+    { num: 2, text: 'Rupprecht CE, et al. Reduced 4-Dose PEP Schedule — ACIP, 2010. MMWR Recomm Rep. 2010;59(RR-2):1-9.' },
+  ],
+};
+
+const RABIES_ANIMAL_RISK: InfoPage = {
+  id: 'rabies-animal-risk',
+  title: 'Rabies Risk by Animal Type',
+  subtitle: 'Species-specific guidance for PEP decision-making',
+  sections: [
+    {
+      heading: 'HIGH RISK — Reservoir Species',
+      body: '**Bats** — #1 cause of human rabies in US. Bites can be invisible. PEP for any direct contact unless bite/scratch definitively excluded. [1]\n\n**Raccoons** — Most commonly reported rabid wild animal in eastern US. [1]\n\n**Skunks** — Second most common rabid wild animal. [1]\n\n**Foxes** — Regional risk varies; high in Arctic and some southern states. [1]\n\n**Coyotes** — Increasing rabies cases in recent years. [1]',
+    },
+    {
+      heading: 'MODERATE RISK — Domestic Animals',
+      body: '**Dogs** — Leading cause of human rabies globally, uncommon in US due to vaccination. 10-day observation if healthy domestic dog. Stray/feral dogs in rabies-endemic areas = higher risk. [2]\n\n**Cats** — Most commonly reported rabid domestic animal in US (more than dogs). 10-day observation if healthy. [1]\n\n**Ferrets** — Can be observed 10 days. Uncommon rabies vector. [2]',
+    },
+    {
+      heading: 'LOW RISK — PEP Rarely Indicated',
+      body: '**Small rodents** — Mice, rats, squirrels, hamsters, gerbils, guinea pigs, chipmunks. Almost never found rabid. PEP not routinely recommended. [2]\n\n**Rabbits/hares** — Very low risk. Consult public health for unusual circumstances. [2]\n\n**Exception: Woodchucks (groundhogs)** — Higher rabies risk than other rodents. Consult public health. [1]',
+    },
+    {
+      heading: 'SPECIAL SITUATIONS',
+      body: '**Livestock** (cattle, horses, sheep, goats) — Consider individually. Consult public health/veterinarian. Reported rabid livestock cases occur annually. [3]\n\n**Non-human primates** — Consult public health and infectious disease.\n\n**Unknown/escaped animal** — Treat as if rabid unless species is known low-risk. Consult public health.',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Pieracci EG, et al. Vital Signs: Human Rabies Deaths and Exposures. MMWR. 2019;68(23):524-528.' },
+    { num: 2, text: 'Manning SE, et al. Human Rabies Prevention — ACIP, 2008. MMWR Recomm Rep. 2008;57(RR-3):1-28.' },
+    { num: 3, text: 'NASPHV Compendium of Animal Rabies Prevention, 2016. JAVMA. 2016;248(5):505-517.' },
+  ],
+};
+
+const RABIES_DDX: InfoPage = {
+  id: 'rabies-ddx',
+  title: 'Rabies Differential Diagnosis',
+  subtitle: 'Distinguishing clinical rabies from mimics',
+  sections: [
+    {
+      heading: 'Furious Rabies Differentials',
+      body: '**HSV Encephalitis** — Fever (80%), temporal lobe involvement on MRI, CSF pleocytosis (10-200 cells). Lacks hydrophobia/aerophobia. No fluctuating consciousness with lucid intervals. [1]\n\n**Tetanus** — Continuous muscle rigidity between spasms (absent in rabies). Normal consciousness until late. No hydrophobia/aerophobia. Shorter incubation (3-21 days). Identifiable wound often present. [2]\n\n**Autoimmune Encephalitis (anti-NMDAR)** — Prominent psychiatric symptoms (psychosis, behavioral changes). Seizures in 85% (vs 20% in infectious encephalitis). Lower CSF pleocytosis (median 6 cells). Responds to immunotherapy. Epileptiform EEG discharges. [3]\n\n**Arboviruses** (West Nile, Japanese encephalitis) — Consider based on geography, season, travel. Fever and headache more prominent than in rabies. [1]',
+    },
+    {
+      heading: 'Paralytic Rabies Differentials',
+      body: '**Guillain-Barré Syndrome (GBS)** — The most important differential. Key distinguishing features:\n• Consciousness: preserved throughout in GBS vs preserved until preterminal in paralytic rabies\n• Sensory: distal paresthesias (GBS) vs pain at bite site (rabies)\n• CSF: albuminocytologic dissociation in GBS vs minimal pleocytosis in rabies\n• Progression: 12 hours to 28 days in GBS vs more rapid with fever/dysautonomia in rabies [4][5]\n\n**Botulism** — Descending (not ascending) flaccid paralysis. Consider when paralysis begins cranially. [2]',
+    },
+    {
+      heading: 'Key Diagnostic Clues for Rabies',
+      body: '**Pathognomonic features:**\n• Hydrophobia and aerophobia (furious form)\n• Pain/paresthesia/pruritus at a prior bite site\n• Fluctuating consciousness with lucid intervals\n\n**CSF:** Typically minimal or no pleocytosis — this **distinguishes rabies from most viral encephalitides** which typically show moderate pleocytosis. [3]\n\n**Epidemiologic clues:**\n• Animal exposure (especially bats, dogs, wild carnivores)\n• Travel to rabies-endemic areas\n• Lack of post-exposure prophylaxis\n\n**Important:** Rabies diagnosis in the US is **almost always missed at the first clinical encounter**. Up to 30% of patients may not recall animal exposure.',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Tyler KL. Acute Viral Encephalitis. N Engl J Med. 2018;379(6):557-566.' },
+    { num: 2, text: 'Sudarshan R, et al. Tetanus: Recognition and Management. Lancet Infect Dis. 2025;25(11):e645-e657.' },
+    { num: 3, text: 'Venkatesan A, et al. Acute Encephalitis in Immunocompetent Adults. Lancet. 2019;393(10172):702-716.' },
+    { num: 4, text: 'Yuki N, Hartung HP. Guillain-Barré Syndrome. N Engl J Med. 2012;366(24):2294-304.' },
+    { num: 5, text: 'Gadre G, et al. Rabies Viral Encephalitis: Clinical Determinants in Diagnosis. J Neurol Neurosurg Psychiatry. 2010;81(7):812-20.' },
+  ],
+};
+
+const RABIES_DX_GUIDE: InfoPage = {
+  id: 'rabies-dx-guide',
+  title: 'Rabies Diagnostic Specimens & Interpretation',
+  subtitle: '4-specimen protocol for antemortem diagnosis',
+  sections: [
+    {
+      heading: 'Specimen Collection',
+      body: '**No single test is sufficient.** Collect all 4 specimen types for maximum sensitivity (100% combined).\n\n**1. Saliva** — Sterile, preservative-free tube. Transport at room temperature within 24 hours.\n• Test: RT-PCR (nucleic acid amplification) + viral isolation\n• Sensitivity: ~70% single sample; **≥3 serial samples increases to >98%** [1][2]\n• Intermittent viral shedding — may cease after seroconversion\n\n**2. Nuchal Skin Biopsy** — Full-thickness from nape of neck with hair follicles (~4mm diameter, 20mm³). Sterile container, room temperature, 24 hours.\n• Test: Direct fluorescent antibody (DFA) + immunohistochemistry\n• Sensitivity: **Nearly 100% with adequate tissue** — most reliable single specimen [3]\n\n**3. CSF** — Sterile, preservative-free tube. Room temperature, 24 hours.\n• Test: Anti-rabies antibody (neutralizing + binding)\n• In unvaccinated patients, **CSF antibodies are diagnostic** [1]\n• Sensitivity approaches **100% after 12 days of illness** [4]\n\n**4. Serum** — Clot or serum separator tube (SST). Room temperature, 2 hours.\n• Test: Anti-rabies antibody (neutralizing + binding)',
+    },
+    {
+      heading: 'Timing Strategy',
+      body: '**Early illness (first week):** Viral detection methods have higher yield\n→ Prioritize saliva RT-PCR + nuchal skin biopsy\n\n**Later illness (>7-12 days):** Antibody detection becomes more reliable\n→ CSF and serum antibody testing have higher yield\n\n**Median time from symptom onset to first positive sample: 8 days** [2]\n**Median time to death: 16 days** [2]',
+    },
+    {
+      heading: 'Interpretation & Caveats',
+      body: '**Diagnostic:** Finding rabies virus antigen or nucleic acid in ANY antemortem sample. In unvaccinated patients, rabies-neutralizing antibodies in CSF confirm diagnosis. [1]\n\n**Sequential sampling is essential** if initial testing is negative but suspicion remains high.\n\n**Important caveats:**\n• **Prior IVIG** can be a passive source of donor-derived rabies antibodies → false-positive serology [5]\n• **Paralytic rabies** has lower sensitivity across all specimen types vs furious rabies [3]\n• **Dog rabies variants** may produce minimal antibody responses compared to bat variants [3]',
+    },
+    {
+      heading: 'Ancillary Studies',
+      body: '**CSF analysis:** Typically minimal or no pleocytosis (distinguishes from other viral encephalitides). Mild lymphocytic pleocytosis can occur. [6]\n\n**MRI:** Nonspecific. May show T2 hyperintensity in brainstem, hippocampi, basal ganglia, hypothalamus, spinal cord. Possible enhancement of nerve roots and brachial plexus on bitten limb side. [3]\n\n**Postmortem:** Brain histopathology shows Negri bodies (pathognomonic intracytoplasmic inclusions), mononuclear infiltration, perivascular cuffing. [1]',
+    },
+    {
+      heading: 'Coordination with Public Health',
+      body: '**Rabies testing is NOT available at most hospital labs.** You MUST:\n• Contact local public health laboratory or CDC immediately\n• CDC serves as the national rabies reference laboratory\n• Obtain approval and complete requisite paperwork before submitting samples [5]\n• **Rabies is a nationally notifiable disease** — report to state/local health department',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Miller JM, et al. Guide to Utilization of the Microbiology Laboratory for Diagnosis of Infectious Diseases: 2024 Update (IDSA/ASM). Clin Infect Dis. 2024;ciae104.' },
+    { num: 2, text: 'Swedberg C, et al. Maximizing Human Rabies Case Detection: Diagnostic Sensitivity From 35 Years of U.S. Data. Clin Infect Dis. 2025;ciaf666.' },
+    { num: 3, text: 'Hemachudha T, et al. Human Rabies: Neuropathogenesis, Diagnosis, and Management. Lancet Neurol. 2013;12(5):498-513.' },
+    { num: 4, text: 'Damodar T, et al. Utility of Rabies Neutralizing Antibody Detection in CSF and Serum. PLoS Negl Trop Dis. 2019;13(1):e0007128.' },
+    { num: 5, text: 'CDC Yellow Book: Rabies. Ryan Wallace, Brett Petersen, David Shlim.' },
+    { num: 6, text: 'Venkatesan A, et al. Acute Encephalitis in Immunocompetent Adults. Lancet. 2019;393(10172):702-716.' },
+  ],
+};
+
+const RABIES_PATIENT_INFO: InfoPage = {
+  id: 'rabies-patient-info',
+  title: 'Rabies PEP — Patient Information',
+  subtitle: 'What you need to know about your rabies prevention treatment',
+  shareable: true,
+  sections: [
+    {
+      heading: 'What is Rabies PEP?',
+      body: 'Post-exposure prophylaxis (PEP) is a series of shots that prevent rabies infection after an animal exposure. Rabies is nearly 100% fatal once symptoms appear, but PEP is nearly 100% effective when given correctly.',
+    },
+    {
+      heading: 'Your Vaccination Schedule',
+      body: 'You will receive shots on specific days. Your doctor will tell you which schedule applies to you:\n\n**Standard schedule:** Day 0 (today), Day 3, Day 7, Day 14\n**Extended schedule (if immune system is weakened):** Day 0, Day 3, Day 7, Day 14, Day 28\n**If previously vaccinated:** Day 0 and Day 3 only\n\n**Do NOT miss your scheduled doses.** If you miss a dose, get it as soon as possible — the series does NOT need to be restarted.',
+    },
+    {
+      heading: 'What to Expect',
+      body: '**Common side effects (not dangerous):**\n• Pain, redness, or swelling at injection site\n• Headache\n• Nausea or dizziness\n• Muscle aches\n\n**Seek medical attention if you develop:**\n• Difficulty breathing or swallowing\n• Hives or widespread rash\n• Swelling of face, lips, or throat\n• Fever > 103°F (39.4°C)',
+    },
+    {
+      heading: 'Wound Care Instructions',
+      body: '• Keep the wound clean and dry\n• Watch for signs of infection: increasing redness, warmth, pus, red streaks, fever\n• You can take acetaminophen (Tylenol) or ibuprofen (Advil/Motrin) for pain\n• Avoid strenuous activity with the injected arm/leg for 24 hours\n• Return to the emergency department if your wound shows signs of infection',
+    },
+    {
+      heading: 'Important Reminders',
+      body: '• Bring this information to each follow-up visit\n• Vaccines can be given at your primary care doctor, urgent care, local health department, or emergency department\n• If you were told an animal is being observed for 10 days, contact your local animal control for updates\n• Call your doctor or return to the ED if the animal becomes sick or dies during the observation period',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'CDC. Rabies Post-Exposure Prophylaxis. Available at: cdc.gov/rabies.' },
+  ],
+};
+
 export const INFO_PAGES: Record<string, InfoPage> = {
   'doac-pe': DOAC_PE_PAGE,
   'priapism-return-precautions': PRIAPISM_RETURN_PRECAUTIONS,
@@ -2060,6 +2216,11 @@ export const INFO_PAGES: Record<string, InfoPage> = {
   'na-ods-risk': NA_ODS_RISK,
   'na-lab-interpretation': NA_LAB_INTERPRETATION,
   'na-non-hypotonic-info': NA_NON_HYPOTONIC_INFO,
+  'rabies-summary': RABIES_SUMMARY,
+  'rabies-animal-risk': RABIES_ANIMAL_RISK,
+  'rabies-ddx': RABIES_DDX,
+  'rabies-dx-guide': RABIES_DX_GUIDE,
+  'rabies-patient-info': RABIES_PATIENT_INFO,
 };
 
 /** Get a single info page by ID (hardcoded fallback) */

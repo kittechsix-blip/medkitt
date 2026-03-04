@@ -168,6 +168,15 @@ export const DEFAULT_CATEGORIES = [
                 version: '1.0',
                 nodeCount: 15,
                 entryNodeId: 'pep-start',
+            },
+            {
+                id: 'rabies',
+                title: 'Rabies',
+                subtitle: 'Infection Workup \u2192 Exposure Assessment \u2192 PEP Protocol \u2192 Vaccination',
+                categoryId: 'infectious-disease',
+                version: '1.0',
+                nodeCount: 35,
+                entryNodeId: 'rabies-start',
             }
         ],
         isCustom: false,

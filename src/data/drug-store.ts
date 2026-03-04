@@ -2164,6 +2164,82 @@ const RITONAVIR: DrugEntry = {
   ],
 };
 
+const RABIES_IMMUNE_GLOBULIN: DrugEntry = {
+  id: 'rabies-rig',
+  name: 'Rabies Immune Globulin (HRIG)',
+  genericName: 'Human Rabies Immune Globulin',
+  drugClass: 'Passive immunization (hyperimmune globulin)',
+  route: 'Infiltration + IM',
+  indications: ['Rabies post-exposure prophylaxis (Category III exposure)'],
+  dosing: [
+    {
+      indication: 'Rabies PEP — unvaccinated (Category II or III)',
+      regimen: '20 IU/kg body weight. Infiltrate as much as anatomically feasible into and around wound(s). Inject any remaining volume IM at a site distant from vaccine injection. Give with first vaccine dose ONLY. Do NOT administer after day 7 of vaccine series. Do NOT exceed 20 IU/kg — excess may suppress active antibody response.',
+      weightCalc: { dosePerKg: 20, unit: 'IU' },
+    },
+    {
+      indication: 'Rabies PEP — immunocompromised (even if previously vaccinated)',
+      regimen: '20 IU/kg body weight. Same infiltration protocol as above. Give even if patient has prior rabies vaccination history — immunocompromised patients may not mount adequate anamnestic response.',
+      weightCalc: { dosePerKg: 20, unit: 'IU' },
+    },
+  ],
+  contraindications: [
+    'Do NOT give to previously vaccinated, immunocompetent patients — may blunt anamnestic response',
+    'Do NOT give after day 7 post first vaccine dose — interferes with developing active immunity',
+  ],
+  cautions: [
+    'Total volume can be large in heavier patients (70 kg = 1,400 IU ≈ 9.3 mL at 150 IU/mL)',
+    'If wound site is small (finger/toe), inject remainder IM at distant site (e.g., gluteal)',
+    'Never administer in same syringe or anatomic site as vaccine',
+    'Equine RIG (eRIG 40 IU/kg) is an alternative when HRIG unavailable — higher adverse reaction rate (0.8-6%)',
+  ],
+  monitoring: 'Monitor for anaphylaxis during and 30 minutes after administration. Have epinephrine available.',
+  notes: 'Available as HyperRAB (300 IU/mL) or Imogam Rabies-HT (150 IU/mL). Provides immediate passive antibodies while vaccine stimulates active immunity over 7-14 days. May dilute with normal saline for adequate wound infiltration volume (do not dilute HyperRAB with D5W).',
+  citations: [
+    'Manning SE, et al. Human Rabies Prevention — ACIP, 2008. MMWR Recomm Rep. 2008;57(RR-3):1-28.',
+    'Hwang GS, et al. Adherence to Guideline Recommendations for HRIG in Rabies PEP. Hum Vaccin Immunother. 2020;16(1):51-60.',
+  ],
+};
+
+const RABIES_VACCINE: DrugEntry = {
+  id: 'rabies-vaccine',
+  name: 'Rabies Vaccine (HDCV / PCECV)',
+  genericName: 'Rabies Vaccine — Human Diploid Cell (Imovax) or Purified Chick Embryo Cell (RabAvert)',
+  drugClass: 'Vaccine (inactivated viral)',
+  route: 'IM',
+  indications: ['Rabies post-exposure prophylaxis', 'Rabies pre-exposure prophylaxis'],
+  dosing: [
+    {
+      indication: 'Rabies PEP — unvaccinated, immunocompetent',
+      regimen: '1.0 mL IM on days 0, 3, 7, and 14 (4-dose series). Adults: deltoid only. Children: deltoid or anterolateral thigh. NEVER administer in gluteal area — documented poor immunogenicity.',
+    },
+    {
+      indication: 'Rabies PEP — immunocompromised',
+      regimen: '1.0 mL IM on days 0, 3, 7, 14, and 28 (5-dose series). Check rabies virus neutralizing antibody (RVNA) titer 7-14 days after last dose. Adequate response: ≥0.5 IU/mL. If inadequate, give additional dose and recheck.',
+    },
+    {
+      indication: 'Rabies PEP — previously vaccinated, immunocompetent',
+      regimen: '1.0 mL IM on days 0 and 3 only (2-dose series). No RIG needed. Applies to patients with prior complete PEP series, pre-exposure prophylaxis, or documented adequate antibody titer.',
+    },
+  ],
+  contraindications: [
+    'No absolute contraindications when PEP is indicated — rabies is fatal',
+    'PCECV (RabAvert): severe egg protein allergy — use HDCV (Imovax) instead',
+    'History of severe allergic reaction to vaccine components — use alternative product',
+  ],
+  cautions: [
+    'Do NOT administer in gluteal area — documented poor immunogenicity',
+    'Immune complex-like reactions (urticaria, arthralgia, angioedema) reported in ~6% receiving HDCV boosters',
+    'Pregnancy is NOT a contraindication — rabies is fatal, PEP is safe',
+  ],
+  monitoring: 'Immunocompromised patients: check RVNA titer 7-14 days after final dose. No routine monitoring needed for immunocompetent patients.',
+  notes: 'HDCV (Imovax) and PCECV (RabAvert) are interchangeable — either can complete a series started with the other. Fixed 1.0 mL dose regardless of age or weight. Do not restart series if a dose is delayed — resume where left off. Common side effects: injection site pain (21-74%), headache, nausea, myalgias.',
+  citations: [
+    'Rupprecht CE, et al. Use of a Reduced (4-Dose) Vaccine Schedule for PEP — ACIP, 2010. MMWR Recomm Rep. 2010;59(RR-2):1-9.',
+    'Rabies Vaccine (Imovax Rabies, RabAvert) Package Inserts. FDA/DailyMed.',
+  ],
+};
+
 const RACEMIC_EPINEPHRINE: DrugEntry = {
   id: 'racemic-epinephrine',
   name: 'Racemic Epinephrine (Nebulized)',
@@ -2652,6 +2728,8 @@ export const ALL_DRUGS: DrugEntry[] = [
   PREDNISOLONE,
   PROCAINAMIDE,
   PROCAINE_PENICILLIN,
+  RABIES_IMMUNE_GLOBULIN,
+  RABIES_VACCINE,
   RACEMIC_EPINEPHRINE,
   REGULAR_INSULIN,
   RITONAVIR,
