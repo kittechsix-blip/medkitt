@@ -26,7 +26,7 @@ export const BURNS_NODES: DecisionNode[] = [
     type: 'question',
     module: 1,
     title: 'Burn Mechanism',
-    body: 'Identify the mechanism of injury. Mechanism determines the initial management pathway and anticipates specific complications.\n\nThermal burns are most common (>80%). Chemical and electrical burns require agent-specific and mechanism-specific protocols. Radiation burns are rare and require specialized consultation.',
+    body: 'Identify the mechanism of injury. Mechanism determines the initial management pathway and anticipates specific complications.\n\nThermal burns are most common (>80%). Chemical and electrical burns require agent-specific and mechanism-specific protocols. Radiation burns are rare and require specialized consultation.\n\n**Consider toxic inhalation in ALL burns** — especially enclosed-space fires. CO and cyanide exposure can occur without visible airway injury:\n• [CO Poisoning Assessment](#/node/burn-co-assess) — co-oximetry required (pulse ox unreliable)\n• [Cyanide Poisoning Assessment](#/node/burn-cyanide) — suspect if lactate >8, AMS, hemodynamic instability',
     options: [
       {
         label: 'Thermal (flame, scald, contact, flash)',
@@ -92,7 +92,7 @@ export const BURNS_NODES: DecisionNode[] = [
       },
       {
         label: 'No — isolated cutaneous burn',
-        next: 'burn-depth',
+        next: 'burn-co-assess',
       },
     ],
     citation: [1, 8],
