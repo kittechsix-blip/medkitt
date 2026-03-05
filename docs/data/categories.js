@@ -381,7 +381,16 @@ export const DEFAULT_CATEGORIES = [
                 version: '1.0',
                 nodeCount: 40,
                 entryNodeId: 'ctube-start',
-            }
+            },
+            {
+                id: 'burns',
+                title: 'Burns Management',
+                subtitle: 'Assessment \u2192 TBSA \u2192 Resuscitation \u2192 Wound Care \u2192 Disposition',
+                categoryId: 'trauma-surg',
+                version: '1.0',
+                nodeCount: 49,
+                entryNodeId: 'burn-start',
+            },
         ],
         isCustom: false,
     },

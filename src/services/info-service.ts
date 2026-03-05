@@ -50,6 +50,8 @@ async function refreshFromSupabase(): Promise<void> {
   if (result.data && result.data.length > 0) {
     const pages = result.data.map(mapRow);
     setCache(pages);
+    // Re-merge hardcoded pages that Supabase doesn't have yet
+    await mergeHardcodedInfoPages();
     await cachePutAll('info_pages', result.data);
     await setLastSync('info_pages');
   }

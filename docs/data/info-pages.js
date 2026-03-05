@@ -2011,6 +2011,284 @@ const RABIES_PATIENT_INFO = {
         { num: 1, text: 'CDC. Rabies Post-Exposure Prophylaxis. Available at: cdc.gov/rabies.' },
     ],
 };
+// -------------------------------------------------------------------
+// Burns Info Pages
+// -------------------------------------------------------------------
+const BURNS_SUMMARY = {
+    id: 'burns-summary',
+    title: 'Burns — Steps Summary',
+    subtitle: 'Quick Reference',
+    sections: [
+        {
+            body: 'Quick-reference checklist for initial burns management. Tap any step to jump directly to that section of the consult.',
+        },
+        {
+            heading: '1. Scene & Primary Survey',
+            body: '• [Stop the burning process — remove clothing, irrigate](#/node/burn-primary-survey)\n• [Identify burn mechanism (thermal, chemical, electrical, radiation)](#/node/burn-type)\n• [ABCDE primary survey — burns are trauma patients first](#/node/burn-primary-survey)\n• [Screen for inhalation injury (enclosed space, facial burns, soot, stridor)](#/node/burn-inhalation-screen)',
+        },
+        {
+            heading: '2. Airway & Toxicology',
+            body: '• [Assess for hard signs of inhalation injury — intubate early if in doubt](#/node/burn-airway-assess)\n• [CO poisoning — co-oximetry on ALL enclosed-space fire patients](#/node/burn-co-assess)\n• [Cyanide — clinical diagnosis, do not wait for levels](#/node/burn-cyanide)',
+        },
+        {
+            heading: '3. Burn Assessment',
+            body: '• [Classify burn depth (epidermal → full thickness)](#/node/burn-depth)\n• [Calculate TBSA — Rule of 9\'s (adult) or Lund-Browder (peds)](#/node/burn-tbsa-age)\n• Only count partial thickness and full thickness in TBSA',
+        },
+        {
+            heading: '4. Fluid Resuscitation',
+            body: '• [Select protocol: Rule of 10\'s, Parkland, or Dell-Seton](#/node/burn-fluids-moderate)\n• Calculate from TIME OF BURN, not arrival\n• [Monitor UOP: 0.5 mL/kg/hr (adult), 1 mL/kg/hr (peds)](#/node/burn-fluids-monitoring)\n• [Pediatric: add maintenance D5½NS to resuscitation volume](#/node/burn-fluids-peds)',
+        },
+        {
+            heading: '5. Wound Care',
+            body: '• [Cool with running water 20 min (within 3 hours of injury)](#/node/burn-wound-care)\n• [Select dressings by depth — avoid SSD on superficial burns](#/node/burn-dressings)\n• [Multimodal pain management (morphine, ketamine, fentanyl IN for peds)](#/node/burn-pain)',
+        },
+        {
+            heading: '6. Escharotomy',
+            body: '• [Assess for circumferential deep partial/full thickness burns](#/node/burn-eschar-screen)\n• [Extremity: medial/lateral mid-axial incisions](#/node/burn-eschar-technique)\n• [Chest: bilateral anterior axillary lines — "clamshell" pattern](#/node/burn-eschar-chest)',
+        },
+        {
+            heading: '7. Disposition',
+            body: '• [Apply ABA burn center transfer criteria (10 indications)](#/node/burn-transfer)\n• [Disposition: transfer / admit / discharge](#/node/burn-disposition)',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.' },
+        { num: 2, text: 'Hewett Brumberg EK et al. AHA and ARC Guidelines for First Aid. Circulation. 2024;150(24):e519-e579.' },
+    ],
+};
+const BURNS_DEPTH_GUIDE = {
+    id: 'burns-depth-guide',
+    title: 'Burn Depth Classification',
+    subtitle: 'Visual and clinical criteria for burn depth assessment',
+    sections: [
+        {
+            heading: 'Superficial (1st Degree)',
+            body: '**Epidermis only.** Erythema, pain, no blisters. Blanches with pressure. Dry surface.\n\n**Example:** Sunburn.\n\n**Healing:** 3-7 days, no scarring.\n\n**TBSA:** NOT counted — do not include in TBSA calculation. [1]',
+        },
+        {
+            heading: 'Superficial Partial Thickness (2nd Degree)',
+            body: '**Epidermis + superficial dermis.** Blisters, weeping, intense pain (nerve endings intact). Brisk capillary refill. Pink/red wound bed.\n\n**Healing:** 7-14 days. Minimal scarring if no infection.\n\n**TBSA:** YES — count in TBSA. [1]',
+        },
+        {
+            heading: 'Deep Partial Thickness (2nd Degree)',
+            body: '**Epidermis + deep dermis.** Blisters (may be ruptured). Mottled pink/white appearance. Decreased sensation. Sluggish capillary refill. May convert to full thickness if infected.\n\n**Healing:** 14-21+ days. Often requires grafting. Significant scarring risk.\n\n**TBSA:** YES — count in TBSA. [1]',
+        },
+        {
+            heading: 'Full Thickness (3rd Degree)',
+            body: '**Epidermis + entire dermis destroyed.** White, waxy, leathery, or charred. Painless (nerve endings destroyed). No capillary refill. Thrombosed vessels may be visible. Does not blanch.\n\n**Healing:** Cannot heal by re-epithelialization. Requires excision and grafting.\n\n**TBSA:** YES — count in TBSA. [1]',
+        },
+        {
+            heading: 'Subdermal / 4th Degree',
+            body: '**Extension into fat, muscle, tendon, or bone.** Charred, insensate. Often from electrical injury, prolonged contact, or industrial exposure.\n\n**Healing:** Requires extensive surgical reconstruction. Fasciotomy may be needed. [2]',
+        },
+        {
+            heading: 'Clinical Pearl',
+            body: 'Burn depth evolves over 48-72 hours. A wound that initially appears superficial partial thickness may progress to deep partial or full thickness (burn wound conversion). Reassess depth at 48-72 hours before definitive wound care planning. Infection, desiccation, and inadequate resuscitation accelerate wound conversion. [1]',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'ISBI Practice Guidelines Committee. ISBI Practice Guidelines for Burn Care. Burns. 2016;42(5):953-1021.' },
+        { num: 2, text: 'American Burn Association. Advanced Burn Life Support Course. 2018.' },
+    ],
+};
+const BURNS_PREHOSPITAL = {
+    id: 'burns-prehospital',
+    title: 'Prehospital Burn Care',
+    subtitle: 'Field management principles before ED arrival',
+    sections: [
+        {
+            heading: 'Scene Safety',
+            body: '**Ensure scene is safe** before approaching. Remove patient from source. Extinguish flames (stop-drop-roll). Remove smoldering clothing and jewelry (rings before edema). Chemical burns: remove contaminated clothing, brush off dry chemicals, then copious water irrigation.',
+        },
+        {
+            heading: 'Initial Cooling',
+            body: '**Cool the burn with room-temperature running water** for 20 minutes. Begin within 3 hours of injury for maximal benefit. [1]\n\n**DO NOT:**\n• Use ice or ice water (causes vasoconstriction, worsens injury)\n• Use butter, toothpaste, or home remedies\n• Cool >20% TBSA extensively (hypothermia risk)\n\n**Hypothermia prevention:** Cover unburned areas. Ambient temperature. Warm IV fluids if available.',
+        },
+        {
+            heading: 'Airway Assessment',
+            body: '**Consider early intubation if:**\n• Stridor, hoarseness, or respiratory distress\n• Soot in oropharynx/nares, singed nasal hairs\n• Facial/neck burns with edema\n• Enclosed-space fire with altered mental status\n\n**Edema worsens rapidly** in the first 12-24 hours. An airway that is manageable in the field may become impossible later. When in doubt, intubate early. [2]',
+        },
+        {
+            heading: 'IV Access & Fluids',
+            body: '**Two large-bore IVs** — through burned skin if necessary (no other option).\n\n**Fluid:** LR preferred. Start at 500 mL/hr for adults with >20% TBSA.\n\n**Avoid oral fluids** in patients with >20% TBSA (ileus risk).',
+        },
+        {
+            heading: 'Pain Control',
+            body: '**Fentanyl IN** 1.5-2 mcg/kg if no IV access. Morphine 0.1 mg/kg IV if access available. Cover wounds with clean, dry dressings. Elevate burned extremities.',
+        },
+        {
+            heading: 'Transport Decisions',
+            body: '**Burn center criteria** (go directly if within 60 min):\n• >10% TBSA partial thickness\n• Full thickness burns (any size)\n• Face, hands, feet, genitalia, joints\n• Electrical, chemical, inhalation\n• Circumferential burns\n• Associated trauma where burn is major risk\n• Children at non-pediatric facility',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Cuttle L, et al. A Review of First Aid Treatments for Burn Injuries. Burns. 2009;35(6):768-775.' },
+        { num: 2, text: 'American Burn Association. Advanced Burn Life Support Course. 2018.' },
+    ],
+};
+const BURNS_DSMC_PROTOCOL = {
+    id: 'burns-dsmc-protocol',
+    title: 'Dell-Seton Burn Protocol',
+    subtitle: 'Institutional burn resuscitation guideline',
+    sections: [
+        {
+            heading: 'Overview',
+            body: 'The Dell-Seton burn resuscitation protocol uses early fresh frozen plasma (FFP) to reduce crystalloid volume and mitigate fluid creep. Two tiers based on TBSA percentage. Titrate all rates to UOP 0.5-1 mL/kg/hr. [1]',
+        },
+        {
+            heading: 'Tier 1: TBSA 20-39%',
+            body: '**Start:** LR at Rule of 10s rate (%TBSA x 10 mL/hr, +100/hr per 10 kg above 80 kg).\n\n**FFP switch trigger:** Cumulative volume reaches 15 cc x %TBSA x weight (kg).\n\n**Volume cap:** 20 cc x %TBSA x weight (kg).\n\n**Example (80 kg, 30% TBSA):**\n• Start LR at 300 mL/hr\n• Switch to FFP at 36,000 mL cumulative\n• Volume cap: 48,000 mL',
+        },
+        {
+            heading: 'Tier 2: TBSA >= 40%',
+            body: '**Start:** FFP at Rule of 10s rate immediately (do not start with LR).\n\n**Volume cap:** 20 cc x %TBSA x weight (kg).\n\n**Trialysis:** Initiate immediately — LR + FFP + albumin.\n\n**Example (80 kg, 50% TBSA):**\n• Start FFP at 500 mL/hr\n• Volume cap: 80,000 mL\n• Concurrent trialysis',
+        },
+        {
+            heading: 'Monitoring',
+            body: '**Urine output target:** 0.5-1 mL/kg/hr (adults), 1 mL/kg/hr (children <30 kg).\n\n**Reassess q1h:** Adjust rate by 20% increments.\n\n**Foley catheter mandatory** for >=20% TBSA.\n\n**Vasopressin drip** if rate exceeds volume cap despite adequate UOP.\n\n**Lab monitoring:** BMP, lactate, ABG q4-6h. Type and screen for FFP.',
+        },
+        {
+            heading: 'Fluid Creep Warning',
+            body: 'Fluid creep = resuscitation volumes exceeding Parkland prediction. Associated with abdominal compartment syndrome, extremity compartment syndrome, and ARDS. [2]\n\n**Prevention:** Strict UOP targets, early colloid use (the rationale for this protocol), bladder pressure monitoring if >6 mL/kg/%TBSA in first 24h.',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Dell Seton Medical Center Burn Resuscitation Protocol. Internal Clinical Guideline.' },
+        { num: 2, text: 'Saffle JI. The Phenomenon of "Fluid Creep" in Acute Burn Resuscitation. J Burn Care Res. 2007;28(3):382-395.' },
+    ],
+};
+const BURNS_ESCHAROTOMY = {
+    id: 'burns-escharotomy',
+    title: 'Escharotomy Guide',
+    subtitle: 'Indications, technique, and landmarks for burn escharotomy',
+    sections: [
+        {
+            heading: 'Indications',
+            body: '**Circumferential or near-circumferential full-thickness burns** with:\n• Extremity: loss of distal pulses, progressive pain, paresthesias, paralysis, cyanosis, compartment pressure >30 mmHg\n• Chest: respiratory compromise (rising peak pressures, declining tidal volumes, difficulty ventilating)\n\n**Timing:** Often needed within first 6-12 hours as edema develops under inelastic eschar. Do not wait for absent pulses — intervene at first signs of compromise. [1]',
+        },
+        {
+            heading: 'Equipment',
+            body: '• Electrocautery preferred (controls bleeding)\n• Scalpel (backup — #10 or #15 blade)\n• Hemostats, suture/ligature for bleeders\n• Sterile drapes, gauze\n• Full-thickness burns are insensate — minimal/no anesthesia needed for the eschar itself (but sedation for patient comfort)',
+        },
+        {
+            heading: 'Upper Extremity Incisions',
+            body: '**Medial and lateral mid-axial lines** of the arm and forearm.\n\n• Arm: medial incision from axilla to medial epicondyle; lateral from deltoid insertion to lateral epicondyle\n• Forearm: continue medial line from medial epicondyle to thenar eminence; lateral from lateral epicondyle to anatomic snuffbox\n• **Avoid:** ulnar nerve at medial epicondyle, radial nerve at spiral groove\n• Extend into hand if needed: between metacarpals on dorsum',
+        },
+        {
+            heading: 'Lower Extremity Incisions',
+            body: '**Medial and lateral mid-axial lines** of the thigh and leg.\n\n• Thigh: medial and lateral, anterior to intermuscular septum\n• Leg: medial — posterior to medial malleolus; lateral — anterior to fibular head\n• **Avoid:** common peroneal nerve at fibular head, saphenous vein and nerve at medial malleolus\n• Extend to dorsum of foot between metatarsals if needed',
+        },
+        {
+            heading: 'Chest Escharotomy',
+            body: '**Bilateral anterior axillary lines** from clavicle to costal margin. Connect across upper chest (below clavicles) and lower chest (at costal margins) to create an "H" or ladder pattern.\n\n**Goal:** Improve chest wall compliance and ventilation. Monitor peak inspiratory pressures — should decrease after escharotomy.\n\n**Consider extending to abdomen** if intra-abdominal pressure elevated (abdominal compartment syndrome).',
+        },
+        {
+            heading: 'Depth and Aftercare',
+            body: '**Depth:** Through eschar into subcutaneous fat. The incision should gape open spontaneously if adequate.\n\n**Post-procedure:**\n• Monitor distal perfusion (pulses, Doppler, compartment pressures)\n• Pack wounds with moist gauze\n• Elevate extremities\n• If perfusion does not improve: consider fasciotomy (deeper decompression)\n• Antibiotics not routinely indicated for escharotomy alone [1]',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'American Burn Association. Advanced Burn Life Support Course. 2018.' },
+        { num: 2, text: 'Orgill DP, et al. Escharotomy and decompressive therapies in burns. J Burn Care Res. 2009;30(5):759-768.' },
+    ],
+};
+const BURNS_DRESSING_GUIDE = {
+    id: 'burns-dressing-guide',
+    title: 'Burn Dressing Guide',
+    subtitle: 'Wound care by burn depth and location',
+    sections: [
+        {
+            heading: 'Superficial Burns (1st Degree)',
+            body: '**Wound care:** Cool compresses, aloe vera, moisturizer.\n**Dressing:** None needed. OTC pain management.\n**Follow-up:** None unless worsening.',
+        },
+        {
+            heading: 'Superficial Partial Thickness',
+            body: '**Wound care:** Gently debride loose skin/blisters. Clean with mild soap and water.\n\n**Dressing options:**\n• **Silver-impregnated foam** (Mepilex Ag) — change q5-7 days. Preferred for reduced dressing changes. [1]\n• **Xeroform + gauze** — change daily to BID\n• **Silver sulfadiazine** + gauze — change BID (not for face)\n• **Bacitracin** + non-adherent — change BID (face, ears, small burns)\n\n**Blister management:** Intact blisters >2 cm or over joints: debride. Small, non-tense blisters: may leave intact. [1]',
+        },
+        {
+            heading: 'Deep Partial Thickness',
+            body: '**Wound care:** Debride devitalized tissue. Burn center consultation recommended.\n\n**Dressing:** Silver sulfadiazine or silver-impregnated dressing until burn center evaluation.\n\n**Key point:** These burns often require excision and grafting. Early burn surgery (within 72 hours) improves outcomes. [2]',
+        },
+        {
+            heading: 'Full Thickness',
+            body: '**Wound care:** Do not debride in ED. Dry sterile dressings for transport.\n\n**Dressing:** Temporary coverage only — definitive management is surgical excision and grafting.\n\n**Key point:** Full thickness burns are surgical wounds. Cover, protect, and transport to burn center.',
+        },
+        {
+            heading: 'Special Locations',
+            body: '**Face:** Bacitracin only (no SSD). No dressings. Clean and reapply BID-TID. Ophthalmology consult if periorbital.\n\n**Ears:** Bacitracin. No pressure dressings (chondritis risk). No pillows on burned ears.\n\n**Hands:** Bacitracin or silver dressing between fingers. Elevate. ROM exercises immediately.\n\n**Feet:** Silver dressing, bulky gauze, elevate. Non-weight-bearing until healed.\n\n**Genitalia/perineum:** Bacitracin. Foley if needed for hygiene. Burn center referral.',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Wasiak J, et al. Dressings for superficial and partial thickness burns. Cochrane Database Syst Rev. 2013;(3):CD002106.' },
+        { num: 2, text: 'Herndon DN, ed. Total Burn Care. 5th ed. Elsevier; 2018.' },
+    ],
+};
+const BURNS_CO_CYANIDE = {
+    id: 'burns-co-cyanide',
+    title: 'CO & Cyanide Toxicity',
+    subtitle: 'Carbon monoxide and hydrogen cyanide in smoke inhalation',
+    sections: [
+        {
+            heading: 'When to Suspect',
+            body: '**Enclosed-space fire** is the critical history. Any patient with burns from an enclosed space must be evaluated for both CO and cyanide toxicity. These often coexist. [1]\n\n**High-risk features:**\n• Altered mental status\n• Hypotension or cardiovascular collapse\n• Seizures\n• Lactate >8 mmol/L\n• Soot in airways/nares',
+        },
+        {
+            heading: 'Carbon Monoxide (CO)',
+            body: '**Mechanism:** CO binds hemoglobin with 200-250x affinity of O2. Shifts oxyhemoglobin curve left. Causes tissue hypoxia.\n\n**Diagnosis:** Co-oximetry (NOT pulse oximetry — SpO2 is falsely normal). COHb levels:\n• <5%: normal (smokers up to 10%)\n• 15-25%: headache, confusion\n• 25-40%: loss of consciousness, seizures\n• >40%: coma, cardiovascular collapse\n\n**COHb levels correlate poorly with severity** — treat the patient, not the number. [2]\n\n**Treatment:** 100% O2 via NRB. Half-life of COHb: room air ~5h, 100% O2 ~90min, HBO ~30min.\n\n**HBO indications (controversial):** LOC, COHb >25%, pregnancy, persistent neuro symptoms, cardiac ischemia. Consult local poison center.',
+        },
+        {
+            heading: 'Hydrogen Cyanide (HCN)',
+            body: '**Mechanism:** Inhibits cytochrome oxidase — blocks aerobic metabolism at the cellular level. Causes lactic acidosis and cellular death.\n\n**Diagnosis:** Clinical (serum cyanide levels are not rapidly available). Suspect when:\n• Lactate >8 mmol/L (92% sensitivity)\n• Altered mental status out of proportion to CO level\n• Persistent hypotension despite fluids\n• Cardiovascular collapse\n\n**Treatment:** [Hydroxocobalamin (Cyanokit)](#/drug/hydroxocobalamin/cyanide) 5 g IV over 15 min. First-line antidote. Safe to give empirically.\n\n**Do not wait for levels** — treat empirically in high-risk patients. [3]',
+        },
+        {
+            heading: 'Treatment Algorithm',
+            body: '1. **All enclosed-space fire patients:** 100% O2 immediately\n2. **Obtain:** co-oximetry, lactate, ABG, BMP, ECG\n3. **COHb elevated:** Continue high-flow O2 until COHb <5% and asymptomatic\n4. **Lactate >8 or AMS out of proportion:** Give hydroxocobalamin empirically\n5. **Consider HBO:** Discuss with toxicology/poison center\n6. **Monitor:** Repeat COHb, lactate q2-4h. Cardiac monitoring for arrhythmias.',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Weaver LK. Carbon Monoxide Poisoning. NEJM. 2009;360(12):1217-1225.' },
+        { num: 2, text: 'Rose JJ, et al. Carbon Monoxide Poisoning: Pathogenesis, Management, and Future Directions of Therapy. Am J Respir Crit Care Med. 2017;195(5):596-606.' },
+        { num: 3, text: 'Baud FJ, et al. Intravenous hydroxocobalamin for acute cyanide poisoning. NEJM. 2011;365(19):1801-1810.' },
+    ],
+};
+const BURNS_CHEMICAL_DETAIL = {
+    id: 'burns-chemical-detail',
+    title: 'Chemical Burns',
+    subtitle: 'Agent-specific management for chemical burn injuries',
+    sections: [
+        {
+            heading: 'General Principles',
+            body: '**Immediate water irrigation** for minimum 20-30 minutes. Remove all contaminated clothing and jewelry. Do NOT attempt to neutralize (exothermic reaction can worsen injury). [1]\n\n**Exceptions to water irrigation:**\n• Dry powders (calcium oxide/quicklime) — brush off first, then irrigate\n• Elemental metals (sodium, lithium, potassium) — water causes fire; use mineral oil\n• Phenol — dilute PEG (polyethylene glycol) preferred',
+        },
+        {
+            heading: 'Hydrofluoric Acid (HF)',
+            body: '**The most dangerous common chemical burn.** HF penetrates tissue and binds calcium/magnesium, causing deep necrosis and potentially fatal hypocalcemia. [2]\n\n**Severity by concentration:**\n• <20%: delayed pain (hours), gel usually sufficient\n• 20-50%: rapid pain, gel + monitoring\n• >50%: immediate deep injury, systemic risk\n\n**Treatment escalation:**\n1. Copious water irrigation x 20-30 min\n2. [Calcium gluconate gel 2.5%](#/drug/calcium-gluconate-gel/HF acid burn) — massage continuously\n3. If pain persists >30 min: subcutaneous calcium gluconate 5% (0.5 mL/cm2)\n4. Digits unresponsive to gel: intra-arterial calcium infusion (hand surgery consult)\n5. Systemic toxicity: [IV calcium](#/drug/calcium-gluconate/HF acid burn), monitor ionized Ca/Mg/K, ECG\n\n**Fingertip burns are most dangerous** — high surface area, deep penetration. Burns >1% BSA with concentrated HF can be fatal.',
+        },
+        {
+            heading: 'Alkali Burns',
+            body: '**Alkalis (bases) cause deeper injury than acids** because they saponify fats (liquefactive necrosis) and penetrate progressively. [1]\n\n**Common agents:** Cement (calcium hydroxide), lye/drain cleaner (NaOH/KOH), oven cleaners, ammonia.\n\n**Treatment:** Prolonged irrigation (30-60 min minimum). Check wound pH with litmus paper — continue irrigation until pH 7-8. Alkali burns often need more irrigation than initially expected.\n\n**Cement burns:** Particularly insidious — often asymptomatic initially. Can present hours later with deep ulceration. Educate construction workers about immediate washing.',
+        },
+        {
+            heading: 'Acid Burns',
+            body: '**Acids cause coagulation necrosis** — the eschar somewhat limits penetration depth (except HF). [1]\n\n**Common agents:** Sulfuric acid (battery acid), hydrochloric acid (muriatic acid/pool chemicals), nitric acid, phosphoric acid.\n\n**Treatment:** Copious water irrigation x 20-30 min. Check wound pH.\n\n**Formic acid:** Can cause hemolysis, metabolic acidosis, renal failure. Check CBC, BMP, LDH.\n\n**Chromic acid:** Systemic absorption → renal failure. Consider N-acetylcysteine and chelation (contact poison center).',
+        },
+        {
+            heading: 'White Phosphorus',
+            body: '**Ignites on air contact.** Found in military munitions, fireworks, fertilizer.\n\n**Treatment:** Immediate copious water irrigation — keeps particles from igniting. Remove visible particles under water. Apply copper sulfate 1% briefly to identify particles (turns black). Do NOT leave copper sulfate on skin (toxic absorption).\n\n**Keep wounds moist at all times.** Particles reignite when dry. [1]',
+        },
+        {
+            heading: 'Tar/Asphalt Burns',
+            body: '**Do NOT peel off adherent tar** — causes further tissue damage.\n\n**Treatment:** Cool with water first (stops the thermal injury). Then apply mineral oil, petroleum jelly, or commercial tar remover (Tween 80, De-Solv-it) to dissolve the tar over time. May take multiple applications over hours. Treat the underlying thermal burn after tar removal. [1]',
+        },
+    ],
+    citations: [
+        { num: 1, text: 'Palao R, et al. Chemical burns: pathophysiology and treatment. Burns. 2010;36(3):295-304.' },
+        { num: 2, text: 'Kirkpatrick JJR, et al. Hydrofluoric acid burns: a review. Burns. 1995;21(7):483-493.' },
+    ],
+};
+// -------------------------------------------------------------------
+// Info Page Registry
+// -------------------------------------------------------------------
 export const INFO_PAGES = {
     'doac-pe': DOAC_PE_PAGE,
     'priapism-return-precautions': PRIAPISM_RETURN_PRECAUTIONS,
@@ -2068,6 +2346,14 @@ export const INFO_PAGES = {
     'rabies-ddx': RABIES_DDX,
     'rabies-dx-guide': RABIES_DX_GUIDE,
     'rabies-patient-info': RABIES_PATIENT_INFO,
+    'burns-summary': BURNS_SUMMARY,
+    'burns-depth-guide': BURNS_DEPTH_GUIDE,
+    'burns-prehospital': BURNS_PREHOSPITAL,
+    'burns-dsmc-protocol': BURNS_DSMC_PROTOCOL,
+    'burns-escharotomy': BURNS_ESCHAROTOMY,
+    'burns-dressing-guide': BURNS_DRESSING_GUIDE,
+    'burns-co-cyanide': BURNS_CO_CYANIDE,
+    'burns-chemical-detail': BURNS_CHEMICAL_DETAIL,
 };
 /** Get a single info page by ID (hardcoded fallback) */
 export function getInfoPageFallback(id) {

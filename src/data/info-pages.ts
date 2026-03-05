@@ -2164,6 +2164,320 @@ const RABIES_PATIENT_INFO: InfoPage = {
   ],
 };
 
+// -------------------------------------------------------------------
+// Burns Info Pages
+// -------------------------------------------------------------------
+
+const BURNS_SUMMARY: InfoPage = {
+  id: 'burns-summary',
+  title: 'Burns — Steps Summary',
+  subtitle: 'Quick Reference',
+  sections: [
+    {
+      body: 'Quick-reference checklist for initial burns management. Tap any step to jump directly to that section of the consult.',
+    },
+    {
+      heading: '1. Scene & Primary Survey',
+      body: '• [Stop the burning process — remove clothing, irrigate](#/node/burn-primary-survey)\n• [Identify burn mechanism (thermal, chemical, electrical, radiation)](#/node/burn-type)\n• [ABCDE primary survey — burns are trauma patients first](#/node/burn-primary-survey)\n• [Screen for inhalation injury (enclosed space, facial burns, soot, stridor)](#/node/burn-inhalation-screen)',
+    },
+    {
+      heading: '2. Airway & Toxicology',
+      body: '• [Assess for hard signs of inhalation injury — intubate early if in doubt](#/node/burn-airway-assess)\n• [CO poisoning — co-oximetry on ALL enclosed-space fire patients](#/node/burn-co-assess)\n• [Cyanide — clinical diagnosis, do not wait for levels](#/node/burn-cyanide)',
+    },
+    {
+      heading: '3. Burn Assessment',
+      body: '• [Classify burn depth (epidermal → full thickness)](#/node/burn-depth)\n• [Calculate TBSA — Rule of 9\'s (adult) or Lund-Browder (peds)](#/node/burn-tbsa-age)\n• Only count partial thickness and full thickness in TBSA',
+    },
+    {
+      heading: '4. Fluid Resuscitation',
+      body: '• [Select protocol: Rule of 10\'s, Parkland, or Dell-Seton](#/node/burn-fluids-moderate)\n• Calculate from TIME OF BURN, not arrival\n• [Monitor UOP: 0.5 mL/kg/hr (adult), 1 mL/kg/hr (peds)](#/node/burn-fluids-monitoring)\n• [Pediatric: add maintenance D5½NS to resuscitation volume](#/node/burn-fluids-peds)',
+    },
+    {
+      heading: '5. Wound Care',
+      body: '• [Cool with running water 20 min (within 3 hours of injury)](#/node/burn-wound-care)\n• [Select dressings by depth — avoid SSD on superficial burns](#/node/burn-dressings)\n• [Multimodal pain management (morphine, ketamine, fentanyl IN for peds)](#/node/burn-pain)',
+    },
+    {
+      heading: '6. Escharotomy',
+      body: '• [Assess for circumferential deep partial/full thickness burns](#/node/burn-eschar-screen)\n• [Extremity: medial/lateral mid-axial incisions](#/node/burn-eschar-technique)\n• [Chest: bilateral anterior axillary lines — "clamshell" pattern](#/node/burn-eschar-chest)',
+    },
+    {
+      heading: '7. Disposition',
+      body: '• [Apply ABA burn center transfer criteria (10 indications)](#/node/burn-transfer)\n• [Disposition: transfer / admit / discharge](#/node/burn-disposition)',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.' },
+    { num: 2, text: 'Hewett Brumberg EK et al. AHA and ARC Guidelines for First Aid. Circulation. 2024;150(24):e519-e579.' },
+  ],
+};
+
+const BURNS_DEPTH_GUIDE: InfoPage = {
+  id: 'burns-depth-guide',
+  title: 'Burn Depth Classification',
+  subtitle: 'Five-Tier Assessment Guide',
+  sections: [
+    {
+      body: '**Speed of capillary refill** is the most useful bedside exam for burn depth. Optimal assessment at **3-5 days** post-burn (after Zone of Stasis resolves). Mixed depths are common — classify by deepest component. Reassess within 48 hours.',
+    },
+    {
+      heading: 'Epidermal (Superficial / 1st Degree)',
+      body: '**Appearance:** Red, dry, no blisters\n**Sensation:** Painful\n**Cap refill:** Brisk blanching\n**Healing:** 5-7 days, no scarring\n**Treatment:** Moisturizer, cool compresses, OTC analgesics\n**TBSA:** NOT counted in TBSA calculation\n**Example:** Sunburn',
+    },
+    {
+      heading: 'Superficial Dermal (Superficial Partial / 2nd Degree)',
+      body: '**Appearance:** Pink/red, moist, **blisters present**\n**Sensation:** Very painful (intact nerve endings)\n**Cap refill:** Brisk\n**Healing:** 10-14 days, minimal scarring\n**Treatment:** Nonadherent dressing + bacitracin — **avoid SSD** (delays healing)\n**TBSA:** Counted',
+    },
+    {
+      heading: 'Mid Dermal (Deep Partial / 2nd Degree)',
+      body: '**Appearance:** Dark pink/red, moist or dry\n**Sensation:** Reduced (partial nerve damage)\n**Cap refill:** Sluggish\n**Healing:** 14-21 days, moderate scarring\n**Treatment:** Silver dressings (Mepilex Ag, Aquacel Ag) or SSD. May need grafting.\n**TBSA:** Counted',
+    },
+    {
+      heading: 'Deep Dermal',
+      body: '**Appearance:** Mottled red and white, dry\n**Sensation:** Minimal pain (significant nerve destruction)\n**Cap refill:** None\n**Healing:** >21 days, significant scarring, contracture risk\n**Treatment:** Requires excision and skin grafting\n**TBSA:** Counted',
+    },
+    {
+      heading: 'Full Thickness (3rd Degree)',
+      body: '**Appearance:** White, brown, or black; waxy or leathery\n**Sensation:** Painless (complete nerve destruction)\n**Cap refill:** None\n**Healing:** Cannot heal by re-epithelialization — always needs grafting\n**Treatment:** Excision and grafting. Escharotomy if circumferential.\n**TBSA:** Counted',
+    },
+    {
+      heading: 'Assessment Tips',
+      body: '• **Capillary refill** is the single best predictor of depth\n• Initial assessment often underestimates depth — **reassess at 48h**\n• Zone of Stasis tissue may convert to deeper injury over 24-72h\n• Scald burns in children are often deeper than they appear initially\n• Laser Doppler imaging (if available) is most accurate for indeterminate depth [1]',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.' },
+    { num: 2, text: 'Singer AJ, Dagum AB. Current Management of Acute Cutaneous Wounds. NEJM. 2008;359(10):1037-46.' },
+    { num: 3, text: 'Cuttle L et al. Management of Non-Severe Burn Wounds in Children. Lancet Child Adolesc Health. 2022;6(4):269-278.' },
+  ],
+};
+
+const BURNS_PREHOSPITAL: InfoPage = {
+  id: 'burns-prehospital',
+  title: 'Prehospital Burn Considerations',
+  subtitle: 'Scene to ED',
+  sections: [
+    {
+      body: 'Key prehospital priorities for burn patients arriving to the emergency department.',
+    },
+    {
+      heading: 'Stop the Burning Process',
+      body: '• Remove all clothing, jewelry, and constrictive items (rings EARLY — edema makes later removal difficult)\n• **Thermal:** Remove from heat source. Cool with running water 15-25\u00b0C for 20 min (most effective within 3 hours of injury) [1]\n• **Chemical:** Copious water irrigation (exceptions: elemental metals — brush off first)\n• **Electrical:** Ensure power source disconnected before contact\n• **Do NOT use ice** — causes vasoconstriction and deepens injury',
+    },
+    {
+      heading: 'Initial Cooling',
+      body: '• **Running tap water** (15-25\u00b0C) for **20 minutes** — single most impactful prehospital intervention [1]\n• Effective up to 3 hours post-burn (still beneficial, diminishing returns)\n• Cool the burn, NOT the patient — limit cooling to <20% TBSA at a time to prevent hypothermia\n• No ice, no butter, no toothpaste, no home remedies',
+    },
+    {
+      heading: 'Airway Considerations',
+      body: '• Assess for inhalation injury BEFORE transport: facial burns, soot, singed hair, hoarse voice, stridor\n• Airway edema peaks at 12-24 hours — a patent airway now may occlude later\n• If concern for airway compromise, intubate BEFORE transport if possible\n• Humidified 100% O\u2082 via NRB for all enclosed-space fires',
+    },
+    {
+      heading: 'IV Access & Fluids',
+      body: '• Establish large-bore IV access en route (through burned skin if necessary)\n• IO access if IV not achievable\n• For burns >20% TBSA: start LR at Rule of 10\'s rate (%TBSA \u00d7 10 mL/hr)\n• Do NOT delay transport for IV access',
+    },
+    {
+      heading: 'Hypothermia Prevention',
+      body: '• Burns patients lose thermoregulation rapidly\n• Dry sterile sheets (not wet)\n• Warm ambulance environment\n• Limit wound cooling to 20 min — then cover\n• **No wet dressings during transport**',
+    },
+    {
+      heading: 'Transport Decision',
+      body: '• Burn center if available within 60-90 min and meets ABA criteria\n• Nearest trauma center if hemodynamically unstable or major associated injuries\n• Any ED if airway compromised — secure first, transfer later\n• Contact receiving facility early with TBSA estimate and mechanism',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Hewett Brumberg EK et al. AHA and ARC Guidelines for First Aid. Circulation. 2024;150(24):e519-e579.' },
+    { num: 2, text: 'Bitter CC et al. WMS Clinical Practice Guideline on Care of Burns in the Wilderness. Wilderness Environ Med. 2025;36(4):549-558.' },
+  ],
+};
+
+const BURNS_DSMC_PROTOCOL: InfoPage = {
+  id: 'burns-dsmc-protocol',
+  title: 'Dell-Seton (DSMC-UT) Burn Protocol',
+  subtitle: 'Institutional Resuscitation Protocol',
+  sections: [
+    {
+      body: 'The Dell-Seton Medical Center (DSMC-UT) burn resuscitation protocol uses a two-tier system based on TBSA to minimize crystalloid overload ("fluid creep") by introducing early fresh frozen plasma (FFP). All calculations begin from **time of burn**, not time of arrival.',
+    },
+    {
+      heading: 'Tier 1: TBSA 20-39%',
+      body: '**1.** Administer **1 unit of FFP** upon arrival\n**2.** Initial fluid: **Lactated Ringer\'s** at Rule of 10\'s rate (%TBSA \u00d7 10 = mL/hr)\n**3.** Titrate LR **up or down by 20%** every hour based on UOP goal\n**4.** **UOP goal:** 0.5 cc/kg/hr (adults), 1 cc/kg/hr (peds)\n**5.** At cumulative volume of **15 cc \u00d7 %TBSA \u00d7 kg** \u2192 **switch ALL fluid to FFP**\n**6.** At cumulative volume of **20 cc \u00d7 %TBSA \u00d7 kg** \u2192 **do NOT increase hourly rate further** regardless of UOP\n**7.** Check **bladder pressure** (abdominal compartment syndrome screening)\n**8.** Place a **trialysis catheter** (IJ or subclavian preferred)\n**9.** Consult **nephrology for CRRT** — once started, decrease FFP to **125 cc/hr** regardless of UOP',
+    },
+    {
+      heading: 'Tier 2: TBSA \u226540%',
+      body: '**1.** Initial fluid: **FFP ONLY** at Rule of 10\'s rate (NO crystalloid)\n**2.** Titrate FFP **up or down by 20%** every hour based on UOP goal\n**3.** Place a **triple lumen dialysis catheter (trialysis)**\n**4.** At cumulative volume of **20 cc \u00d7 %TBSA \u00d7 kg** \u2192 **do NOT increase hourly rate further**\n**5.** Consult **nephrology** — once CRRT started, decrease FFP to **125 cc/hr** regardless of UOP',
+    },
+    {
+      heading: 'Rationale',
+      body: '• Excessive crystalloid \u2192 third-spacing \u2192 airway edema, abdominal compartment syndrome, extremity compartment syndrome\n• FFP provides oncotic pressure, maintaining intravascular volume with less total fluid\n• The 15cc and 20cc thresholds are cumulative volume triggers, not hourly rates\n• CRRT manages fluid overload while continuing resuscitation',
+    },
+    {
+      heading: 'Monitoring',
+      body: '• **Foley catheter** — UOP hourly (primary endpoint)\n• **Bladder pressure** — q4-6h or if abdominal distension (>25 mmHg = ACS)\n• **Labs** q4-6h: BMP, lactate, Hgb, glucose, coags\n• **Hourly I/O** documentation with cumulative totals\n• **Reassess** airway, extremity perfusion, abdominal exam each nursing shift',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Dell-Seton (DSMC-UT) Institutional Burn Resuscitation Protocol.' },
+    { num: 2, text: 'Rizzo JA et al. Higher Initial Formula for Resuscitation After Severe Burn Injury Means Higher 24-Hour Volumes. J Burn Care Res. 2023;44(5):1017-1022.' },
+  ],
+};
+
+const BURNS_ESCHAROTOMY: InfoPage = {
+  id: 'burns-escharotomy',
+  title: 'Escharotomy Technique',
+  subtitle: 'Decompression of Circumferential Burns',
+  sections: [
+    {
+      body: 'Escharotomy is a **bedside ED procedure** — do not delay for OR. Circumferential deep partial or full thickness burns create a tourniquet effect as interstitial edema increases during fluid resuscitation. The inelastic eschar restricts expansion, compressing underlying vessels, nerves, and (in chest burns) ventilation.',
+    },
+    {
+      heading: 'Indications',
+      body: '**6 P\'s of Compartment Syndrome:**\n• **Pain** — out of proportion, or paradoxically absent in full-thickness\n• **Pressure** — tense, woody compartment\n• **Paresthesias** — early neurologic compromise\n• **Paralysis** — late, ominous\n• **Pulselessness** — very late, pre-amputation\n• **Pallor/Poikilothermia**\n\n**Objective measures:**\n• Doppler: absent or diminished pulses\n• Compartment pressure >30 mmHg\n• Capillary refill >3 seconds\n• Undetectable SpO\u2082 on digit\n\n**Do NOT wait for all 6 P\'s** — pulselessness and paralysis indicate ischemia is already well-established.',
+    },
+    {
+      heading: 'Extremity Technique',
+      body: '• **Medial and lateral mid-axial lines** — incise through full thickness of eschar to subcutaneous fat\n• Adequate depth: tissue **gapes open** and subcutaneous fat is visible\n• Eschar in full-thickness areas is **insensate** — no anesthesia needed (may need for margins)\n• Use **electrocautery** (preferred — hemostasis) or **scalpel**\n\n**Upper extremity:** Axilla to wrist along medial and lateral mid-axial lines. If hand involved, extend to thenar and hypothenar eminences.\n\n**Lower extremity:** Groin to ankle along medial and lateral lines. If foot involved, extend along dorsum.\n\n**Digits:** Mid-lateral incisions along non-pinch surfaces. Preserve Grayson\'s and Cleland\'s ligaments where possible. [1]',
+    },
+    {
+      heading: 'Chest/Trunk Technique',
+      body: '• **Indication:** Circumferential trunk burns restricting ventilation — rising peak airway pressures, decreasing tidal volumes\n• **Incision pattern:** Bilateral anterior axillary lines from clavicle to costal margin\n• **Connect** superiorly across clavicles and inferiorly across costal margin = **"clamshell" or "H" pattern**\n• May extend to **iliac crests** if abdominal compartment syndrome concern\n• Expect **immediate improvement** in tidal volumes\n• If no improvement \u2192 consider fasciotomy or decompressive laparotomy',
+    },
+    {
+      heading: 'Post-Procedure',
+      body: '• **Doppler pulse check** immediately after and q1h\n• Control bleeding with electrocautery, hemostats, or direct pressure\n• Apply topical antimicrobial to exposed tissue\n• **Elevate** burned extremities above heart level\n• If perfusion does not improve \u2192 **escalate to fasciotomy** (requires OR)\n• Reassess neurovascular status q1h for first 6 hours',
+    },
+    {
+      heading: 'Fasciotomy Indications',
+      body: '• Persistent vascular compromise **after adequate escharotomy**\n• **Electrical burns** (deep tissue injury exceeds surface appearance)\n• Compartment pressure >30 mmHg post-escharotomy\n• **Requires OR and surgical consultation** — not a bedside procedure\n• 4-compartment fasciotomy of the leg is most common',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'James AJ et al. Anatomy of Grayson\'s and Cleland\'s Ligaments: Basis of Digit Escharotomy. Ann Plast Surg. 2025;95(1):51-53.' },
+    { num: 2, text: 'Butts CC et al. Surgical Escharotomy and Decompressive Therapies in Burns. J Burn Care Res. 2020;41(2):263-269.' },
+    { num: 3, text: 'de Barros MEPM et al. Revisiting Escharotomy in Patients With Burns in Extremities. J Burn Care Res. 2017;38(4):e691-e698.' },
+    { num: 4, text: 'Pegg SP. Escharotomy in Burns. Ann Acad Med Singapore. 1992;21(5):682-4.' },
+  ],
+};
+
+const BURNS_DRESSING_GUIDE: InfoPage = {
+  id: 'burns-dressing-guide',
+  title: 'Burn Dressing Selection',
+  subtitle: 'Dressings by Burn Depth',
+  sections: [
+    {
+      body: 'Select dressings based on burn depth. General principle: provide moist wound healing environment, prevent infection, minimize pain with dressing changes.',
+    },
+    {
+      heading: 'Epidermal (Superficial)',
+      body: '• **Moisturizer** (aloe vera, petroleum-based)\n• Nonadherent dressing only if friction area\n• No antimicrobials needed\n• OTC analgesics sufficient',
+    },
+    {
+      heading: 'Superficial Partial Thickness',
+      body: '• **Nonadherent** (Adaptic, Xeroform) + [Bacitracin](#/drug/bacitracin/burns) + gauze wrap\n• **Do NOT use silver sulfadiazine** — delays epithelialization by 1-2 days [1]\n• Alternative: hydrogel dressings (Burnaid, Intrasite) for pain relief\n• Change dressings daily or BID\n• Modern silver dressings (Mepilex Ag, Aquacel Ag) if available — less painful changes',
+    },
+    {
+      heading: 'Deep Partial / Full Thickness',
+      body: '• **Silver dressings** preferred: Mepilex Ag, Aquacel Ag (can stay in place 3-7 days)\n• [Silver Sulfadiazine](#/drug/silver-sulfadiazine/burns) 1% cream BID — acceptable alternative\n• Mafenide acetate (Sulfamylon) — better eschar penetration, but painful on application\n• Surgical consultation for grafting planning',
+    },
+    {
+      heading: 'Special Areas',
+      body: '**Face:** Bacitracin only — NO dressings (impair assessment, uncomfortable). Clean gently BID.\n\n**Hands:** Xeroform or nonadherent + loose gauze. Individual finger wrapping. **Elevate.** Early ROM exercises — splint in functional position (wrist extended, MCPs flexed, IPs extended).\n\n**Ears:** Bacitracin only. **No pressure** (pillow, headband) — risk of chondritis. Watch for auricular chondritis.\n\n**Perineum/Genitalia:** Bacitracin. Foley for urethral meatus burns. Frequent dressing changes.\n\n**Circumferential:** Do NOT apply tight circumferential dressings — risk of tourniquet effect with edema.',
+    },
+    {
+      heading: 'General Principles',
+      body: '• **Tetanus** prophylaxis: Tdap if >5 years or unknown status\n• **No prophylactic systemic antibiotics** — increases resistance without benefit\n• **Debridement:** Remove loose/devitalized tissue gently. Leave intact blisters that are small, <24h old, and not impeding ROM. Debride ruptured blisters.\n• **No home remedies:** butter, toothpaste, egg whites — all worsen outcome\n• **Pain management** before dressing changes — see [Burn Pain Management](#/node/burn-pain)',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Wasiak J et al. Dressings for Superficial and Partial Thickness Burns. Cochrane. 2013;(3):CD002106.' },
+    { num: 2, text: 'Singer AJ, Dagum AB. Current Management of Acute Cutaneous Wounds. NEJM. 2008;359(10):1037-46.' },
+    { num: 3, text: 'Cuttle L et al. Management of Non-Severe Burn Wounds in Children. Lancet Child Adolesc Health. 2022;6(4):269-278.' },
+  ],
+};
+
+const BURNS_CO_CYANIDE: InfoPage = {
+  id: 'burns-co-cyanide',
+  title: 'CO & Cyanide Toxicity',
+  subtitle: 'Inhalation Injury Toxicology Reference',
+  sections: [
+    {
+      body: 'Carbon monoxide and cyanide poisoning frequently coexist in enclosed-space fire victims. CO binds hemoglobin (forming carboxyhemoglobin), reducing oxygen delivery. Cyanide inhibits cytochrome oxidase, blocking cellular oxygen utilization. The combined effect is devastating — cells can neither receive nor use oxygen.',
+    },
+    {
+      heading: 'COHb Level Interpretation',
+      body: '• **<5%:** Normal (nonsmokers)\n• **<10%:** Normal for smokers\n• **5-15%:** Headache, nausea, dizziness\n• **15-25%:** Confusion, visual changes, tachycardia\n• **25-40%:** Severe confusion, syncope, tachypnea\n• **40-60%:** Coma, seizures, cardiovascular collapse\n• **>60%:** Usually fatal\n\n**CRITICAL:** Pulse oximetry reads **falsely normal** — it cannot distinguish COHb from OxyHb. Order **ABG with co-oximetry** on ALL enclosed-space fire patients.',
+    },
+    {
+      heading: 'CO Half-Life by O\u2082 Delivery',
+      body: '• **Room air (21% O\u2082):** ~320 minutes (5.3 hours)\n• **100% O\u2082 NRB:** ~75 minutes (1.25 hours)\n• **Hyperbaric O\u2082 (2-3 ATA):** ~23 minutes\n\nContinue 100% O\u2082 until COHb <5% and asymptomatic.',
+    },
+    {
+      heading: 'Hyperbaric Oxygen (HBO) Indications',
+      body: '• COHb >25%\n• Loss of consciousness (even if transient)\n• Neurologic deficits (confusion, ataxia, seizure)\n• Cardiac ischemia (ECG changes, troponin elevation)\n• Pregnancy with COHb >15%\n• Persistent symptoms despite 100% O\u2082\n• Refractory metabolic acidosis\n\nContact nearest HBO facility early — benefit diminishes >6h post-exposure.',
+    },
+    {
+      heading: 'Cyanide — Clinical Diagnosis',
+      body: '**There is no rapid confirmatory test. This is a CLINICAL diagnosis.**\n\n**Suspect cyanide when:**\n• Enclosed-space fire (synthetic materials produce HCN)\n• Persistent metabolic acidosis despite adequate O\u2082 therapy\n• Lactate **>8-10 mmol/L** (strong predictor)\n• AMS out of proportion to COHb level\n• Cardiovascular collapse\n• PaO\u2082 and SpO\u2082 may be **NORMAL** (cells can\'t use O\u2082)\n\n**Do NOT wait for cyanide levels** — results take hours and patient may die waiting.',
+    },
+    {
+      heading: 'Cyanide Treatment',
+      body: '**First-line:** [Hydroxocobalamin (Cyanokit)](#/drug/hydroxocobalamin/cyanide) 5g IV over 15 min\n• Repeat 5g \u00d71 if persistent instability\n• Pediatric: 70 mg/kg (max 5g)\n• Turns skin/urine RED 2-3 days\n• **Draw all labs BEFORE giving** — interferes with colorimetric assays\n\n**Alternative:** Sodium thiosulfate 12.5g IV (slower onset)\n\n**AVOID:** Sodium nitrite if concurrent CO poisoning — creates methemoglobin, further reducing O\u2082 carrying capacity',
+    },
+    {
+      heading: 'Delayed Neuropsychiatric Syndrome',
+      body: '• Occurs in **15-40%** of significant CO poisoning cases\n• Onset: **2-40 days** after exposure\n• Symptoms: cognitive deficits, personality changes, memory impairment, parkinsonism, incontinence\n• HBO may reduce incidence (controversial)\n• Warn patients and arrange neuropsych follow-up at discharge',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Weaver LK. Carbon Monoxide Poisoning. NEJM. 2009;360(12):1217-25.' },
+    { num: 2, text: 'Cho DH et al. Practical Recommendations for Cardiac Injury in CO Poisoning. JACC Heart Fail. 2024;12(8):1343-1352.' },
+    { num: 3, text: 'Lavonas EJ et al. AHA Focused Update on Management of Patients with Cardiac Arrest or Life-Threatening Toxicity Due to Poisoning. Circulation. 2023;148(16):e149-e184.' },
+    { num: 4, text: 'Baud FJ et al. Elevated Blood Cyanide Concentrations in Victims of Smoke Inhalation. NEJM. 1991;325(25):1761-6.' },
+  ],
+};
+
+const BURNS_CHEMICAL_DETAIL: InfoPage = {
+  id: 'burns-chemical-detail',
+  title: 'Chemical Burns — Agent-Specific',
+  subtitle: 'Decontamination & Antidote Reference',
+  sections: [
+    {
+      body: 'Chemical burns represent 3-10% of all burns but up to 30% of burn deaths. The agent determines decontamination strategy and specific antidotes. **Universal first step:** copious water irrigation \u226520-30 min (with exceptions noted below).',
+    },
+    {
+      heading: 'Acid Burns',
+      body: '**Mechanism:** Coagulation necrosis — protein denaturation creates eschar that limits penetration depth\n**Common agents:** Sulfuric acid (battery), hydrochloric acid (muriatic/pool), nitric acid\n**Treatment:**\n• Copious water irrigation 20-30 min\n• Do NOT neutralize (exothermic reaction worsens injury)\n• Check skin pH with litmus paper until 7.0-7.5\n• Remove all contaminated clothing/jewelry\n\n**Special acids:**\n• **Phenol:** Wipe with PEG (polyethylene glycol) or glycerol FIRST, then water irrigation. Water alone may spread phenol.\n• **Chromic acid:** Irrigation + topical 10% ascorbic acid. Monitor for systemic chromium toxicity (renal failure).',
+    },
+    {
+      heading: 'Alkali Burns',
+      body: '**Mechanism:** Liquefaction necrosis — saponifies fats, NO self-limiting eschar \u2192 penetrates deeply. **More dangerous than acids.**\n**Common agents:** NaOH (lye/drain cleaner), KOH, cement, ammonia, bleach\n**Treatment:**\n• **Prolonged irrigation 30-60+ minutes** — alkali penetrates much deeper\n• Cement: **brush dry powder off first**, then irrigate\n• Check pH q15 min during irrigation\n• Do NOT neutralize with acid\n\n**Eye exposure:** Emergency — continuous Morgan lens irrigation until pH neutral. Immediate ophthalmology consult.',
+    },
+    {
+      heading: 'Hydrofluoric (HF) Acid',
+      body: '**Uniquely dangerous.** Fluoride ion penetrates tissue and binds Ca\u00b2\u207a and Mg\u00b2\u207a \u2192 progressive deep necrosis, **severe pain out of proportion to appearance**, and **life-threatening hypocalcemia** (burns >2% TBSA or >50% concentration can be fatal).\n\n**Treatment ladder:**\n1. Water irrigation \u00d7 20 min\n2. [Calcium Gluconate 2.5% Gel](#/drug/calcium-gluconate-gel/hf burn) — apply and massage continuously. Pain relief = successful fluoride binding.\n3. If pain persists: [Calcium Gluconate](#/drug/calcium-gluconate/hf burn) SQ 5% solution, 0.5 mL/cm\u00b2\n4. Digital/refractory: Intra-arterial CaGluc via radial catheter (10 mL 10% CaGluc in 40 mL NS over 4h)\n5. Systemic hypocalcemia: IV calcium gluconate or calcium chloride\n\n**Monitor:** Serial iCa, Mg, K, ECG (QT prolongation \u2192 VF). Admit ALL HF burns >1% TBSA.',
+    },
+    {
+      heading: 'Elemental Metals',
+      body: '**Na, K, Li:** React violently with water \u2192 H\u2082 gas + alkali burn\n• **Cover with mineral oil** to prevent air/water contact\n• Remove all metal fragments with forceps\n• Irrigate with water ONLY after all metal is removed\n\n**White phosphorus:** Ignites spontaneously in air\n• Keep **submerged in water** at all times\n• CuSO\u2084 1% solution turns particles black (aids identification — use sparingly as copper is toxic)\n• Remove all visible particles under water\n\n**Magnesium:** Burns extremely hot (>2000\u00b0C)\n• Cover with **sand or dry chemical extinguisher**\n• Do NOT use water until fire is extinguished\n• X-ray if penetrating injury suspected',
+    },
+    {
+      heading: 'Unknown Agent',
+      body: '• Default to **copious water irrigation** (safe for vast majority of agents)\n• Contact **Poison Control: 1-800-222-1222**\n• Full PPE for all responders (gloves, gown, eye protection, N95 minimum)\n• If powder: **brush off first**, then irrigate\n• Continue irrigation 20+ min, check pH until neutral\n• Collect/photograph agent container for identification',
+    },
+    {
+      heading: 'Key Principles',
+      body: '• Chemical burns often **appear superficial initially** and progress over 24-72 hours — serial reassessment is mandatory\n• **Lower threshold** for burn center transfer with chemical burns\n• Watch for **systemic toxicity** specific to the agent (especially HF, chromic acid, phenol)\n• **Diphoterine** (amphoteric chelating solution) is emerging as a universal chemical burn decontaminant — available in some EDs',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Henretig FM et al. Hazardous Chemical Emergencies and Poisonings. NEJM. 2019;380(17):1638-1655.' },
+    { num: 2, text: 'Akelma H et al. Rare Chemical Burns: Review of the Literature. Int Wound J. 2019;16(6):1330-1338.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// Info Page Registry
+// -------------------------------------------------------------------
+
 export const INFO_PAGES: Record<string, InfoPage> = {
   'doac-pe': DOAC_PE_PAGE,
   'priapism-return-precautions': PRIAPISM_RETURN_PRECAUTIONS,
@@ -2221,6 +2535,14 @@ export const INFO_PAGES: Record<string, InfoPage> = {
   'rabies-ddx': RABIES_DDX,
   'rabies-dx-guide': RABIES_DX_GUIDE,
   'rabies-patient-info': RABIES_PATIENT_INFO,
+  'burns-summary': BURNS_SUMMARY,
+  'burns-depth-guide': BURNS_DEPTH_GUIDE,
+  'burns-prehospital': BURNS_PREHOSPITAL,
+  'burns-dsmc-protocol': BURNS_DSMC_PROTOCOL,
+  'burns-escharotomy': BURNS_ESCHAROTOMY,
+  'burns-dressing-guide': BURNS_DRESSING_GUIDE,
+  'burns-co-cyanide': BURNS_CO_CYANIDE,
+  'burns-chemical-detail': BURNS_CHEMICAL_DETAIL,
 };
 
 /** Get a single info page by ID (hardcoded fallback) */

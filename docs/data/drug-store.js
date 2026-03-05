@@ -502,7 +502,7 @@ const CALCIUM_CHLORIDE = {
     genericName: 'Calcium chloride',
     drugClass: 'Electrolyte / membrane stabilizer',
     route: 'IV (central line only)',
-    indications: ['Hyperkalemia (membrane stabilization)', 'Hypocalcemia (severe)'],
+    indications: ['Hyperkalemia (membrane stabilization)', 'Hypocalcemia (severe)', 'HF acid burns with systemic hypocalcemia'],
     dosing: [
         {
             indication: 'Hyperkalemia (central access)',
@@ -511,6 +511,10 @@ const CALCIUM_CHLORIDE = {
         {
             indication: 'Severe hypocalcemia',
             regimen: '500 mg-1 gram IV over 10 minutes.',
+        },
+        {
+            indication: 'HF acid burn — severe/systemic',
+            regimen: '1 gram IV over 10 min for systemic hypocalcemia from HF exposure. Central line required. Monitor iCa closely.',
         },
     ],
     contraindications: [
@@ -536,7 +540,7 @@ const CALCIUM_GLUCONATE = {
     genericName: 'Calcium gluconate',
     drugClass: 'Electrolyte / membrane stabilizer',
     route: 'IV',
-    indications: ['Hyperkalemia (membrane stabilization)', 'Hypocalcemia'],
+    indications: ['Hyperkalemia (membrane stabilization)', 'Hypocalcemia', 'Hydrofluoric acid burns (subcutaneous/intra-arterial)'],
     dosing: [
         {
             indication: 'Hyperkalemia (peripheral access)',
@@ -545,6 +549,10 @@ const CALCIUM_GLUCONATE = {
         {
             indication: 'Hypocalcemia',
             regimen: '1-2 grams IV over 10-20 minutes.',
+        },
+        {
+            indication: 'HF acid burn — subcutaneous',
+            regimen: '5% solution (dilute 10% to 5%): inject 0.5 mL per cm² of affected area using 27-30G needle. Max 0.5 mL per digit. For intra-arterial: 10 mL of 10% CaGluc in 40 mL NS via radial artery catheter over 4 hours.',
         },
     ],
     contraindications: [
@@ -2555,6 +2563,247 @@ const VERAPAMIL = {
         'Prystowsky EN, et al. Treatment of Atrial Fibrillation. JAMA. 2015;314(3):278-88.',
     ],
 };
+const BACITRACIN = {
+    id: 'bacitracin',
+    name: 'Bacitracin Ointment',
+    genericName: 'Bacitracin zinc',
+    drugClass: 'Topical antibiotic',
+    route: 'Topical',
+    indications: ['Superficial burns', 'Facial burns', 'Minor wound prophylaxis'],
+    dosing: [
+        {
+            indication: 'Burns — superficial/facial',
+            regimen: 'Apply thin layer to wound TID-QID. Cover with nonadherent dressing. For facial burns: bacitracin only, no dressings needed.',
+        },
+    ],
+    contraindications: ['Known bacitracin allergy (rare)'],
+    cautions: ['Not effective for deep partial or full thickness burns — use silver-based dressings', 'Avoid large surface area application (nephrotoxicity with systemic absorption, rare)'],
+    notes: 'First-line topical for superficial partial thickness burns and all facial burns. Preferred over silver sulfadiazine for superficial burns — SSD delays epithelialization. OTC availability makes it ideal for outpatient burn care.',
+    citations: ['Wasiak J et al. Dressings for Superficial and Partial Thickness Burns. Cochrane. 2013;(3):CD002106.'],
+};
+const CALCIUM_GLUCONATE_GEL = {
+    id: 'calcium-gluconate-gel',
+    name: 'Calcium Gluconate 2.5% Gel',
+    genericName: 'Calcium gluconate topical',
+    drugClass: 'Electrolyte / antidote (topical)',
+    route: 'Topical',
+    indications: ['Hydrofluoric acid burns'],
+    dosing: [
+        {
+            indication: 'HF acid burn — topical',
+            regimen: 'Apply liberally and massage continuously into affected area. Reapply every 15-30 minutes until pain resolves. May mix: 3.5g calcium gluconate powder in 5 oz water-soluble lubricant (KY Jelly).',
+        },
+        {
+            indication: 'HF acid burn — subcutaneous injection',
+            regimen: '5% calcium gluconate solution: inject 0.5 mL per cm² of affected skin using 27-30G needle. Maximum 0.5 mL per digit.',
+        },
+    ],
+    contraindications: ['Do not inject into digits beyond 0.5 mL per injection site (compartment risk)'],
+    cautions: ['If pain persists after topical and SQ → consider intra-arterial calcium gluconate via radial artery catheter', 'Monitor serial ionized calcium, magnesium, potassium, ECG', 'HF burns >1% TBSA or >50% concentration → admit for cardiac monitoring'],
+    monitoring: 'Serial ionized calcium levels. Continuous cardiac monitoring for burns >1% TBSA. ECG (QT prolongation, arrhythmias). Pain as surrogate for ongoing fluoride penetration.',
+    notes: 'First-line treatment for hydrofluoric acid burns. Pain relief indicates successful fluoride binding. Persistent pain = ongoing tissue destruction requiring escalation: topical → SQ injection → intra-arterial → IV systemic calcium. HF is uniquely dangerous among chemical burns — fluoride ion binds calcium/magnesium causing progressive tissue necrosis and potentially fatal hypocalcemia.',
+    citations: [
+        'Henretig FM et al. Hazardous Chemical Emergencies and Poisonings. NEJM. 2019;380(17):1638-1655.',
+        'Akelma H et al. Rare Chemical Burns: Review of the Literature. Int Wound J. 2019;16(6):1330-1338.',
+    ],
+};
+const FENTANYL = {
+    id: 'fentanyl',
+    name: 'Fentanyl',
+    genericName: 'Fentanyl citrate',
+    drugClass: 'Opioid analgesic (synthetic)',
+    route: 'IV/IN',
+    indications: ['Burns pain', 'Acute severe pain', 'Pediatric analgesia (intranasal)'],
+    dosing: [
+        {
+            indication: 'Burns — IV analgesia',
+            regimen: '1-1.5 mcg/kg IV over 1-2 minutes. May repeat q30-60 min PRN. Rapid onset (2-3 min), short duration (30-60 min).',
+            weightCalc: { dosePerKg: 1.5, unit: 'mcg', maxDose: 100 },
+        },
+        {
+            indication: 'Burns — pediatric intranasal',
+            regimen: '1.5 mcg/kg IN via atomizer (MAD device). Max 100 mcg per nare. Onset 5-10 min. May repeat ×1 after 10-15 min if needed.',
+            weightCalc: { dosePerKg: 1.5, unit: 'mcg', maxDose: 100 },
+        },
+    ],
+    contraindications: ['MAO inhibitor use within 14 days', 'Severe respiratory depression without ventilatory support'],
+    cautions: ['Chest wall rigidity with rapid IV push (especially >5 mcg/kg)', 'Short duration — may need repeated dosing or transition to longer-acting opioid', 'Respiratory depression potentiated by benzodiazepines'],
+    monitoring: 'Continuous SpO2, respiratory rate, sedation level. Have naloxone immediately available.',
+    notes: 'Preferred opioid for burn pain when rapid onset and short duration are desired. Intranasal route is first-line for pediatric burns — avoids IV in a distressed child. Hemodynamically stable (no histamine release like morphine). For prolonged pain management, consider morphine or ketamine infusion.',
+    citations: [
+        'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.',
+        'Bitter CC et al. WMS Clinical Practice Guideline on Care of Burns in the Wilderness. Wilderness Environ Med. 2025;36(4):549-558.',
+    ],
+};
+const HYDROXOCOBALAMIN = {
+    id: 'hydroxocobalamin',
+    name: 'Hydroxocobalamin (Cyanokit)',
+    genericName: 'Hydroxocobalamin',
+    drugClass: 'Antidote (cyanide)',
+    route: 'IV',
+    indications: ['Cyanide poisoning', 'Smoke inhalation with suspected cyanide toxicity'],
+    dosing: [
+        {
+            indication: 'Cyanide poisoning — adult',
+            regimen: '5 grams IV over 15 minutes. May repeat 5g ×1 if persistent hemodynamic instability or cardiac arrest.',
+        },
+        {
+            indication: 'Cyanide poisoning — pediatric',
+            regimen: '70 mg/kg IV over 15 minutes. Maximum 5 grams. May repeat ×1.',
+            weightCalc: { dosePerKg: 70, unit: 'mg', maxDose: 5000 },
+        },
+    ],
+    contraindications: ['None absolute in life-threatening cyanide poisoning'],
+    cautions: [
+        'Turns skin, mucous membranes, and urine DARK RED for 2-3 days — warn patient/family',
+        'Interferes with colorimetric lab assays (falsely elevates/decreases bilirubin, creatinine, glucose, SpO2) — draw ALL labs BEFORE administration if possible',
+        'May cause transient hypertension (usually beneficial in cyanide-induced hypotension)',
+        'Allergic reactions rare but possible (urticaria, angioedema)',
+    ],
+    monitoring: 'Hemodynamics, lactate clearance, neurologic status. Labs drawn before administration if possible. SpO2 unreliable for 24-48h after dosing.',
+    notes: 'First-line antidote for cyanide poisoning (AHA recommended). Binds cyanide to form cyanocobalamin (vitamin B12) which is renally excreted. Superior safety profile to sodium nitrite (which causes methemoglobinemia — problematic in concurrent CO poisoning). Suspect cyanide in ALL enclosed-space fire victims with persistent metabolic acidosis, lactate >8-10, or hemodynamic collapse despite O2 therapy. This is a CLINICAL diagnosis — do not wait for cyanide levels.',
+    citations: [
+        'Lavonas EJ et al. AHA Focused Update on Management of Patients with Cardiac Arrest or Life-Threatening Toxicity Due to Poisoning. Circulation. 2023;148(16):e149-e184.',
+        'Baud FJ et al. Elevated Blood Cyanide Concentrations in Victims of Smoke Inhalation. NEJM. 1991;325(25):1761-6.',
+    ],
+};
+const KETAMINE = {
+    id: 'ketamine',
+    name: 'Ketamine',
+    genericName: 'Ketamine hydrochloride',
+    drugClass: 'Dissociative anesthetic / NMDA antagonist',
+    route: 'IV/IM',
+    indications: ['Burns analgesia', 'Burns procedural sedation', 'RSI induction'],
+    dosing: [
+        {
+            indication: 'Burns — sub-dissociative analgesia',
+            regimen: '0.1-0.3 mg/kg IV over 10-15 min. May repeat q15-20 min PRN. Infusion: 0.1-0.2 mg/kg/hr for dressing changes/prolonged procedures.',
+            weightCalc: { dosePerKg: 0.3, unit: 'mg', label: 'Sub-dissociative (max dose)' },
+        },
+        {
+            indication: 'Burns — procedural sedation (dissociative)',
+            regimen: '1-2 mg/kg IV over 1 min (onset 1 min, duration 15-20 min). IM: 4-5 mg/kg (onset 5 min, duration 20-30 min). May give additional 0.5-1 mg/kg IV boluses for prolonged procedures.',
+            weightCalc: [
+                { dosePerKg: 1.5, unit: 'mg', label: 'IV dissociative' },
+                { dosePerKg: 4, unit: 'mg', label: 'IM dissociative' },
+            ],
+        },
+        {
+            indication: 'RSI induction',
+            regimen: '1-2 mg/kg IV push. Hemodynamically stable induction agent — ideal for burns/trauma patients.',
+            weightCalc: { dosePerKg: 1.5, unit: 'mg' },
+        },
+    ],
+    contraindications: ['Age <3 months (relative)', 'Known psychotic disorder (relative)'],
+    cautions: [
+        'Emergence reactions (10-20% adults, rare in children) — prophylactic midazolam 0.05 mg/kg can prevent',
+        'Laryngospasm (rare, 0.3%) — have suction and BVM ready',
+        'Increases secretions — consider glycopyrrolate 0.005 mg/kg if problematic',
+        'Brief sympathomimetic effect — increases HR/BP (beneficial in hemodynamically compromised patients)',
+    ],
+    monitoring: 'Continuous SpO2, capnography if available, cardiac monitor. Suction and BVM at bedside. Recovery typically 60-120 min.',
+    notes: 'Ideal analgesic/sedative for burn patients: provides profound analgesia at sub-dissociative doses, full procedural sedation at dissociative doses, and RSI induction — one drug for three burn care needs. Maintains airway reflexes and spontaneous respirations at dissociative doses. Does NOT cause respiratory depression at analgesic doses. Hemodynamic stability makes it superior to opioids alone for burn resuscitation patients. Particularly valuable for repeated painful procedures (dressing changes, debridement).',
+    citations: [
+        'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.',
+        'Bitter CC et al. WMS Clinical Practice Guideline on Care of Burns in the Wilderness. Wilderness Environ Med. 2025;36(4):549-558.',
+    ],
+};
+const MIDAZOLAM = {
+    id: 'midazolam',
+    name: 'Midazolam (Versed)',
+    genericName: 'Midazolam hydrochloride',
+    drugClass: 'Benzodiazepine (short-acting)',
+    route: 'IV/IN/IM',
+    indications: ['Burns anxiolysis', 'Procedural sedation adjunct', 'Seizures'],
+    dosing: [
+        {
+            indication: 'Burns — anxiolysis',
+            regimen: '0.02-0.05 mg/kg IV over 2 min. Max 2 mg initial dose. May repeat q5-10 min to effect. Total max ~0.1 mg/kg.',
+            weightCalc: { dosePerKg: 0.05, unit: 'mg', maxDose: 2 },
+        },
+        {
+            indication: 'Ketamine emergence prophylaxis',
+            regimen: '0.05 mg/kg IV given with ketamine. Reduces emergence reactions in adults.',
+            weightCalc: { dosePerKg: 0.05, unit: 'mg', maxDose: 2 },
+        },
+    ],
+    contraindications: ['Acute narrow-angle glaucoma', 'Known hypersensitivity to benzodiazepines'],
+    cautions: [
+        'Respiratory depression — especially when combined with opioids or ketamine',
+        'Paradoxical agitation in elderly and pediatric patients',
+        'Reduce dose by 30-50% in elderly, hepatic impairment, or when combined with opioids',
+    ],
+    monitoring: 'Continuous SpO2, respiratory rate. Have flumazenil available (0.2 mg IV, though rarely needed).',
+    notes: 'Short-acting anxiolytic ideal for burn care procedures. At low doses (0.02-0.05 mg/kg) provides anxiolysis without significant sedation. Commonly paired with ketamine to prevent emergence reactions in adults (not needed in children). Amnesia is a therapeutic benefit for painful burn procedures.',
+    citations: [
+        'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.',
+    ],
+};
+const MORPHINE = {
+    id: 'morphine',
+    name: 'Morphine Sulfate',
+    genericName: 'Morphine sulfate',
+    drugClass: 'Opioid analgesic',
+    route: 'IV',
+    indications: ['Burns pain', 'Severe acute pain'],
+    dosing: [
+        {
+            indication: 'Burns — adult',
+            regimen: '0.1 mg/kg IV over 5 min, q2-4h PRN. Titrate to pain control. Max initial dose 10 mg.',
+            weightCalc: { dosePerKg: 0.1, unit: 'mg', maxDose: 10 },
+        },
+        {
+            indication: 'Burns — pediatric',
+            regimen: '0.05-0.1 mg/kg IV q2-4h PRN. Max initial dose 5 mg. Consider intranasal fentanyl as alternative for initial dosing.',
+            weightCalc: { dosePerKg: 0.1, unit: 'mg', maxDose: 5, label: 'Pediatric' },
+        },
+    ],
+    contraindications: ['Severe respiratory depression without ventilatory support', 'Paralytic ileus'],
+    cautions: [
+        'Histamine release → hypotension, especially in volume-depleted burn patients',
+        'Respiratory depression potentiated by benzodiazepines',
+        'Reduce dose 25-50% in elderly or hepatic impairment',
+        'Nausea/vomiting common — have ondansetron available',
+    ],
+    monitoring: 'Continuous SpO2, respiratory rate, pain scores, sedation level. Blood pressure (histamine-related hypotension). Have naloxone available.',
+    notes: 'Standard opioid for moderate-severe burn pain. Longer duration (3-5h) than fentanyl makes it better for sustained pain relief. Histamine release can cause hypotension — use with caution in actively resuscitating patients (consider fentanyl or ketamine instead). For severe burns, consider multimodal approach: morphine + ketamine sub-dissociative + scheduled NSAID/APAP.',
+    citations: [
+        'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.',
+        'Bitter CC et al. WMS Clinical Practice Guideline on Care of Burns in the Wilderness. Wilderness Environ Med. 2025;36(4):549-558.',
+    ],
+};
+const SILVER_SULFADIAZINE = {
+    id: 'silver-sulfadiazine',
+    name: 'Silver Sulfadiazine 1% (Silvadene)',
+    genericName: 'Silver sulfadiazine',
+    drugClass: 'Topical antimicrobial (sulfonamide + silver)',
+    route: 'Topical',
+    indications: ['Deep partial thickness burns', 'Full thickness burns'],
+    dosing: [
+        {
+            indication: 'Burns — deep partial/full thickness',
+            regimen: 'Apply 1/16 inch (1.5 mm) layer to burn wound BID. Cover with sterile gauze dressing. Remove old cream with gentle washing before reapplication.',
+        },
+    ],
+    contraindications: [
+        'Sulfonamide allergy',
+        'Pregnant women at or near term (kernicterus risk)',
+        'Neonates/infants <2 months',
+        'Superficial partial thickness burns (delays healing)',
+    ],
+    cautions: [
+        'Do NOT use on superficial (1st degree) or superficial partial thickness burns — delays epithelialization by 1-2 days compared to other dressings',
+        'Causes transient leukopenia in 5-15% of patients (benign, resolves spontaneously in 2-3 days)',
+        'Pseudoeschar formation can be mistaken for infection',
+        'Use only for deep partial and full thickness burns where antimicrobial coverage outweighs healing delay',
+    ],
+    monitoring: 'CBC if applied to large surface areas (>20% TBSA) — monitor for leukopenia. Wound assessment for infection signs.',
+    notes: 'Broad-spectrum antimicrobial covering Pseudomonas, S. aureus, most gram-negatives, and Candida. Despite widespread historical use, evidence shows it DELAYS healing in superficial burns — use bacitracin + nonadherent dressings instead for superficial partial thickness. Reserve SSD for deep partial/full thickness burns where infection risk is high and surgical intervention is anticipated. Modern silver dressings (Mepilex Ag, Aquacel Ag) are preferred alternatives where available.',
+    citations: [
+        'Wasiak J et al. Dressings for Superficial and Partial Thickness Burns. Cochrane. 2013;(3):CD002106.',
+        'Greenhalgh DG. Management of Burns. NEJM. 2019;380(24):2349-2359.',
+    ],
+};
 // -------------------------------------------------------------------
 // Drug Registry (Alphabetical by name)
 // -------------------------------------------------------------------
@@ -2569,6 +2818,7 @@ export const ALL_DRUGS = [
     APIXABAN,
     ASPIRIN,
     ATORVASTATIN,
+    BACITRACIN,
     BENZATHINE_PENICILLIN,
     BIKTARVY,
     BIVALIRUDIN,
@@ -2576,6 +2826,7 @@ export const ALL_DRUGS = [
     BUMETANIDE,
     CALCIUM_CHLORIDE,
     CALCIUM_GLUCONATE,
+    CALCIUM_GLUCONATE_GEL,
     CEFAZOLIN,
     CEFEPIME,
     CEFTRIAXONE,
@@ -2596,17 +2847,22 @@ export const ALL_DRUGS = [
     ENOXAPARIN,
     EPINEPHRINE,
     ESMOLOL,
+    FENTANYL,
     FLUDROCORTISONE,
     FONDAPARINUX,
     FUROSEMIDE,
     GENTAMICIN,
     HYPERTONIC_SALINE,
+    HYDROXOCOBALAMIN,
+    KETAMINE,
     LABETALOL,
     LIDOCAINE,
     SODIUM_ZIRCONIUM_CYCLOSILICATE,
     MAGNESIUM_SULFATE,
     METOLAZONE,
     METOPROLOL,
+    MIDAZOLAM,
+    MORPHINE,
     NACL_TABLETS,
     NICARDIPINE,
     NITROGLYCERIN,
@@ -2626,6 +2882,7 @@ export const ALL_DRUGS = [
     REGULAR_INSULIN,
     RITONAVIR,
     RIVAROXABAN,
+    SILVER_SULFADIAZINE,
     TENECTEPLASE,
     TDF_FTC,
     TERBUTALINE,
@@ -2659,12 +2916,14 @@ const NAME_TO_ID = [
     [/apixaban/i, 'apixaban'],
     [/aspirin|ASA|acetylsalicylic/i, 'aspirin'],
     [/atorvastatin|lipitor/i, 'atorvastatin'],
+    [/bacitracin/i, 'bacitracin'],
     [/biktarvy|BIC\/FTC\/TAF/i, 'biktarvy'],
     [/bivalirudin|angiomax/i, 'bivalirudin'],
     [/budesonide|pulmicort/i, 'budesonide-neb'],
     [/bumetanide|bumex/i, 'bumetanide'],
     [/benzathine.*penicillin/i, 'benzathine-penicillin'],
     [/calcium\s*chloride/i, 'calcium-chloride'],
+    [/calcium\s*gluconate\s*gel/i, 'calcium-gluconate-gel'],
     [/calcium\s*gluconate/i, 'calcium-gluconate'],
     [/cefazolin|ancef/i, 'cefazolin'],
     [/cefepime|maxipime/i, 'cefepime'],
@@ -2686,17 +2945,22 @@ const NAME_TO_ID = [
     [/enoxaparin|LMWH|low.molecular/i, 'enoxaparin'],
     [/epinephrine|adrenaline/i, 'epinephrine'],
     [/esmolol|brevibloc/i, 'esmolol'],
+    [/fentanyl|sublimaze/i, 'fentanyl'],
     [/fludrocortisone|florinef/i, 'fludrocortisone'],
     [/fondaparinux|arixtra/i, 'fondaparinux'],
     [/furosemide|lasix/i, 'furosemide'],
     [/gentamicin|garamycin/i, 'gentamicin'],
     [/hypertonic.*saline|3%.*saline|3%.*nacl/i, 'hypertonic-saline'],
+    [/hydroxocobalamin|cyanokit/i, 'hydroxocobalamin'],
+    [/ketamine|ketalar/i, 'ketamine'],
     [/labetalol/i, 'labetalol'],
     [/lidocaine/i, 'lidocaine'],
     [/lokelma|sodium\s*zirconium|szc/i, 'sodium-zirconium-cyclosilicate'],
     [/magnesium sulfate|mag sulfate|MgSO4/i, 'magnesium-sulfate'],
     [/metolazone|zaroxolyn/i, 'metolazone'],
     [/metoprolol|lopressor|toprol/i, 'metoprolol'],
+    [/midazolam|versed/i, 'midazolam'],
+    [/morphine/i, 'morphine'],
     [/nacl.*tab|salt.*tab|sodium\s*chloride.*tab/i, 'nacl-tablets'],
     [/nicardipine|cardene/i, 'nicardipine'],
     [/nitroglycerin|nitro|glyceryl trinitrate|NTG/i, 'nitroglycerin'],
@@ -2714,6 +2978,7 @@ const NAME_TO_ID = [
     [/regular\s*insulin|insulin\s*regular|humulin/i, 'regular-insulin'],
     [/ritonavir|norvir/i, 'ritonavir'],
     [/rivaroxaban/i, 'rivaroxaban'],
+    [/silver\s*sulfadiazine|silvadene|SSD/i, 'silver-sulfadiazine'],
     [/tenecteplase|TNKase/i, 'tenecteplase'],
     [/tenofovir.*emtricitabine|truvada|TDF\/FTC/i, 'tdf-ftc'],
     [/terbutaline|brethine/i, 'terbutaline'],

@@ -150,7 +150,7 @@ Every consult involving an **emergent procedure, resuscitation, or time-critical
 
 ## Current Status
 
-v1.21 — 16 consults, Pharmacy (71 drugs), Med-Calc (PESI/sPESI/CHA₂DS₂-VASc/NIHSS/TIMI/BAS)
+v1.31 — 23 consults, Pharmacy (79 drugs), Med-Calc (PESI/sPESI/CHA₂DS₂-VASc/NIHSS/TIMI/BAS/FWD)
 
 Core build tasks (all complete):
 - [x] Tasks 0-12: Foundation → PWA shell → TypeScript → Router → Categories → Wizard → Results → References → Deploy

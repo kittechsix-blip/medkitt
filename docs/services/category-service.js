@@ -64,6 +64,8 @@ async function refreshFromSupabase() {
         const categories = buildCategories(catResult.data, treeResult.data);
         const colors = buildColors(catResult.data);
         setCategoryCache(categories, colors);
+        // Re-merge hardcoded consults that Supabase doesn't have yet
+        await mergeHardcodedConsults();
         await cachePutAll('categories', catResult.data);
         await cachePutAll('category_trees', treeResult.data);
         await setLastSync('categories');

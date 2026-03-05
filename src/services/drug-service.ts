@@ -48,6 +48,8 @@ async function refreshFromSupabase(): Promise<void> {
   if (result.data && result.data.length > 0) {
     const drugs = result.data.map(mapDrugRow);
     setDrugCache(drugs);
+    // Re-merge hardcoded drugs that Supabase doesn't have yet
+    await mergeHardcodedDrugs();
     await cachePutAll('drugs', drugs);
     await setLastSync('drugs');
   }

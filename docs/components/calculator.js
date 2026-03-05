@@ -603,6 +603,572 @@ const CORRECTED_NA_CALCULATOR = {
     },
 };
 // -------------------------------------------------------------------
+// SVG Body Diagram Helpers
+// -------------------------------------------------------------------
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function createSvgPath(d) {
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', d);
+    return path;
+}
+function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpdate, instructionText) {
+    const state = {};
+    const pctMap = {};
+    const allRegions = [...frontRegions, ...backRegions];
+    if (perineum)
+        allRegions.push(perineum);
+    for (const r of allRegions) {
+        state[r.id] = false;
+        pctMap[r.id] = r.pct;
+    }
+    // Instruction text
+    const instrEl = document.createElement('div');
+    instrEl.style.cssText = 'font-size:13px;color:var(--color-text-muted);margin-bottom:12px;line-height:1.4;padding:8px 12px;background:var(--color-surface);border-radius:8px;border-left:3px solid var(--color-warning);';
+    instrEl.textContent = instructionText;
+    container.appendChild(instrEl);
+    // Total + Clear row
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;';
+    const totalEl = document.createElement('div');
+    totalEl.style.cssText = 'font-size:22px;font-weight:700;color:var(--color-primary);';
+    totalEl.textContent = 'TBSA: 0%';
+    const clearBtn = document.createElement('button');
+    clearBtn.style.cssText = 'padding:8px 16px;border-radius:8px;background:var(--color-surface);color:var(--color-text-muted);border:1px solid var(--color-text-muted);font-size:13px;cursor:pointer;min-height:44px;';
+    clearBtn.textContent = 'Clear All';
+    topRow.appendChild(totalEl);
+    topRow.appendChild(clearBtn);
+    container.appendChild(topRow);
+    // SVG wrapper
+    const svgWrap = document.createElement('div');
+    svgWrap.style.cssText = 'display:flex;justify-content:center;gap:24px;margin-bottom:16px;';
+    function buildSilhouette(regions, viewLabel) {
+        const svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 120 300');
+        svg.setAttribute('width', '140');
+        svg.setAttribute('height', '350');
+        svg.style.cssText = 'touch-action:manipulation;';
+        // View label
+        const text = document.createElementNS(SVG_NS, 'text');
+        text.setAttribute('x', '60');
+        text.setAttribute('y', '295');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('fill', 'var(--color-text-muted)');
+        text.setAttribute('font-size', '11');
+        text.textContent = viewLabel;
+        svg.appendChild(text);
+        for (const region of regions) {
+            const group = document.createElementNS(SVG_NS, 'g');
+            group.setAttribute('data-region', region.id);
+            group.style.cursor = 'pointer';
+            for (const d of region.paths) {
+                const path = createSvgPath(d);
+                path.setAttribute('fill', 'var(--color-surface)');
+                path.setAttribute('stroke', '#666');
+                path.setAttribute('stroke-width', '1');
+                group.appendChild(path);
+            }
+            // Percentage label centered in first path
+            const pctLabel = document.createElementNS(SVG_NS, 'text');
+            pctLabel.setAttribute('text-anchor', 'middle');
+            pctLabel.setAttribute('fill', 'var(--color-text-muted)');
+            pctLabel.setAttribute('font-size', '7');
+            pctLabel.setAttribute('pointer-events', 'none');
+            pctLabel.textContent = `${region.pct}%`;
+            group.appendChild(pctLabel);
+            group.addEventListener('click', () => {
+                state[region.id] = !state[region.id];
+                const paths = group.querySelectorAll('path');
+                paths.forEach(p => {
+                    p.setAttribute('fill', state[region.id] ? 'rgba(255, 87, 34, 0.7)' : 'var(--color-surface)');
+                    p.setAttribute('stroke', state[region.id] ? '#FF5722' : '#666');
+                });
+                recalc();
+            });
+            svg.appendChild(group);
+        }
+        return svg;
+    }
+    function recalc() {
+        let total = 0;
+        const vals = {};
+        for (const r of allRegions) {
+            if (state[r.id]) {
+                total += r.pct;
+                vals[r.id] = r.pct;
+            }
+            else {
+                vals[r.id] = 0;
+            }
+        }
+        vals['__tbsa'] = Math.round(total * 10) / 10;
+        totalEl.textContent = `TBSA: ${vals['__tbsa']}%`;
+        onUpdate(vals);
+    }
+    const frontSvg = buildSilhouette(frontRegions, 'FRONT');
+    const backSvg = buildSilhouette(backRegions, 'BACK');
+    svgWrap.appendChild(frontSvg);
+    svgWrap.appendChild(backSvg);
+    // Perineum button below SVGs
+    if (perineum) {
+        const periWrap = document.createElement('div');
+        periWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px;';
+        const periBtn = document.createElement('button');
+        periBtn.style.cssText = 'padding:10px 20px;border-radius:8px;background:var(--color-surface);color:var(--color-text);border:1px solid #666;font-size:13px;cursor:pointer;min-height:44px;';
+        periBtn.textContent = `Perineum (${perineum.pct}%)`;
+        periBtn.addEventListener('click', () => {
+            state[perineum.id] = !state[perineum.id];
+            periBtn.style.background = state[perineum.id] ? 'rgba(255, 87, 34, 0.7)' : 'var(--color-surface)';
+            periBtn.style.borderColor = state[perineum.id] ? '#FF5722' : '#666';
+            recalc();
+        });
+        periWrap.appendChild(periBtn);
+        container.appendChild(periWrap);
+    }
+    container.appendChild(svgWrap);
+    // Selected regions list
+    const selectedList = document.createElement('div');
+    selectedList.style.cssText = 'font-size:12px;color:var(--color-text-muted);min-height:20px;';
+    container.appendChild(selectedList);
+    clearBtn.addEventListener('click', () => {
+        for (const r of allRegions)
+            state[r.id] = false;
+        // Reset all SVG path fills
+        const allPaths = svgWrap.querySelectorAll('g[data-region] path');
+        allPaths.forEach(p => {
+            p.setAttribute('fill', 'var(--color-surface)');
+            p.setAttribute('stroke', '#666');
+        });
+        if (perineum) {
+            container.querySelectorAll('button').forEach(btn => {
+                if (btn.textContent?.includes('Perineum')) {
+                    btn.style.background = 'var(--color-surface)';
+                    btn.style.borderColor = '#666';
+                }
+            });
+        }
+        recalc();
+    });
+    // Position percentage labels after SVG is in DOM
+    requestAnimationFrame(() => {
+        [frontSvg, backSvg].forEach(svg => {
+            svg.querySelectorAll('g[data-region]').forEach(g => {
+                const paths = g.querySelectorAll('path');
+                const textEl = g.querySelector('text');
+                if (paths.length > 0 && textEl) {
+                    const bbox = paths[0].getBBox();
+                    textEl.setAttribute('x', String(bbox.x + bbox.width / 2));
+                    textEl.setAttribute('y', String(bbox.y + bbox.height / 2 + 3));
+                }
+            });
+        });
+    });
+}
+// -------------------------------------------------------------------
+// TBSA Adult — Rule of 9's Calculator
+// -------------------------------------------------------------------
+const ADULT_FRONT_REGIONS = [
+    { id: 'head-front', label: 'Head (front)', pct: 4.5, paths: ['M48,8 C48,3 52,0 60,0 C68,0 72,3 72,8 L72,22 C72,28 68,32 60,32 C52,32 48,28 48,22 Z'] },
+    { id: 'chest', label: 'Chest', pct: 9, paths: ['M38,36 L82,36 L82,72 L38,72 Z'] },
+    { id: 'abdomen', label: 'Abdomen', pct: 9, paths: ['M38,74 L82,74 L82,110 L38,110 Z'] },
+    { id: 'left-upper-arm-front', label: 'L Upper Arm (front)', pct: 2.25, paths: ['M24,38 L36,38 L36,72 L24,72 Z'] },
+    { id: 'left-forearm-front', label: 'L Forearm/Hand (front)', pct: 2.25, paths: ['M20,74 L36,74 L36,112 L20,112 Z'] },
+    { id: 'right-upper-arm-front', label: 'R Upper Arm (front)', pct: 2.25, paths: ['M84,38 L96,38 L96,72 L84,72 Z'] },
+    { id: 'right-forearm-front', label: 'R Forearm/Hand (front)', pct: 2.25, paths: ['M84,74 L100,74 L100,112 L84,112 Z'] },
+    { id: 'left-thigh-front', label: 'L Thigh (front)', pct: 4.5, paths: ['M38,114 L56,114 L54,178 L40,178 Z'] },
+    { id: 'left-lower-leg-front', label: 'L Lower Leg (front)', pct: 4.5, paths: ['M40,180 L54,180 L52,248 L42,248 Z'] },
+    { id: 'right-thigh-front', label: 'R Thigh (front)', pct: 4.5, paths: ['M64,114 L82,114 L80,178 L66,178 Z'] },
+    { id: 'right-lower-leg-front', label: 'R Lower Leg (front)', pct: 4.5, paths: ['M66,180 L80,180 L78,248 L68,248 Z'] },
+];
+const ADULT_BACK_REGIONS = [
+    { id: 'head-back', label: 'Head (back)', pct: 4.5, paths: ['M48,8 C48,3 52,0 60,0 C68,0 72,3 72,8 L72,22 C72,28 68,32 60,32 C52,32 48,28 48,22 Z'] },
+    { id: 'upper-back', label: 'Upper Back', pct: 9, paths: ['M38,36 L82,36 L82,72 L38,72 Z'] },
+    { id: 'lower-back', label: 'Lower Back', pct: 9, paths: ['M38,74 L82,74 L82,110 L38,110 Z'] },
+    { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: 2.25, paths: ['M24,38 L36,38 L36,72 L24,72 Z'] },
+    { id: 'left-forearm-back', label: 'L Forearm/Hand (back)', pct: 2.25, paths: ['M20,74 L36,74 L36,112 L20,112 Z'] },
+    { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: 2.25, paths: ['M84,38 L96,38 L96,72 L84,72 Z'] },
+    { id: 'right-forearm-back', label: 'R Forearm/Hand (back)', pct: 2.25, paths: ['M84,74 L100,74 L100,112 L84,112 Z'] },
+    { id: 'left-thigh-back', label: 'L Thigh (back)', pct: 4.5, paths: ['M38,114 L56,114 L54,178 L40,178 Z'] },
+    { id: 'left-lower-leg-back', label: 'L Lower Leg (back)', pct: 4.5, paths: ['M40,180 L54,180 L52,248 L42,248 Z'] },
+    { id: 'right-thigh-back', label: 'R Thigh (back)', pct: 4.5, paths: ['M64,114 L82,114 L80,178 L66,178 Z'] },
+    { id: 'right-lower-leg-back', label: 'R Lower Leg (back)', pct: 4.5, paths: ['M66,180 L80,180 L78,248 L68,248 Z'] },
+];
+const ADULT_PERINEUM = { id: 'perineum', label: 'Perineum', pct: 1, paths: [] };
+const TBSA_ADULT_CALCULATOR = {
+    id: 'tbsa-adult',
+    title: 'TBSA — Rule of 9s',
+    subtitle: 'Adult Total Body Surface Area',
+    description: 'Interactive body diagram for estimating burn TBSA in adults using the Rule of 9s. Tap burned regions to calculate total TBSA percentage.',
+    fields: [],
+    results: [],
+    thresholdNote: 'ABA Burn Center referral criteria: partial thickness >10% TBSA, full thickness any size, burns to face/hands/feet/genitalia/perineum/major joints, electrical/chemical/inhalation, circumferential burns.',
+    citations: [
+        'Wallace AB. The Exposure Treatment of Burns. Lancet. 1951;1(6653):501-504.',
+        'American Burn Association. Burn Center Referral Criteria. 2006.',
+    ],
+    computeResult: (values) => {
+        const tbsa = values['__tbsa'] || 0;
+        if (tbsa === 0) {
+            return { value: '0%', label: 'No Burn Selected', description: 'Tap body regions to mark burned areas.', colorVar: '--color-text-muted' };
+        }
+        let label;
+        let colorVar;
+        let desc;
+        if (tbsa < 10) {
+            label = 'Minor Burn';
+            colorVar = '--color-primary';
+            desc = `${tbsa}% TBSA. Minor burn — outpatient management may be appropriate if no other criteria.`;
+        }
+        else if (tbsa < 20) {
+            label = 'Moderate Burn';
+            colorVar = '--color-warning';
+            desc = `${tbsa}% TBSA. Moderate burn — consider burn center referral. Estimated Parkland volume: enter weight for precise calculation.`;
+        }
+        else if (tbsa < 40) {
+            label = 'Major Burn';
+            colorVar = '--color-warning';
+            desc = `${tbsa}% TBSA. Major burn — fluid resuscitation required. Estimated Parkland: 4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+        }
+        else {
+            label = 'Critical Burn';
+            colorVar = '--color-danger';
+            desc = `${tbsa}% TBSA. Critical burn — immediate aggressive resuscitation. Estimated Parkland: 4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+        }
+        return { value: `${tbsa}%`, label, description: desc, colorVar };
+    },
+    customRender: (container, onUpdate) => {
+        buildBodyDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate, 'Tap burned regions. Only mark 2nd degree (partial) and 3rd degree (full thickness) burns. Superficial (1st degree) burns are NOT included in TBSA.');
+    },
+};
+const LUND_BROWDER_AGES = [
+    { label: '0-1 year', headHalf: 9.5, thighHalf: 2.75, lowerLegHalf: 2.5 },
+    { label: '1-4 years', headHalf: 8.5, thighHalf: 3.25, lowerLegHalf: 2.5 },
+    { label: '5-9 years', headHalf: 6.5, thighHalf: 4, lowerLegHalf: 2.75 },
+    { label: '10-14 years', headHalf: 5.5, thighHalf: 4.25, lowerLegHalf: 3 },
+    { label: '>14 years', headHalf: 3.5, thighHalf: 4.75, lowerLegHalf: 3.5 },
+];
+// Fixed Lund-Browder values per side
+const LB_NECK = 1;
+const LB_TRUNK_ANT = 13;
+const LB_TRUNK_POST = 13;
+const LB_UPPER_ARM = 2;
+const LB_FOREARM = 1.5;
+const LB_HAND = 1.25;
+const LB_BUTTOCK = 2.5;
+const LB_FOOT = 1.75;
+const LB_PERINEUM = 1;
+function buildPedsRegions(ageIdx) {
+    const age = LUND_BROWDER_AGES[ageIdx];
+    const front = [
+        { id: 'head-front', label: 'Head (front)', pct: age.headHalf, paths: ['M48,12 C48,6 52,2 60,2 C68,2 72,6 72,12 L72,28 C72,34 68,38 60,38 C52,38 48,34 48,28 Z'] },
+        { id: 'neck-front', label: 'Neck (front)', pct: LB_NECK, paths: ['M54,39 L66,39 L66,46 L54,46 Z'] },
+        { id: 'trunk-ant', label: 'Trunk (anterior)', pct: LB_TRUNK_ANT, paths: ['M36,48 L84,48 L84,110 L36,110 Z'] },
+        { id: 'left-upper-arm-front', label: 'L Upper Arm (front)', pct: LB_UPPER_ARM, paths: ['M22,50 L34,50 L34,78 L22,78 Z'] },
+        { id: 'left-forearm-front', label: 'L Forearm (front)', pct: LB_FOREARM, paths: ['M18,80 L34,80 L34,106 L18,106 Z'] },
+        { id: 'left-hand-front', label: 'L Hand (front)', pct: LB_HAND, paths: ['M16,108 L34,108 L34,120 L16,120 Z'] },
+        { id: 'right-upper-arm-front', label: 'R Upper Arm (front)', pct: LB_UPPER_ARM, paths: ['M86,50 L98,50 L98,78 L86,78 Z'] },
+        { id: 'right-forearm-front', label: 'R Forearm (front)', pct: LB_FOREARM, paths: ['M86,80 L102,80 L102,106 L86,106 Z'] },
+        { id: 'right-hand-front', label: 'R Hand (front)', pct: LB_HAND, paths: ['M86,108 L104,108 L104,120 L86,120 Z'] },
+        { id: 'left-thigh-front', label: 'L Thigh (front)', pct: age.thighHalf, paths: ['M36,114 L56,114 L54,178 L38,178 Z'] },
+        { id: 'left-lower-leg-front', label: 'L Lower Leg (front)', pct: age.lowerLegHalf, paths: ['M38,180 L54,180 L52,238 L40,238 Z'] },
+        { id: 'left-foot-front', label: 'L Foot (front)', pct: LB_FOOT, paths: ['M38,240 L54,240 L54,256 L38,256 Z'] },
+        { id: 'right-thigh-front', label: 'R Thigh (front)', pct: age.thighHalf, paths: ['M64,114 L84,114 L82,178 L66,178 Z'] },
+        { id: 'right-lower-leg-front', label: 'R Lower Leg (front)', pct: age.lowerLegHalf, paths: ['M66,180 L82,180 L80,238 L68,238 Z'] },
+        { id: 'right-foot-front', label: 'R Foot (front)', pct: LB_FOOT, paths: ['M66,240 L82,240 L82,256 L66,256 Z'] },
+    ];
+    const back = [
+        { id: 'head-back', label: 'Head (back)', pct: age.headHalf, paths: ['M48,12 C48,6 52,2 60,2 C68,2 72,6 72,12 L72,28 C72,34 68,38 60,38 C52,38 48,34 48,28 Z'] },
+        { id: 'neck-back', label: 'Neck (back)', pct: LB_NECK, paths: ['M54,39 L66,39 L66,46 L54,46 Z'] },
+        { id: 'trunk-post', label: 'Trunk (posterior)', pct: LB_TRUNK_POST, paths: ['M36,48 L84,48 L84,96 L36,96 Z'] },
+        { id: 'left-buttock', label: 'L Buttock', pct: LB_BUTTOCK, paths: ['M36,98 L58,98 L58,110 L36,110 Z'] },
+        { id: 'right-buttock', label: 'R Buttock', pct: LB_BUTTOCK, paths: ['M62,98 L84,98 L84,110 L62,110 Z'] },
+        { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: LB_UPPER_ARM, paths: ['M22,50 L34,50 L34,78 L22,78 Z'] },
+        { id: 'left-forearm-back', label: 'L Forearm (back)', pct: LB_FOREARM, paths: ['M18,80 L34,80 L34,106 L18,106 Z'] },
+        { id: 'left-hand-back', label: 'L Hand (back)', pct: LB_HAND, paths: ['M16,108 L34,108 L34,120 L16,120 Z'] },
+        { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: LB_UPPER_ARM, paths: ['M86,50 L98,50 L98,78 L86,78 Z'] },
+        { id: 'right-forearm-back', label: 'R Forearm (back)', pct: LB_FOREARM, paths: ['M86,80 L102,80 L102,106 L86,106 Z'] },
+        { id: 'right-hand-back', label: 'R Hand (back)', pct: LB_HAND, paths: ['M86,108 L104,108 L104,120 L86,120 Z'] },
+        { id: 'left-thigh-back', label: 'L Thigh (back)', pct: age.thighHalf, paths: ['M36,114 L56,114 L54,178 L38,178 Z'] },
+        { id: 'left-lower-leg-back', label: 'L Lower Leg (back)', pct: age.lowerLegHalf, paths: ['M38,180 L54,180 L52,238 L40,238 Z'] },
+        { id: 'left-foot-back', label: 'L Foot (back)', pct: LB_FOOT, paths: ['M38,240 L54,240 L54,256 L38,256 Z'] },
+        { id: 'right-thigh-back', label: 'R Thigh (back)', pct: age.thighHalf, paths: ['M64,114 L84,114 L82,178 L66,178 Z'] },
+        { id: 'right-lower-leg-back', label: 'R Lower Leg (back)', pct: age.lowerLegHalf, paths: ['M66,180 L82,180 L80,238 L68,238 Z'] },
+        { id: 'right-foot-back', label: 'R Foot (back)', pct: LB_FOOT, paths: ['M66,240 L82,240 L82,256 L66,256 Z'] },
+    ];
+    const perineum = { id: 'perineum', label: 'Perineum', pct: LB_PERINEUM, paths: [] };
+    return { front, back, perineum };
+}
+const TBSA_PEDS_CALCULATOR = {
+    id: 'tbsa-peds',
+    title: 'TBSA — Lund-Browder',
+    subtitle: 'Pediatric Total Body Surface Area',
+    description: 'Age-adjusted Lund-Browder chart for pediatric burn TBSA estimation. Select child age group, then tap burned regions. Head, thigh, and lower leg percentages adjust with age.',
+    fields: [],
+    results: [],
+    thresholdNote: 'Pediatric burn center referral: >10% TBSA partial thickness, any full thickness, burns to face/hands/feet/genitalia/perineum/joints, electrical/chemical/inhalation, circumferential burns, suspected abuse.',
+    citations: [
+        'Lund CC, Browder NC. The Estimation of Areas of Burns. Surg Gynecol Obstet. 1944;79:352-358.',
+        'American Burn Association. Burn Center Referral Criteria. 2006.',
+    ],
+    computeResult: (values) => {
+        const tbsa = values['__tbsa'] || 0;
+        if (tbsa === 0) {
+            return { value: '0%', label: 'No Burn Selected', description: 'Select age group and tap body regions to mark burned areas.', colorVar: '--color-text-muted' };
+        }
+        let label;
+        let colorVar;
+        let desc;
+        if (tbsa < 10) {
+            label = 'Minor Burn';
+            colorVar = '--color-primary';
+            desc = `${tbsa}% TBSA. Minor burn — outpatient management may be appropriate if no other criteria.`;
+        }
+        else if (tbsa < 20) {
+            label = 'Moderate Burn';
+            colorVar = '--color-warning';
+            desc = `${tbsa}% TBSA. Moderate burn — burn center referral. Parkland: 3-4 mL x kg x ${tbsa}% over 24h.`;
+        }
+        else if (tbsa < 40) {
+            label = 'Major Burn';
+            colorVar = '--color-warning';
+            desc = `${tbsa}% TBSA. Major burn — fluid resuscitation required. Parkland: 3-4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+        }
+        else {
+            label = 'Critical Burn';
+            colorVar = '--color-danger';
+            desc = `${tbsa}% TBSA. Critical burn — immediate aggressive resuscitation. Parkland: 3-4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+        }
+        return { value: `${tbsa}%`, label, description: desc, colorVar };
+    },
+    customRender: (container, onUpdate) => {
+        let currentAgeIdx = 0;
+        // Age selector
+        const ageRow = document.createElement('div');
+        ageRow.style.cssText = 'margin-bottom:12px;';
+        const ageLabel = document.createElement('label');
+        ageLabel.style.cssText = 'font-size:14px;font-weight:600;color:var(--color-text);display:block;margin-bottom:6px;';
+        ageLabel.textContent = 'Patient Age Group';
+        ageRow.appendChild(ageLabel);
+        const ageSelect = document.createElement('select');
+        ageSelect.style.cssText = 'width:100%;padding:12px;border-radius:8px;background:var(--color-surface);color:var(--color-text);border:1px solid #666;font-size:16px;min-height:44px;';
+        for (let i = 0; i < LUND_BROWDER_AGES.length; i++) {
+            const opt = document.createElement('option');
+            opt.value = String(i);
+            opt.textContent = LUND_BROWDER_AGES[i].label;
+            ageSelect.appendChild(opt);
+        }
+        ageRow.appendChild(ageSelect);
+        container.appendChild(ageRow);
+        // Diagram container (will be rebuilt on age change)
+        const diagramContainer = document.createElement('div');
+        container.appendChild(diagramContainer);
+        function buildDiagram() {
+            diagramContainer.innerHTML = '';
+            const regions = buildPedsRegions(currentAgeIdx);
+            buildBodyDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate, 'Tap burned regions. Only mark 2nd degree (partial) and 3rd degree (full thickness) burns. Superficial (1st degree) burns are NOT included in TBSA.');
+        }
+        ageSelect.addEventListener('change', () => {
+            currentAgeIdx = parseInt(ageSelect.value, 10);
+            buildDiagram();
+            // Reset result
+            onUpdate({ '__tbsa': 0 });
+        });
+        buildDiagram();
+    },
+};
+// -------------------------------------------------------------------
+// Rule of 10's Calculator
+// -------------------------------------------------------------------
+const RULE_OF_10_CALCULATOR = {
+    id: 'burn-rule-of-10',
+    title: 'Rule of 10s',
+    subtitle: 'Initial Burn Fluid Rate',
+    description: 'Quick initial LR rate for burn resuscitation. Formula: %TBSA x 10 = initial LR rate (mL/hr). Add 100 mL/hr for every 10 kg above 80 kg.',
+    fields: [
+        { name: 'tbsa', label: 'TBSA', type: 'number', points: 0, valueIsPoints: true, unit: '%', description: 'Total body surface area burned (2nd/3rd degree)' },
+        { name: 'weight', label: 'Weight', type: 'number', points: 0, valueIsPoints: true, unit: 'kg', description: 'Patient weight in kilograms' },
+    ],
+    results: [],
+    thresholdNote: 'Rule of 10s is a rapid estimation for initial resuscitation. Titrate to urine output 0.5-1 mL/kg/hr (adults) or 1 mL/kg/hr (children). Transition to formal Parkland or protocol calculation as soon as possible.',
+    citations: [
+        'Chung KK, et al. Simple Method of Calculating Fluid Resuscitation Rate for Initial Burn Management. J Trauma. 2009;67(6):1361-1365.',
+        'ISBI Practice Guidelines Committee. ISBI Practice Guidelines for Burn Care. Burns. 2016;42(5):953-1021.',
+    ],
+    computeResult: (values) => {
+        const tbsa = values['tbsa'] || 0;
+        const weight = values['weight'] || 0;
+        if (tbsa <= 0 || weight <= 0) {
+            return { value: '--', label: 'Enter values', description: 'Enter TBSA % and weight to calculate initial LR rate.', colorVar: '--color-text-muted' };
+        }
+        let baseRate = tbsa * 10;
+        let weightAdj = 0;
+        if (weight > 80) {
+            weightAdj = Math.floor((weight - 80) / 10) * 100;
+        }
+        const totalRate = baseRate + weightAdj;
+        const weightNote = weight > 80
+            ? ` + ${weightAdj} mL/hr weight adjustment (${Math.floor((weight - 80) / 10)} x 100 for ${weight - 80} kg above 80 kg)`
+            : '';
+        let colorVar;
+        if (tbsa < 20) {
+            colorVar = '--color-primary';
+        }
+        else if (tbsa < 40) {
+            colorVar = '--color-warning';
+        }
+        else {
+            colorVar = '--color-danger';
+        }
+        return {
+            value: `${totalRate} mL/hr`,
+            label: 'Initial LR Rate',
+            description: `Base rate: ${tbsa}% x 10 = ${baseRate} mL/hr${weightNote}. Total: ${totalRate} mL/hr LR. Titrate to UOP 0.5-1 mL/kg/hr.`,
+            colorVar,
+        };
+    },
+};
+// -------------------------------------------------------------------
+// Parkland Formula Calculator
+// -------------------------------------------------------------------
+const PARKLAND_CALCULATOR = {
+    id: 'burn-parkland',
+    title: 'Parkland Formula',
+    subtitle: 'Burn Fluid Resuscitation',
+    description: 'Calculates 24-hour crystalloid resuscitation volume for burn patients. Formula: 4 mL x weight (kg) x %TBSA. First half given over initial 8 hours from time of burn, second half over next 16 hours.',
+    fields: [
+        { name: 'weight', label: 'Weight', type: 'number', points: 0, valueIsPoints: true, unit: 'kg', description: 'Patient weight in kilograms' },
+        { name: 'tbsa', label: 'TBSA', type: 'number', points: 0, valueIsPoints: true, unit: '%', description: 'Total body surface area burned (2nd/3rd degree)' },
+        { name: 'hours-elapsed', label: 'Hours Since Burn', type: 'number', points: 0, valueIsPoints: true, unit: 'hours', description: 'Time elapsed since burn injury (0-24)' },
+    ],
+    results: [],
+    thresholdNote: 'Parkland formula is a starting point. Titrate to urine output 0.5-1 mL/kg/hr (adults), 1 mL/kg/hr (children <30 kg). Monitor for fluid creep. Consider colloids if exceeding 6 mL/kg/%TBSA in first 24h.',
+    citations: [
+        'Baxter CR, Shires T. Physiological Response to Crystalloid Resuscitation of Severe Burns. Ann N Y Acad Sci. 1968;150(3):874-894.',
+        'ISBI Practice Guidelines Committee. ISBI Practice Guidelines for Burn Care. Burns. 2016;42(5):953-1021.',
+        'Greenhalgh DG. Burn Resuscitation: The Results of the ISBI/ABA Survey. Burns. 2010;36(2):176-182.',
+    ],
+    computeResult: (values) => {
+        const weight = values['weight'] || 0;
+        const tbsa = values['tbsa'] || 0;
+        const hoursElapsed = Math.min(Math.max(values['hours-elapsed'] || 0, 0), 24);
+        if (weight <= 0 || tbsa <= 0) {
+            return { value: '--', label: 'Enter values', description: 'Enter weight and TBSA % to calculate resuscitation volume.', colorVar: '--color-text-muted' };
+        }
+        const total24h = 4 * weight * tbsa;
+        const firstHalf = total24h / 2;
+        const secondHalf = total24h / 2;
+        let desc;
+        let rateLabel;
+        let currentRate;
+        if (hoursElapsed >= 24) {
+            currentRate = 0;
+            rateLabel = '24h Complete';
+            desc = `24h total: ${Math.round(total24h).toLocaleString()} mL LR. Resuscitation period complete. Transition to maintenance fluids. Reassess volume status.`;
+        }
+        else if (hoursElapsed < 8) {
+            const remainingFirst8 = 8 - hoursElapsed;
+            const volumeGivenFirst8 = (hoursElapsed / 8) * firstHalf;
+            const volumeRemaining = firstHalf - volumeGivenFirst8;
+            currentRate = Math.round(volumeRemaining / remainingFirst8);
+            rateLabel = `First 8h Rate`;
+            desc = `24h total: ${Math.round(total24h).toLocaleString()} mL LR. First 8h: ${Math.round(firstHalf).toLocaleString()} mL (${Math.round(firstHalf / 8)} mL/hr). ` +
+                `${hoursElapsed > 0 ? `${hoursElapsed}h elapsed — remaining ${Math.round(volumeRemaining).toLocaleString()} mL over ${remainingFirst8}h = ` : ''}${currentRate} mL/hr. ` +
+                `Next 16h: ${Math.round(secondHalf).toLocaleString()} mL (${Math.round(secondHalf / 16)} mL/hr).`;
+        }
+        else {
+            const remainingSecond16 = 24 - hoursElapsed;
+            const hoursIntoSecondPhase = hoursElapsed - 8;
+            const volumeGivenSecond = (hoursIntoSecondPhase / 16) * secondHalf;
+            const volumeRemaining = secondHalf - volumeGivenSecond;
+            currentRate = Math.round(volumeRemaining / remainingSecond16);
+            rateLabel = `Next 16h Rate`;
+            desc = `24h total: ${Math.round(total24h).toLocaleString()} mL LR. First 8h phase complete (${Math.round(firstHalf).toLocaleString()} mL). ` +
+                `${hoursIntoSecondPhase > 0 ? `${hoursIntoSecondPhase}h into second phase — remaining ${Math.round(volumeRemaining).toLocaleString()} mL over ${remainingSecond16}h = ` : ''}${currentRate} mL/hr.`;
+        }
+        let colorVar;
+        if (tbsa < 20) {
+            colorVar = '--color-primary';
+        }
+        else if (tbsa < 40) {
+            colorVar = '--color-warning';
+        }
+        else {
+            colorVar = '--color-danger';
+        }
+        return {
+            value: hoursElapsed >= 24 ? `${Math.round(total24h).toLocaleString()} mL` : `${currentRate} mL/hr`,
+            label: rateLabel,
+            description: desc,
+            colorVar,
+        };
+    },
+};
+// -------------------------------------------------------------------
+// Dell-Seton Burn Protocol Calculator
+// -------------------------------------------------------------------
+const DELL_SETON_CALCULATOR = {
+    id: 'burn-dell-seton',
+    title: 'Dell-Seton Protocol',
+    subtitle: 'Burn Resuscitation Protocol',
+    description: 'Dell Seton Medical Center burn resuscitation protocol. Auto-selects fluid strategy based on TBSA tier: 20-39% starts LR (Rule of 10s) then adds FFP; >=40% starts FFP immediately with trialysis.',
+    fields: [
+        { name: 'weight', label: 'Weight', type: 'number', points: 0, valueIsPoints: true, unit: 'kg', description: 'Patient weight in kilograms' },
+        { name: 'tbsa', label: 'TBSA', type: 'number', points: 0, valueIsPoints: true, unit: '%', description: 'Total body surface area burned (2nd/3rd degree)' },
+    ],
+    results: [],
+    thresholdNote: 'Dell-Seton protocol uses early FFP to reduce crystalloid volume and mitigate fluid creep. Titrate to UOP 0.5-1 mL/kg/hr. Volume caps prevent over-resuscitation. Trialysis = LR + FFP + albumin for burns >=40%.',
+    citations: [
+        'Dell Seton Medical Center Burn Resuscitation Protocol. Internal Clinical Guideline.',
+        'Pham TN, et al. Impact of Tight Glycemic Control in Severely Burned Children. J Trauma. 2005;59(5):1148-1154.',
+        'Cochran A, et al. Early Colloid in Burn Resuscitation. J Burn Care Res. 2007;28(5):639-644.',
+    ],
+    computeResult: (values) => {
+        const weight = values['weight'] || 0;
+        const tbsa = values['tbsa'] || 0;
+        if (weight <= 0 || tbsa <= 0) {
+            return { value: '--', label: 'Enter values', description: 'Enter weight and TBSA % to calculate protocol recommendations.', colorVar: '--color-text-muted' };
+        }
+        if (tbsa < 20) {
+            return {
+                value: `${tbsa}% TBSA`,
+                label: 'Protocol Not Indicated',
+                description: `TBSA <20% — formal burn resuscitation protocol not indicated. Standard IVF management. Consider Parkland formula if clinical concern warrants fluid resuscitation.`,
+                colorVar: '--color-primary',
+            };
+        }
+        // Rule of 10s base rate
+        let baseRate = tbsa * 10;
+        let weightAdj = 0;
+        if (weight > 80) {
+            weightAdj = Math.floor((weight - 80) / 10) * 100;
+        }
+        const startingRate = baseRate + weightAdj;
+        const ffpSwitch = Math.round(15 * tbsa * weight);
+        const volumeCap = Math.round(20 * tbsa * weight);
+        if (tbsa >= 40) {
+            // Tier 2: >=40% TBSA — start FFP immediately
+            return {
+                value: `${startingRate} mL/hr FFP`,
+                label: 'Tier 2: Immediate FFP + Trialysis',
+                description: `TBSA >=40% — Start FFP at ${startingRate} mL/hr (Rule of 10s: ${tbsa}% x 10${weightAdj > 0 ? ` + ${weightAdj} weight adj` : ''}). ` +
+                    `Volume cap: ${volumeCap.toLocaleString()} mL (20 cc x ${tbsa}% x ${weight} kg). ` +
+                    `Initiate TRIALYSIS immediately (LR + FFP + albumin). Titrate to UOP 0.5-1 mL/kg/hr. ` +
+                    `Consider vasopressin if rate exceeds cap.`,
+                colorVar: '--color-danger',
+            };
+        }
+        // Tier 1: 20-39% TBSA — start LR, switch to FFP
+        return {
+            value: `${startingRate} mL/hr LR`,
+            label: 'Tier 1: LR Start, FFP Switch',
+            description: `TBSA 20-39% — Start LR at ${startingRate} mL/hr (Rule of 10s: ${tbsa}% x 10${weightAdj > 0 ? ` + ${weightAdj} weight adj` : ''}). ` +
+                `FFP switch trigger: ${ffpSwitch.toLocaleString()} mL cumulative (15 cc x ${tbsa}% x ${weight} kg). ` +
+                `Volume cap: ${volumeCap.toLocaleString()} mL (20 cc x ${tbsa}% x ${weight} kg). ` +
+                `Titrate to UOP 0.5-1 mL/kg/hr. Switch from LR to FFP when cumulative volume reaches trigger.`,
+            colorVar: '--color-warning',
+        };
+    },
+};
+// -------------------------------------------------------------------
 // Calculator Registry
 // -------------------------------------------------------------------
 const CALCULATORS = {
@@ -614,6 +1180,11 @@ const CALCULATORS = {
     'bas': BAS_CALCULATOR,
     'fwd': FWD_CALCULATOR,
     'corrected-na': CORRECTED_NA_CALCULATOR,
+    'tbsa-adult': TBSA_ADULT_CALCULATOR,
+    'tbsa-peds': TBSA_PEDS_CALCULATOR,
+    'burn-rule-of-10': RULE_OF_10_CALCULATOR,
+    'burn-parkland': PARKLAND_CALCULATOR,
+    'burn-dell-seton': DELL_SETON_CALCULATOR,
 };
 /** Get all available calculators sorted alphabetically by title */
 export function getAllCalculators() {
@@ -736,6 +1307,70 @@ export function renderCalculator(container, calculatorId) {
     scoreDisplay.className = 'calculator-score-display';
     scoreDisplay.id = 'calc-score-display';
     container.appendChild(scoreDisplay);
+    // Custom render path (e.g., SVG body diagrams)
+    if (calc.customRender) {
+        const customContainer = document.createElement('div');
+        customContainer.className = 'calculator-form';
+        container.appendChild(customContainer);
+        calc.customRender(customContainer, (values) => {
+            if (calc.computeResult) {
+                const result = calc.computeResult(values);
+                scoreDisplay.innerHTML = '';
+                const scoreNum = document.createElement('div');
+                scoreNum.className = 'calculator-score-number';
+                scoreNum.textContent = result.value;
+                scoreDisplay.appendChild(scoreNum);
+                const labelEl = document.createElement('div');
+                labelEl.className = 'calculator-result-label';
+                labelEl.textContent = result.label;
+                labelEl.style.color = `var(${result.colorVar})`;
+                scoreDisplay.appendChild(labelEl);
+                const descEl = document.createElement('div');
+                descEl.className = 'calculator-result-risk';
+                descEl.textContent = result.description;
+                scoreDisplay.appendChild(descEl);
+            }
+        });
+        // Threshold note
+        const threshold = document.createElement('div');
+        threshold.className = 'calculator-threshold';
+        threshold.textContent = calc.thresholdNote;
+        container.appendChild(threshold);
+        // Citations
+        const citationSection = document.createElement('details');
+        citationSection.className = 'calculator-citations';
+        const citSummary = document.createElement('summary');
+        citSummary.textContent = `References (${calc.citations.length})`;
+        citationSection.appendChild(citSummary);
+        const citList = document.createElement('ol');
+        citList.className = 'calculator-citation-list';
+        for (const cit of calc.citations) {
+            const li = document.createElement('li');
+            li.textContent = cit;
+            citList.appendChild(li);
+        }
+        citationSection.appendChild(citList);
+        container.appendChild(citationSection);
+        // Initial render with empty state
+        if (calc.computeResult) {
+            const initial = calc.computeResult({ '__tbsa': 0 });
+            scoreDisplay.innerHTML = '';
+            const scoreNum = document.createElement('div');
+            scoreNum.className = 'calculator-score-number';
+            scoreNum.textContent = initial.value;
+            scoreDisplay.appendChild(scoreNum);
+            const labelEl = document.createElement('div');
+            labelEl.className = 'calculator-result-label';
+            labelEl.textContent = initial.label;
+            labelEl.style.color = `var(${initial.colorVar})`;
+            scoreDisplay.appendChild(labelEl);
+            const descEl = document.createElement('div');
+            descEl.className = 'calculator-result-risk';
+            descEl.textContent = initial.description;
+            scoreDisplay.appendChild(descEl);
+        }
+        return;
+    }
     // Form
     const form = document.createElement('div');
     form.className = 'calculator-form';

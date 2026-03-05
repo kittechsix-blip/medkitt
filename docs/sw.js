@@ -2,7 +2,7 @@
 // Network-first for code, cache-first for images
 // Ensures updates load immediately without manual cache clearing
 
-const CACHE_NAME = 'medkitt-v134';
+const CACHE_NAME = 'medkitt-v136';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -69,6 +69,12 @@ const ASSETS_TO_CACHE = [
   './data/trees/distal-radius.js',
   './data/trees/splinting.js',
   './data/trees/rabies.js',
+  './data/trees/burns.js',
+  './images/burns/burns-depth.png',
+  './images/burns/burns-escharotomy-lines.png',
+  './images/burns/burns-rule-of-nines.png',
+  './images/burns/burns-lund-browder-infant.png',
+  './images/burns/burns-lund-browder-child.png',
   './images/chest-tube/triangle-of-safety.png',
   './images/chest-tube/needle-over-rib.png',
   './images/chest-tube/three-bottle-system.png',
