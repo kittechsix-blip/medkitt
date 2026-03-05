@@ -603,9 +603,14 @@ const CORRECTED_NA_CALCULATOR = {
     },
 };
 // -------------------------------------------------------------------
-// SVG Body Diagram Helpers
+// SVG Body Diagram Helpers — Interactive TBSA Calculator
 // -------------------------------------------------------------------
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const BURN_COLORS = {
+    none: { fill: 'var(--color-surface)', stroke: '#555' },
+    second: { fill: 'rgba(255, 152, 0, 0.65)', stroke: '#FF9800' },
+    third: { fill: 'rgba(211, 47, 47, 0.75)', stroke: '#D32F2F' },
+};
 function createSvgPath(d) {
     const path = document.createElementNS(SVG_NS, 'path');
     path.setAttribute('d', d);
@@ -618,17 +623,51 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
     if (perineum)
         allRegions.push(perineum);
     for (const r of allRegions) {
-        state[r.id] = false;
+        state[r.id] = 'none';
         pctMap[r.id] = r.pct;
     }
+    let selectedDegree = 'second';
+    let isPainting = false;
     // Instruction text
     const instrEl = document.createElement('div');
     instrEl.style.cssText = 'font-size:13px;color:var(--color-text-muted);margin-bottom:12px;line-height:1.4;padding:8px 12px;background:var(--color-surface);border-radius:8px;border-left:3px solid var(--color-warning);';
     instrEl.textContent = instructionText;
     container.appendChild(instrEl);
-    // Total + Clear row
+    // --- Burn degree selector ---
+    const degreeRow = document.createElement('div');
+    degreeRow.style.cssText = 'display:flex;gap:8px;margin-bottom:14px;';
+    function makeDegreeBtn(label, degree, color) {
+        const btn = document.createElement('button');
+        btn.style.cssText = `flex:1;padding:10px 6px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-height:44px;border:2px solid ${color};transition:all 0.15s;`;
+        btn.textContent = label;
+        btn.setAttribute('data-degree', degree);
+        return btn;
+    }
+    const btn2nd = makeDegreeBtn('2nd\u00B0 Partial', 'second', '#FF9800');
+    const btn3rd = makeDegreeBtn('3rd\u00B0 Full', 'third', '#D32F2F');
+    function updateDegreeBtns() {
+        if (selectedDegree === 'second') {
+            btn2nd.style.background = 'rgba(255, 152, 0, 0.25)';
+            btn2nd.style.color = '#FF9800';
+            btn3rd.style.background = 'var(--color-surface)';
+            btn3rd.style.color = 'var(--color-text-muted)';
+        }
+        else {
+            btn2nd.style.background = 'var(--color-surface)';
+            btn2nd.style.color = 'var(--color-text-muted)';
+            btn3rd.style.background = 'rgba(211, 47, 47, 0.25)';
+            btn3rd.style.color = '#D32F2F';
+        }
+    }
+    btn2nd.addEventListener('click', () => { selectedDegree = 'second'; updateDegreeBtns(); });
+    btn3rd.addEventListener('click', () => { selectedDegree = 'third'; updateDegreeBtns(); });
+    degreeRow.appendChild(btn2nd);
+    degreeRow.appendChild(btn3rd);
+    container.appendChild(degreeRow);
+    updateDegreeBtns();
+    // --- Total display + Clear ---
     const topRow = document.createElement('div');
-    topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;';
+    topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
     const totalEl = document.createElement('div');
     totalEl.style.cssText = 'font-size:22px;font-weight:700;color:var(--color-primary);';
     totalEl.textContent = 'TBSA: 0%';
@@ -638,19 +677,77 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
     topRow.appendChild(totalEl);
     topRow.appendChild(clearBtn);
     container.appendChild(topRow);
-    // SVG wrapper
+    // --- Degree breakdown display ---
+    const breakdownEl = document.createElement('div');
+    breakdownEl.style.cssText = 'font-size:13px;color:var(--color-text-muted);margin-bottom:14px;min-height:18px;';
+    container.appendChild(breakdownEl);
+    // --- SVG wrapper ---
     const svgWrap = document.createElement('div');
-    svgWrap.style.cssText = 'display:flex;justify-content:center;gap:24px;margin-bottom:16px;';
+    svgWrap.style.cssText = 'display:flex;justify-content:center;gap:16px;margin-bottom:12px;';
+    // Helper: find the region group element from a point
+    function findRegionFromPoint(x, y) {
+        const el = document.elementFromPoint(x, y);
+        if (!el)
+            return null;
+        const g = el.closest?.('g[data-region]');
+        if (g)
+            return g.getAttribute('data-region');
+        return null;
+    }
+    // Apply degree to a region and update visuals
+    function applyDegreeToRegion(regionId) {
+        if (!pctMap[regionId] && regionId !== 'perineum')
+            return;
+        // Toggle: if same degree, clear it; otherwise set to selected degree
+        if (state[regionId] === selectedDegree) {
+            state[regionId] = 'none';
+        }
+        else {
+            state[regionId] = selectedDegree;
+        }
+        updateRegionVisual(regionId);
+        recalc();
+    }
+    // Paint a region without toggle (for drag — always applies selected degree)
+    function paintRegion(regionId) {
+        if (!pctMap[regionId] && regionId !== 'perineum')
+            return;
+        if (state[regionId] === selectedDegree)
+            return; // already painted
+        state[regionId] = selectedDegree;
+        updateRegionVisual(regionId);
+        recalc();
+    }
+    // Update visual appearance of a region
+    function updateRegionVisual(regionId) {
+        const degree = state[regionId];
+        const colors = BURN_COLORS[degree];
+        // SVG region groups
+        svgWrap.querySelectorAll(`g[data-region="${regionId}"] path`).forEach(p => {
+            p.setAttribute('fill', colors.fill);
+            p.setAttribute('stroke', colors.stroke);
+            p.setAttribute('stroke-width', degree === 'none' ? '0.8' : '1.5');
+        });
+        // Perineum button
+        if (regionId === 'perineum') {
+            const periBtn = container.querySelector('[data-perineum-btn]');
+            if (periBtn) {
+                periBtn.style.background = colors.fill;
+                periBtn.style.borderColor = colors.stroke;
+                periBtn.style.color = degree === 'none' ? 'var(--color-text)' : '#fff';
+            }
+        }
+    }
     function buildSilhouette(regions, viewLabel) {
         const svg = document.createElementNS(SVG_NS, 'svg');
-        svg.setAttribute('viewBox', '0 0 120 300');
-        svg.setAttribute('width', '140');
-        svg.setAttribute('height', '350');
-        svg.style.cssText = 'touch-action:manipulation;';
+        svg.setAttribute('viewBox', '0 0 130 310');
+        svg.setAttribute('width', '145');
+        svg.setAttribute('height', '345');
+        svg.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;';
         // View label
         const text = document.createElementNS(SVG_NS, 'text');
-        text.setAttribute('x', '60');
-        text.setAttribute('y', '295');
+        text.setAttribute('x', '65');
+        text.setAttribute('y', '308');
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('fill', 'var(--color-text-muted)');
         text.setAttribute('font-size', '11');
@@ -663,11 +760,12 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
             for (const d of region.paths) {
                 const path = createSvgPath(d);
                 path.setAttribute('fill', 'var(--color-surface)');
-                path.setAttribute('stroke', '#666');
-                path.setAttribute('stroke-width', '1');
+                path.setAttribute('stroke', '#555');
+                path.setAttribute('stroke-width', '0.8');
+                path.setAttribute('stroke-linejoin', 'round');
                 group.appendChild(path);
             }
-            // Percentage label centered in first path
+            // Percentage label
             const pctLabel = document.createElementNS(SVG_NS, 'text');
             pctLabel.setAttribute('text-anchor', 'middle');
             pctLabel.setAttribute('fill', 'var(--color-text-muted)');
@@ -675,33 +773,82 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
             pctLabel.setAttribute('pointer-events', 'none');
             pctLabel.textContent = `${region.pct}%`;
             group.appendChild(pctLabel);
-            group.addEventListener('click', () => {
-                state[region.id] = !state[region.id];
-                const paths = group.querySelectorAll('path');
-                paths.forEach(p => {
-                    p.setAttribute('fill', state[region.id] ? 'rgba(255, 87, 34, 0.7)' : 'var(--color-surface)');
-                    p.setAttribute('stroke', state[region.id] ? '#FF5722' : '#666');
-                });
-                recalc();
-            });
             svg.appendChild(group);
         }
+        // --- Touch/mouse drag handlers ---
+        svg.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isPainting = true;
+            const regionId = findRegionFromPoint(e.clientX, e.clientY);
+            if (regionId)
+                applyDegreeToRegion(regionId);
+        });
+        svg.addEventListener('mousemove', (e) => {
+            if (!isPainting)
+                return;
+            e.preventDefault();
+            const regionId = findRegionFromPoint(e.clientX, e.clientY);
+            if (regionId)
+                paintRegion(regionId);
+        });
+        svg.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isPainting = true;
+            const touch = e.touches[0];
+            const regionId = findRegionFromPoint(touch.clientX, touch.clientY);
+            if (regionId)
+                applyDegreeToRegion(regionId);
+        }, { passive: false });
+        svg.addEventListener('touchmove', (e) => {
+            if (!isPainting)
+                return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const regionId = findRegionFromPoint(touch.clientX, touch.clientY);
+            if (regionId)
+                paintRegion(regionId);
+        }, { passive: false });
         return svg;
     }
+    // Stop painting on mouseup/touchend (global)
+    const stopPaint = () => { isPainting = false; };
+    document.addEventListener('mouseup', stopPaint);
+    document.addEventListener('touchend', stopPaint);
     function recalc() {
-        let total = 0;
+        let total2nd = 0;
+        let total3rd = 0;
         const vals = {};
         for (const r of allRegions) {
-            if (state[r.id]) {
-                total += r.pct;
+            if (state[r.id] === 'second') {
+                total2nd += r.pct;
+                vals[r.id] = r.pct;
+            }
+            else if (state[r.id] === 'third') {
+                total3rd += r.pct;
                 vals[r.id] = r.pct;
             }
             else {
                 vals[r.id] = 0;
             }
         }
-        vals['__tbsa'] = Math.round(total * 10) / 10;
-        totalEl.textContent = `TBSA: ${vals['__tbsa']}%`;
+        const totalPct = Math.round((total2nd + total3rd) * 10) / 10;
+        total2nd = Math.round(total2nd * 10) / 10;
+        total3rd = Math.round(total3rd * 10) / 10;
+        vals['__tbsa'] = totalPct;
+        vals['__tbsa_2nd'] = total2nd;
+        vals['__tbsa_3rd'] = total3rd;
+        totalEl.textContent = `TBSA: ${totalPct}%`;
+        if (totalPct > 0) {
+            const parts = [];
+            if (total2nd > 0)
+                parts.push(`2nd\u00B0: ${total2nd}%`);
+            if (total3rd > 0)
+                parts.push(`3rd\u00B0: ${total3rd}%`);
+            breakdownEl.textContent = parts.join('  \u2022  ');
+        }
+        else {
+            breakdownEl.textContent = '';
+        }
         onUpdate(vals);
     }
     const frontSvg = buildSilhouette(frontRegions, 'FRONT');
@@ -711,40 +858,28 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
     // Perineum button below SVGs
     if (perineum) {
         const periWrap = document.createElement('div');
-        periWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px;';
+        periWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:10px;';
         const periBtn = document.createElement('button');
-        periBtn.style.cssText = 'padding:10px 20px;border-radius:8px;background:var(--color-surface);color:var(--color-text);border:1px solid #666;font-size:13px;cursor:pointer;min-height:44px;';
+        periBtn.style.cssText = 'padding:10px 20px;border-radius:8px;background:var(--color-surface);color:var(--color-text);border:1px solid #555;font-size:13px;cursor:pointer;min-height:44px;';
         periBtn.textContent = `Perineum (${perineum.pct}%)`;
+        periBtn.setAttribute('data-perineum-btn', '');
         periBtn.addEventListener('click', () => {
-            state[perineum.id] = !state[perineum.id];
-            periBtn.style.background = state[perineum.id] ? 'rgba(255, 87, 34, 0.7)' : 'var(--color-surface)';
-            periBtn.style.borderColor = state[perineum.id] ? '#FF5722' : '#666';
-            recalc();
+            applyDegreeToRegion(perineum.id);
         });
         periWrap.appendChild(periBtn);
         container.appendChild(periWrap);
     }
     container.appendChild(svgWrap);
-    // Selected regions list
-    const selectedList = document.createElement('div');
-    selectedList.style.cssText = 'font-size:12px;color:var(--color-text-muted);min-height:20px;';
-    container.appendChild(selectedList);
+    // --- Legend ---
+    const legendEl = document.createElement('div');
+    legendEl.style.cssText = 'display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--color-text-muted);margin-bottom:8px;';
+    legendEl.innerHTML = '<span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(255,152,0,0.65);border:1px solid #FF9800;"></span>2nd\u00B0</span>' +
+        '<span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(211,47,47,0.75);border:1px solid #D32F2F;"></span>3rd\u00B0</span>';
+    container.appendChild(legendEl);
     clearBtn.addEventListener('click', () => {
-        for (const r of allRegions)
-            state[r.id] = false;
-        // Reset all SVG path fills
-        const allPaths = svgWrap.querySelectorAll('g[data-region] path');
-        allPaths.forEach(p => {
-            p.setAttribute('fill', 'var(--color-surface)');
-            p.setAttribute('stroke', '#666');
-        });
-        if (perineum) {
-            container.querySelectorAll('button').forEach(btn => {
-                if (btn.textContent?.includes('Perineum')) {
-                    btn.style.background = 'var(--color-surface)';
-                    btn.style.borderColor = '#666';
-                }
-            });
+        for (const r of allRegions) {
+            state[r.id] = 'none';
+            updateRegionVisual(r.id);
         }
         recalc();
     });
@@ -766,38 +901,118 @@ function buildBodyDiagram(container, frontRegions, backRegions, perineum, onUpda
 // -------------------------------------------------------------------
 // TBSA Adult — Rule of 9's Calculator
 // -------------------------------------------------------------------
+// Anatomically-shaped SVG body regions in viewBox 0 0 130 310
 const ADULT_FRONT_REGIONS = [
-    { id: 'head-front', label: 'Head (front)', pct: 4.5, paths: ['M48,8 C48,3 52,0 60,0 C68,0 72,3 72,8 L72,22 C72,28 68,32 60,32 C52,32 48,28 48,22 Z'] },
-    { id: 'chest', label: 'Chest', pct: 9, paths: ['M38,36 L82,36 L82,72 L38,72 Z'] },
-    { id: 'abdomen', label: 'Abdomen', pct: 9, paths: ['M38,74 L82,74 L82,110 L38,110 Z'] },
-    { id: 'left-upper-arm-front', label: 'L Upper Arm (front)', pct: 2.25, paths: ['M24,38 L36,38 L36,72 L24,72 Z'] },
-    { id: 'left-forearm-front', label: 'L Forearm/Hand (front)', pct: 2.25, paths: ['M20,74 L36,74 L36,112 L20,112 Z'] },
-    { id: 'right-upper-arm-front', label: 'R Upper Arm (front)', pct: 2.25, paths: ['M84,38 L96,38 L96,72 L84,72 Z'] },
-    { id: 'right-forearm-front', label: 'R Forearm/Hand (front)', pct: 2.25, paths: ['M84,74 L100,74 L100,112 L84,112 Z'] },
-    { id: 'left-thigh-front', label: 'L Thigh (front)', pct: 4.5, paths: ['M38,114 L56,114 L54,178 L40,178 Z'] },
-    { id: 'left-lower-leg-front', label: 'L Lower Leg (front)', pct: 4.5, paths: ['M40,180 L54,180 L52,248 L42,248 Z'] },
-    { id: 'right-thigh-front', label: 'R Thigh (front)', pct: 4.5, paths: ['M64,114 L82,114 L80,178 L66,178 Z'] },
-    { id: 'right-lower-leg-front', label: 'R Lower Leg (front)', pct: 4.5, paths: ['M66,180 L80,180 L78,248 L68,248 Z'] },
+    { id: 'head-front', label: 'Head (front)', pct: 4.5, paths: [
+            'M65,4 C52,4 43,12 43,23 C43,33 50,40 58,42 L58,48 L72,48 L72,42 C80,40 87,33 87,23 C87,12 78,4 65,4 Z'
+        ] },
+    { id: 'chest', label: 'Chest', pct: 9, paths: [
+            'M42,54 C42,50 50,48 58,48 L72,48 C80,48 88,50 88,54 L90,98 L40,98 Z'
+        ] },
+    { id: 'abdomen', label: 'Abdomen', pct: 9, paths: [
+            'M40,100 L90,100 L86,168 L44,168 Z'
+        ] },
+    { id: 'left-upper-arm-front', label: 'L Upper Arm', pct: 2.25, paths: [
+            'M38,52 L20,58 C18,59 16,60 16,62 L16,96 C16,98 17,100 19,100 L38,100 Z'
+        ] },
+    { id: 'left-forearm-front', label: 'L Forearm/Hand', pct: 2.25, paths: [
+            'M19,102 L38,102 L34,156 C34,158 32,160 30,160 L8,154 C6,153 5,151 5,149 Z'
+        ] },
+    { id: 'right-upper-arm-front', label: 'R Upper Arm', pct: 2.25, paths: [
+            'M92,52 L110,58 C112,59 114,60 114,62 L114,96 C114,98 113,100 111,100 L92,100 Z'
+        ] },
+    { id: 'right-forearm-front', label: 'R Forearm/Hand', pct: 2.25, paths: [
+            'M92,102 L111,102 L125,149 C125,151 124,153 122,154 L100,160 C98,160 96,158 96,156 Z'
+        ] },
+    { id: 'left-thigh-front', label: 'L Thigh', pct: 4.5, paths: [
+            'M44,170 L63,170 C63,170 62,200 61,220 L60,238 L46,238 C46,238 45,210 44,170 Z'
+        ] },
+    { id: 'left-lower-leg-front', label: 'L Lower Leg/Foot', pct: 4.5, paths: [
+            'M46,240 L60,240 L58,288 C58,292 56,296 54,298 L50,298 C48,296 47,292 47,288 Z'
+        ] },
+    { id: 'right-thigh-front', label: 'R Thigh', pct: 4.5, paths: [
+            'M67,170 L86,170 C86,170 85,210 84,238 L70,238 C69,220 68,200 67,170 Z'
+        ] },
+    { id: 'right-lower-leg-front', label: 'R Lower Leg/Foot', pct: 4.5, paths: [
+            'M70,240 L84,240 L83,288 C83,292 82,296 80,298 L76,298 C74,296 72,292 72,288 Z'
+        ] },
 ];
 const ADULT_BACK_REGIONS = [
-    { id: 'head-back', label: 'Head (back)', pct: 4.5, paths: ['M48,8 C48,3 52,0 60,0 C68,0 72,3 72,8 L72,22 C72,28 68,32 60,32 C52,32 48,28 48,22 Z'] },
-    { id: 'upper-back', label: 'Upper Back', pct: 9, paths: ['M38,36 L82,36 L82,72 L38,72 Z'] },
-    { id: 'lower-back', label: 'Lower Back', pct: 9, paths: ['M38,74 L82,74 L82,110 L38,110 Z'] },
-    { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: 2.25, paths: ['M24,38 L36,38 L36,72 L24,72 Z'] },
-    { id: 'left-forearm-back', label: 'L Forearm/Hand (back)', pct: 2.25, paths: ['M20,74 L36,74 L36,112 L20,112 Z'] },
-    { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: 2.25, paths: ['M84,38 L96,38 L96,72 L84,72 Z'] },
-    { id: 'right-forearm-back', label: 'R Forearm/Hand (back)', pct: 2.25, paths: ['M84,74 L100,74 L100,112 L84,112 Z'] },
-    { id: 'left-thigh-back', label: 'L Thigh (back)', pct: 4.5, paths: ['M38,114 L56,114 L54,178 L40,178 Z'] },
-    { id: 'left-lower-leg-back', label: 'L Lower Leg (back)', pct: 4.5, paths: ['M40,180 L54,180 L52,248 L42,248 Z'] },
-    { id: 'right-thigh-back', label: 'R Thigh (back)', pct: 4.5, paths: ['M64,114 L82,114 L80,178 L66,178 Z'] },
-    { id: 'right-lower-leg-back', label: 'R Lower Leg (back)', pct: 4.5, paths: ['M66,180 L80,180 L78,248 L68,248 Z'] },
+    { id: 'head-back', label: 'Head (back)', pct: 4.5, paths: [
+            'M65,4 C52,4 43,12 43,23 C43,33 50,40 58,42 L58,48 L72,48 L72,42 C80,40 87,33 87,23 C87,12 78,4 65,4 Z'
+        ] },
+    { id: 'upper-back', label: 'Upper Back', pct: 9, paths: [
+            'M42,54 C42,50 50,48 58,48 L72,48 C80,48 88,50 88,54 L90,98 L40,98 Z'
+        ] },
+    { id: 'lower-back', label: 'Lower Back/Buttocks', pct: 9, paths: [
+            'M40,100 L90,100 L86,168 L44,168 Z'
+        ] },
+    { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: 2.25, paths: [
+            'M38,52 L20,58 C18,59 16,60 16,62 L16,96 C16,98 17,100 19,100 L38,100 Z'
+        ] },
+    { id: 'left-forearm-back', label: 'L Forearm/Hand (back)', pct: 2.25, paths: [
+            'M19,102 L38,102 L34,156 C34,158 32,160 30,160 L8,154 C6,153 5,151 5,149 Z'
+        ] },
+    { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: 2.25, paths: [
+            'M92,52 L110,58 C112,59 114,60 114,62 L114,96 C114,98 113,100 111,100 L92,100 Z'
+        ] },
+    { id: 'right-forearm-back', label: 'R Forearm/Hand (back)', pct: 2.25, paths: [
+            'M92,102 L111,102 L125,149 C125,151 124,153 122,154 L100,160 C98,160 96,158 96,156 Z'
+        ] },
+    { id: 'left-thigh-back', label: 'L Thigh (back)', pct: 4.5, paths: [
+            'M44,170 L63,170 C63,170 62,200 61,220 L60,238 L46,238 C46,238 45,210 44,170 Z'
+        ] },
+    { id: 'left-lower-leg-back', label: 'L Lower Leg/Foot (back)', pct: 4.5, paths: [
+            'M46,240 L60,240 L58,288 C58,292 56,296 54,298 L50,298 C48,296 47,292 47,288 Z'
+        ] },
+    { id: 'right-thigh-back', label: 'R Thigh (back)', pct: 4.5, paths: [
+            'M67,170 L86,170 C86,170 85,210 84,238 L70,238 C69,220 68,200 67,170 Z'
+        ] },
+    { id: 'right-lower-leg-back', label: 'R Lower Leg/Foot (back)', pct: 4.5, paths: [
+            'M70,240 L84,240 L83,288 C83,292 82,296 80,298 L76,298 C74,296 72,292 72,288 Z'
+        ] },
 ];
 const ADULT_PERINEUM = { id: 'perineum', label: 'Perineum', pct: 1, paths: [] };
+function tbsaComputeResult(values, isPeds) {
+    const tbsa = values['__tbsa'] || 0;
+    const t2 = values['__tbsa_2nd'] || 0;
+    const t3 = values['__tbsa_3rd'] || 0;
+    if (tbsa === 0) {
+        const hint = isPeds ? 'Select age group, choose burn degree, and tap body regions.' : 'Choose burn degree (2nd\u00B0/3rd\u00B0), then tap or drag across burned regions.';
+        return { value: '0%', label: 'No Burn Selected', description: hint, colorVar: '--color-text-muted' };
+    }
+    let label;
+    let colorVar;
+    let desc;
+    const degreeBreak = (t2 > 0 && t3 > 0) ? ` (2nd\u00B0: ${t2}%, 3rd\u00B0: ${t3}%)` : (t3 > 0 ? ' (full thickness)' : ' (partial thickness)');
+    const parklandMult = isPeds ? '3-4' : '4';
+    if (tbsa < 10) {
+        label = 'Minor Burn';
+        colorVar = '--color-primary';
+        desc = `${tbsa}% TBSA${degreeBreak}. Minor burn \u2014 outpatient management may be appropriate if no other criteria.`;
+    }
+    else if (tbsa < 20) {
+        label = 'Moderate Burn';
+        colorVar = '--color-warning';
+        desc = `${tbsa}% TBSA${degreeBreak}. Moderate burn \u2014 consider burn center referral. Parkland: ${parklandMult} mL x kg x ${tbsa}% over 24h.`;
+    }
+    else if (tbsa < 40) {
+        label = 'Major Burn';
+        colorVar = '--color-warning';
+        desc = `${tbsa}% TBSA${degreeBreak}. Major burn \u2014 fluid resuscitation required. Parkland: ${parklandMult} mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+    }
+    else {
+        label = 'Critical Burn';
+        colorVar = '--color-danger';
+        desc = `${tbsa}% TBSA${degreeBreak}. Critical burn \u2014 immediate aggressive resuscitation. Parkland: ${parklandMult} mL x kg x ${tbsa}% over 24h (half in first 8h).`;
+    }
+    return { value: `${tbsa}%`, label, description: desc, colorVar };
+}
 const TBSA_ADULT_CALCULATOR = {
     id: 'tbsa-adult',
-    title: 'TBSA — Rule of 9s',
+    title: 'TBSA \u2014 Rule of 9s',
     subtitle: 'Adult Total Body Surface Area',
-    description: 'Interactive body diagram for estimating burn TBSA in adults using the Rule of 9s. Tap burned regions to calculate total TBSA percentage.',
+    description: 'Interactive body diagram for estimating burn TBSA in adults using the Rule of 9s. Select burn degree, then tap or drag across burned regions.',
     fields: [],
     results: [],
     thresholdNote: 'ABA Burn Center referral criteria: partial thickness >10% TBSA, full thickness any size, burns to face/hands/feet/genitalia/perineum/major joints, electrical/chemical/inhalation, circumferential burns.',
@@ -805,38 +1020,9 @@ const TBSA_ADULT_CALCULATOR = {
         'Wallace AB. The Exposure Treatment of Burns. Lancet. 1951;1(6653):501-504.',
         'American Burn Association. Burn Center Referral Criteria. 2006.',
     ],
-    computeResult: (values) => {
-        const tbsa = values['__tbsa'] || 0;
-        if (tbsa === 0) {
-            return { value: '0%', label: 'No Burn Selected', description: 'Tap body regions to mark burned areas.', colorVar: '--color-text-muted' };
-        }
-        let label;
-        let colorVar;
-        let desc;
-        if (tbsa < 10) {
-            label = 'Minor Burn';
-            colorVar = '--color-primary';
-            desc = `${tbsa}% TBSA. Minor burn — outpatient management may be appropriate if no other criteria.`;
-        }
-        else if (tbsa < 20) {
-            label = 'Moderate Burn';
-            colorVar = '--color-warning';
-            desc = `${tbsa}% TBSA. Moderate burn — consider burn center referral. Estimated Parkland volume: enter weight for precise calculation.`;
-        }
-        else if (tbsa < 40) {
-            label = 'Major Burn';
-            colorVar = '--color-warning';
-            desc = `${tbsa}% TBSA. Major burn — fluid resuscitation required. Estimated Parkland: 4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
-        }
-        else {
-            label = 'Critical Burn';
-            colorVar = '--color-danger';
-            desc = `${tbsa}% TBSA. Critical burn — immediate aggressive resuscitation. Estimated Parkland: 4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
-        }
-        return { value: `${tbsa}%`, label, description: desc, colorVar };
-    },
+    computeResult: (values) => tbsaComputeResult(values, false),
     customRender: (container, onUpdate) => {
-        buildBodyDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate, 'Tap burned regions. Only mark 2nd degree (partial) and 3rd degree (full thickness) burns. Superficial (1st degree) burns are NOT included in TBSA.');
+        buildBodyDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate, 'Select burn degree, then tap or drag across burned areas. Only 2nd\u00B0 (partial) and 3rd\u00B0 (full thickness) burns count toward TBSA.');
     },
 };
 const LUND_BROWDER_AGES = [
@@ -858,50 +1044,116 @@ const LB_FOOT = 1.75;
 const LB_PERINEUM = 1;
 function buildPedsRegions(ageIdx) {
     const age = LUND_BROWDER_AGES[ageIdx];
+    // Pediatric body — proportionally larger head, shorter limbs
+    // viewBox 0 0 130 310
     const front = [
-        { id: 'head-front', label: 'Head (front)', pct: age.headHalf, paths: ['M48,12 C48,6 52,2 60,2 C68,2 72,6 72,12 L72,28 C72,34 68,38 60,38 C52,38 48,34 48,28 Z'] },
-        { id: 'neck-front', label: 'Neck (front)', pct: LB_NECK, paths: ['M54,39 L66,39 L66,46 L54,46 Z'] },
-        { id: 'trunk-ant', label: 'Trunk (anterior)', pct: LB_TRUNK_ANT, paths: ['M36,48 L84,48 L84,110 L36,110 Z'] },
-        { id: 'left-upper-arm-front', label: 'L Upper Arm (front)', pct: LB_UPPER_ARM, paths: ['M22,50 L34,50 L34,78 L22,78 Z'] },
-        { id: 'left-forearm-front', label: 'L Forearm (front)', pct: LB_FOREARM, paths: ['M18,80 L34,80 L34,106 L18,106 Z'] },
-        { id: 'left-hand-front', label: 'L Hand (front)', pct: LB_HAND, paths: ['M16,108 L34,108 L34,120 L16,120 Z'] },
-        { id: 'right-upper-arm-front', label: 'R Upper Arm (front)', pct: LB_UPPER_ARM, paths: ['M86,50 L98,50 L98,78 L86,78 Z'] },
-        { id: 'right-forearm-front', label: 'R Forearm (front)', pct: LB_FOREARM, paths: ['M86,80 L102,80 L102,106 L86,106 Z'] },
-        { id: 'right-hand-front', label: 'R Hand (front)', pct: LB_HAND, paths: ['M86,108 L104,108 L104,120 L86,120 Z'] },
-        { id: 'left-thigh-front', label: 'L Thigh (front)', pct: age.thighHalf, paths: ['M36,114 L56,114 L54,178 L38,178 Z'] },
-        { id: 'left-lower-leg-front', label: 'L Lower Leg (front)', pct: age.lowerLegHalf, paths: ['M38,180 L54,180 L52,238 L40,238 Z'] },
-        { id: 'left-foot-front', label: 'L Foot (front)', pct: LB_FOOT, paths: ['M38,240 L54,240 L54,256 L38,256 Z'] },
-        { id: 'right-thigh-front', label: 'R Thigh (front)', pct: age.thighHalf, paths: ['M64,114 L84,114 L82,178 L66,178 Z'] },
-        { id: 'right-lower-leg-front', label: 'R Lower Leg (front)', pct: age.lowerLegHalf, paths: ['M66,180 L82,180 L80,238 L68,238 Z'] },
-        { id: 'right-foot-front', label: 'R Foot (front)', pct: LB_FOOT, paths: ['M66,240 L82,240 L82,256 L66,256 Z'] },
+        { id: 'head-front', label: 'Head (front)', pct: age.headHalf, paths: [
+                'M65,4 C50,4 40,14 40,28 C40,40 48,50 58,52 L58,56 L72,56 L72,52 C82,50 90,40 90,28 C90,14 80,4 65,4 Z'
+            ] },
+        { id: 'neck-front', label: 'Neck (front)', pct: LB_NECK, paths: [
+                'M56,57 L74,57 L74,64 L56,64 Z'
+            ] },
+        { id: 'trunk-ant', label: 'Trunk (anterior)', pct: LB_TRUNK_ANT, paths: [
+                'M38,66 C38,64 48,62 56,62 L74,62 C82,62 92,64 92,66 L90,130 L40,130 Z'
+            ] },
+        { id: 'left-upper-arm-front', label: 'L Upper Arm', pct: LB_UPPER_ARM, paths: [
+                'M36,66 L20,70 C18,71 16,72 16,74 L16,100 L34,100 Z'
+            ] },
+        { id: 'left-forearm-front', label: 'L Forearm', pct: LB_FOREARM, paths: [
+                'M16,102 L34,102 L30,132 L12,128 Z'
+            ] },
+        { id: 'left-hand-front', label: 'L Hand', pct: LB_HAND, paths: [
+                'M10,130 L30,134 L26,148 C26,150 24,152 22,152 L8,148 C6,147 5,145 5,143 Z'
+            ] },
+        { id: 'right-upper-arm-front', label: 'R Upper Arm', pct: LB_UPPER_ARM, paths: [
+                'M94,66 L110,70 C112,71 114,72 114,74 L114,100 L96,100 Z'
+            ] },
+        { id: 'right-forearm-front', label: 'R Forearm', pct: LB_FOREARM, paths: [
+                'M96,102 L114,102 L118,128 L100,132 Z'
+            ] },
+        { id: 'right-hand-front', label: 'R Hand', pct: LB_HAND, paths: [
+                'M100,134 L120,130 L125,143 C125,145 124,147 122,148 L108,152 C106,152 104,150 104,148 Z'
+            ] },
+        { id: 'left-thigh-front', label: 'L Thigh', pct: age.thighHalf, paths: [
+                'M40,132 L62,132 L60,210 L42,210 Z'
+            ] },
+        { id: 'left-lower-leg-front', label: 'L Lower Leg', pct: age.lowerLegHalf, paths: [
+                'M42,212 L60,212 L58,272 L44,272 Z'
+            ] },
+        { id: 'left-foot-front', label: 'L Foot', pct: LB_FOOT, paths: [
+                'M43,274 L59,274 L58,290 C58,293 56,296 53,296 L48,296 C46,296 44,293 44,290 Z'
+            ] },
+        { id: 'right-thigh-front', label: 'R Thigh', pct: age.thighHalf, paths: [
+                'M68,132 L90,132 L88,210 L70,210 Z'
+            ] },
+        { id: 'right-lower-leg-front', label: 'R Lower Leg', pct: age.lowerLegHalf, paths: [
+                'M70,212 L88,212 L86,272 L72,272 Z'
+            ] },
+        { id: 'right-foot-front', label: 'R Foot', pct: LB_FOOT, paths: [
+                'M71,274 L87,274 L86,290 C86,293 84,296 82,296 L77,296 C74,296 72,293 72,290 Z'
+            ] },
     ];
     const back = [
-        { id: 'head-back', label: 'Head (back)', pct: age.headHalf, paths: ['M48,12 C48,6 52,2 60,2 C68,2 72,6 72,12 L72,28 C72,34 68,38 60,38 C52,38 48,34 48,28 Z'] },
-        { id: 'neck-back', label: 'Neck (back)', pct: LB_NECK, paths: ['M54,39 L66,39 L66,46 L54,46 Z'] },
-        { id: 'trunk-post', label: 'Trunk (posterior)', pct: LB_TRUNK_POST, paths: ['M36,48 L84,48 L84,96 L36,96 Z'] },
-        { id: 'left-buttock', label: 'L Buttock', pct: LB_BUTTOCK, paths: ['M36,98 L58,98 L58,110 L36,110 Z'] },
-        { id: 'right-buttock', label: 'R Buttock', pct: LB_BUTTOCK, paths: ['M62,98 L84,98 L84,110 L62,110 Z'] },
-        { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: LB_UPPER_ARM, paths: ['M22,50 L34,50 L34,78 L22,78 Z'] },
-        { id: 'left-forearm-back', label: 'L Forearm (back)', pct: LB_FOREARM, paths: ['M18,80 L34,80 L34,106 L18,106 Z'] },
-        { id: 'left-hand-back', label: 'L Hand (back)', pct: LB_HAND, paths: ['M16,108 L34,108 L34,120 L16,120 Z'] },
-        { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: LB_UPPER_ARM, paths: ['M86,50 L98,50 L98,78 L86,78 Z'] },
-        { id: 'right-forearm-back', label: 'R Forearm (back)', pct: LB_FOREARM, paths: ['M86,80 L102,80 L102,106 L86,106 Z'] },
-        { id: 'right-hand-back', label: 'R Hand (back)', pct: LB_HAND, paths: ['M86,108 L104,108 L104,120 L86,120 Z'] },
-        { id: 'left-thigh-back', label: 'L Thigh (back)', pct: age.thighHalf, paths: ['M36,114 L56,114 L54,178 L38,178 Z'] },
-        { id: 'left-lower-leg-back', label: 'L Lower Leg (back)', pct: age.lowerLegHalf, paths: ['M38,180 L54,180 L52,238 L40,238 Z'] },
-        { id: 'left-foot-back', label: 'L Foot (back)', pct: LB_FOOT, paths: ['M38,240 L54,240 L54,256 L38,256 Z'] },
-        { id: 'right-thigh-back', label: 'R Thigh (back)', pct: age.thighHalf, paths: ['M64,114 L84,114 L82,178 L66,178 Z'] },
-        { id: 'right-lower-leg-back', label: 'R Lower Leg (back)', pct: age.lowerLegHalf, paths: ['M66,180 L82,180 L80,238 L68,238 Z'] },
-        { id: 'right-foot-back', label: 'R Foot (back)', pct: LB_FOOT, paths: ['M66,240 L82,240 L82,256 L66,256 Z'] },
+        { id: 'head-back', label: 'Head (back)', pct: age.headHalf, paths: [
+                'M65,4 C50,4 40,14 40,28 C40,40 48,50 58,52 L58,56 L72,56 L72,52 C82,50 90,40 90,28 C90,14 80,4 65,4 Z'
+            ] },
+        { id: 'neck-back', label: 'Neck (back)', pct: LB_NECK, paths: [
+                'M56,57 L74,57 L74,64 L56,64 Z'
+            ] },
+        { id: 'trunk-post', label: 'Trunk (posterior)', pct: LB_TRUNK_POST, paths: [
+                'M38,66 C38,64 48,62 56,62 L74,62 C82,62 92,64 92,66 L90,116 L40,116 Z'
+            ] },
+        { id: 'left-buttock', label: 'L Buttock', pct: LB_BUTTOCK, paths: [
+                'M40,118 L64,118 L62,130 L40,130 Z'
+            ] },
+        { id: 'right-buttock', label: 'R Buttock', pct: LB_BUTTOCK, paths: [
+                'M66,118 L90,118 L90,130 L68,130 Z'
+            ] },
+        { id: 'left-upper-arm-back', label: 'L Upper Arm (back)', pct: LB_UPPER_ARM, paths: [
+                'M36,66 L20,70 C18,71 16,72 16,74 L16,100 L34,100 Z'
+            ] },
+        { id: 'left-forearm-back', label: 'L Forearm (back)', pct: LB_FOREARM, paths: [
+                'M16,102 L34,102 L30,132 L12,128 Z'
+            ] },
+        { id: 'left-hand-back', label: 'L Hand (back)', pct: LB_HAND, paths: [
+                'M10,130 L30,134 L26,148 C26,150 24,152 22,152 L8,148 C6,147 5,145 5,143 Z'
+            ] },
+        { id: 'right-upper-arm-back', label: 'R Upper Arm (back)', pct: LB_UPPER_ARM, paths: [
+                'M94,66 L110,70 C112,71 114,72 114,74 L114,100 L96,100 Z'
+            ] },
+        { id: 'right-forearm-back', label: 'R Forearm (back)', pct: LB_FOREARM, paths: [
+                'M96,102 L114,102 L118,128 L100,132 Z'
+            ] },
+        { id: 'right-hand-back', label: 'R Hand (back)', pct: LB_HAND, paths: [
+                'M100,134 L120,130 L125,143 C125,145 124,147 122,148 L108,152 C106,152 104,150 104,148 Z'
+            ] },
+        { id: 'left-thigh-back', label: 'L Thigh (back)', pct: age.thighHalf, paths: [
+                'M40,132 L62,132 L60,210 L42,210 Z'
+            ] },
+        { id: 'left-lower-leg-back', label: 'L Lower Leg (back)', pct: age.lowerLegHalf, paths: [
+                'M42,212 L60,212 L58,272 L44,272 Z'
+            ] },
+        { id: 'left-foot-back', label: 'L Foot (back)', pct: LB_FOOT, paths: [
+                'M43,274 L59,274 L58,290 C58,293 56,296 53,296 L48,296 C46,296 44,293 44,290 Z'
+            ] },
+        { id: 'right-thigh-back', label: 'R Thigh (back)', pct: age.thighHalf, paths: [
+                'M68,132 L90,132 L88,210 L70,210 Z'
+            ] },
+        { id: 'right-lower-leg-back', label: 'R Lower Leg (back)', pct: age.lowerLegHalf, paths: [
+                'M70,212 L88,212 L86,272 L72,272 Z'
+            ] },
+        { id: 'right-foot-back', label: 'R Foot (back)', pct: LB_FOOT, paths: [
+                'M71,274 L87,274 L86,290 C86,293 84,296 82,296 L77,296 C74,296 72,293 72,290 Z'
+            ] },
     ];
     const perineum = { id: 'perineum', label: 'Perineum', pct: LB_PERINEUM, paths: [] };
     return { front, back, perineum };
 }
 const TBSA_PEDS_CALCULATOR = {
     id: 'tbsa-peds',
-    title: 'TBSA — Lund-Browder',
+    title: 'TBSA \u2014 Lund-Browder',
     subtitle: 'Pediatric Total Body Surface Area',
-    description: 'Age-adjusted Lund-Browder chart for pediatric burn TBSA estimation. Select child age group, then tap burned regions. Head, thigh, and lower leg percentages adjust with age.',
+    description: 'Age-adjusted Lund-Browder chart for pediatric burn TBSA estimation. Select age group and burn degree, then tap or drag burned regions.',
     fields: [],
     results: [],
     thresholdNote: 'Pediatric burn center referral: >10% TBSA partial thickness, any full thickness, burns to face/hands/feet/genitalia/perineum/joints, electrical/chemical/inhalation, circumferential burns, suspected abuse.',
@@ -909,36 +1161,7 @@ const TBSA_PEDS_CALCULATOR = {
         'Lund CC, Browder NC. The Estimation of Areas of Burns. Surg Gynecol Obstet. 1944;79:352-358.',
         'American Burn Association. Burn Center Referral Criteria. 2006.',
     ],
-    computeResult: (values) => {
-        const tbsa = values['__tbsa'] || 0;
-        if (tbsa === 0) {
-            return { value: '0%', label: 'No Burn Selected', description: 'Select age group and tap body regions to mark burned areas.', colorVar: '--color-text-muted' };
-        }
-        let label;
-        let colorVar;
-        let desc;
-        if (tbsa < 10) {
-            label = 'Minor Burn';
-            colorVar = '--color-primary';
-            desc = `${tbsa}% TBSA. Minor burn — outpatient management may be appropriate if no other criteria.`;
-        }
-        else if (tbsa < 20) {
-            label = 'Moderate Burn';
-            colorVar = '--color-warning';
-            desc = `${tbsa}% TBSA. Moderate burn — burn center referral. Parkland: 3-4 mL x kg x ${tbsa}% over 24h.`;
-        }
-        else if (tbsa < 40) {
-            label = 'Major Burn';
-            colorVar = '--color-warning';
-            desc = `${tbsa}% TBSA. Major burn — fluid resuscitation required. Parkland: 3-4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
-        }
-        else {
-            label = 'Critical Burn';
-            colorVar = '--color-danger';
-            desc = `${tbsa}% TBSA. Critical burn — immediate aggressive resuscitation. Parkland: 3-4 mL x kg x ${tbsa}% over 24h (half in first 8h).`;
-        }
-        return { value: `${tbsa}%`, label, description: desc, colorVar };
-    },
+    computeResult: (values) => tbsaComputeResult(values, true),
     customRender: (container, onUpdate) => {
         let currentAgeIdx = 0;
         // Age selector
@@ -964,13 +1187,12 @@ const TBSA_PEDS_CALCULATOR = {
         function buildDiagram() {
             diagramContainer.innerHTML = '';
             const regions = buildPedsRegions(currentAgeIdx);
-            buildBodyDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate, 'Tap burned regions. Only mark 2nd degree (partial) and 3rd degree (full thickness) burns. Superficial (1st degree) burns are NOT included in TBSA.');
+            buildBodyDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate, 'Select burn degree, then tap or drag across burned areas. Only 2nd\u00B0 (partial) and 3rd\u00B0 (full thickness) burns count toward TBSA.');
         }
         ageSelect.addEventListener('change', () => {
             currentAgeIdx = parseInt(ageSelect.value, 10);
             buildDiagram();
-            // Reset result
-            onUpdate({ '__tbsa': 0 });
+            onUpdate({ '__tbsa': 0, '__tbsa_2nd': 0, '__tbsa_3rd': 0 });
         });
         buildDiagram();
     },
@@ -1353,7 +1575,7 @@ export function renderCalculator(container, calculatorId) {
         container.appendChild(citationSection);
         // Initial render with empty state
         if (calc.computeResult) {
-            const initial = calc.computeResult({ '__tbsa': 0 });
+            const initial = calc.computeResult({ '__tbsa': 0, '__tbsa_2nd': 0, '__tbsa_3rd': 0 });
             scoreDisplay.innerHTML = '';
             const scoreNum = document.createElement('div');
             scoreNum.className = 'calculator-score-number';
