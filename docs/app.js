@@ -15404,9 +15404,9 @@ var CORRECTED_NA_CALCULATOR = {
 var BURN_COLOR = "#FF7800";
 var BODY_FILL = "#3a3a3a";
 var BODY_STROKE = "#555";
-function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate) {
-  const CANVAS_WIDTH = 150;
-  const CANVAS_HEIGHT = 340;
+function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate, calculatorType = "adult") {
+  const CANVAS_WIDTH = 260;
+  const CANVAS_HEIGHT = 580;
   const SVG_VIEWBOX_WIDTH = 130;
   const SVG_VIEWBOX_HEIGHT = 310;
   const SCALE_X = CANVAS_WIDTH / SVG_VIEWBOX_WIDTH;
@@ -15424,7 +15424,7 @@ function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpd
     backMaskCtx: null,
     isDrawing: false,
     isErasing: false,
-    brushSize: 18,
+    brushSize: 32,
     lastX: 0,
     lastY: 0,
     perineumPct: 0
@@ -15437,6 +15437,19 @@ function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpd
   state.backCtx = state.backCanvas.getContext("2d", { willReadFrequently: true });
   state.frontMaskCtx = state.frontMask.getContext("2d");
   state.backMaskCtx = state.backMask.getContext("2d");
+  const switcherWrap = document.createElement("div");
+  switcherWrap.style.cssText = "display:flex;gap:8px;justify-content:center;margin-bottom:12px;";
+  const adultLink = document.createElement("a");
+  adultLink.href = "#/calculator/tbsa-adult";
+  adultLink.style.cssText = `padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:flex;align-items:center;justify-content:center;${calculatorType === "adult" ? "background:#FF7800;color:#fff;border:2px solid #FF7800;" : "background:var(--color-surface);color:var(--color-text);border:2px solid #666;"}`;
+  adultLink.textContent = "Adult";
+  const pedsLink = document.createElement("a");
+  pedsLink.href = "#/calculator/tbsa-peds";
+  pedsLink.style.cssText = `padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:flex;align-items:center;justify-content:center;${calculatorType === "peds" ? "background:#FF7800;color:#fff;border:2px solid #FF7800;" : "background:var(--color-surface);color:var(--color-text);border:2px solid #666;"}`;
+  pedsLink.textContent = "Pediatric";
+  switcherWrap.appendChild(adultLink);
+  switcherWrap.appendChild(pedsLink);
+  container.appendChild(switcherWrap);
   const warning = document.createElement("div");
   warning.style.cssText = "font-size:12px;color:#FF9800;margin-bottom:10px;line-height:1.4;padding:8px 10px;background:rgba(255,152,0,0.1);border-radius:8px;border-left:3px solid #FF9800;";
   warning.textContent = "2nd/3rd degree burns only. Do NOT include 1st degree (superficial) burns.";
@@ -15494,20 +15507,20 @@ function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpd
   brushLabel.textContent = "Brush:";
   const brushSlider = document.createElement("input");
   brushSlider.type = "range";
-  brushSlider.min = "8";
-  brushSlider.max = "36";
-  brushSlider.value = "18";
+  brushSlider.min = "12";
+  brushSlider.max = "60";
+  brushSlider.value = "32";
   brushSlider.style.cssText = "flex:1;max-width:120px;height:24px;";
   brushSlider.addEventListener("input", () => {
     state.brushSize = parseInt(brushSlider.value, 10);
   });
   const brushPreview = document.createElement("div");
-  brushPreview.style.cssText = "width:36px;height:36px;display:flex;align-items:center;justify-content:center;";
+  brushPreview.style.cssText = "width:50px;height:50px;display:flex;align-items:center;justify-content:center;";
   const brushDot = document.createElement("div");
-  brushDot.style.cssText = `width:18px;height:18px;border-radius:50%;background:${BURN_COLOR};`;
+  brushDot.style.cssText = `width:32px;height:32px;border-radius:50%;background:${BURN_COLOR};`;
   brushPreview.appendChild(brushDot);
   brushSlider.addEventListener("input", () => {
-    const size = Math.min(32, parseInt(brushSlider.value, 10));
+    const size = Math.min(48, parseInt(brushSlider.value, 10));
     brushDot.style.width = `${size}px`;
     brushDot.style.height = `${size}px`;
   });
@@ -15790,8 +15803,8 @@ function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpd
   clearWrap.appendChild(clearBtn);
   container.appendChild(clearWrap);
 }
-function buildSliderDiagram(container, frontRegions, backRegions, perineum, onUpdate) {
-  buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate);
+function buildSliderDiagram(container, frontRegions, backRegions, perineum, onUpdate, calculatorType = "adult") {
+  buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate, calculatorType);
 }
 var ADULT_FRONT_REGIONS = [
   { id: "head-front", label: "Head (front)", pct: 4.5, paths: [
@@ -15898,7 +15911,7 @@ var TBSA_ADULT_CALCULATOR = {
   ],
   computeResult: (values) => tbsaComputeResult(values, false),
   customRender: (container, onUpdate) => {
-    buildSliderDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate);
+    buildSliderDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate, "adult");
   }
 };
 var LUND_BROWDER_AGES = [
@@ -16040,7 +16053,7 @@ var TBSA_PEDS_CALCULATOR = {
     function buildDiagram() {
       diagramContainer.innerHTML = "";
       const regions = buildPedsRegions(currentAgeIdx);
-      buildSliderDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate);
+      buildSliderDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate, "peds");
     }
     ageSelect.addEventListener("change", () => {
       currentAgeIdx = parseInt(ageSelect.value, 10);
