@@ -706,38 +706,92 @@ const BURN_COLOR = '#FF7800';
 const BODY_FILL = '#ffffff';
 const BODY_STROKE = '#333333';
 
-// E-burn style anatomical adult body - FRONT view
-// Single closed path for proper fill - human silhouette
-// Viewbox: 0 0 100 300
+// Human body silhouette - Adult FRONT view
+// FULLY CONTINUOUS path - traces entire body outline without lifting pen
+// Start at top of head, go left around entire body, back to start
+// Viewbox: 0 0 100 280
 const ADULT_BODY_FRONT_PATH = `
-M50,5 C42,5 36,10 33,17 C30,24 29,30 29,36 C29,42 31,47 34,51 L34,56
-L28,60 C22,64 18,70 16,78 L14,92 C13,100 14,107 18,112 L22,118
-C20,130 17,145 14,162 L10,185 C9,194 10,202 14,208 L18,214
-L20,232 C21,238 25,242 30,243 L34,242 L38,225 L40,200 L42,172
-L42,220 C41,245 40,270 40,290 C40,295 42,298 46,299 L50,300
-L54,299 C58,298 60,295 60,290 C60,270 59,245 58,220 L58,172
-L60,200 L62,225 L66,242 L70,243 C75,242 79,238 80,232 L82,214
-L86,208 C90,202 91,194 90,185 L86,162 C83,145 80,130 78,118
-L82,112 C86,107 87,100 86,92 L84,78 C82,70 78,64 72,60 L66,56
-L66,51 C69,47 71,42 71,36 C71,30 70,24 67,17 C64,10 58,5 50,5 Z
+M 50 5
+C 42 5, 36 11, 36 20
+C 36 29, 40 35, 45 38
+L 45 42
+C 38 44, 30 50, 26 62
+C 22 74, 18 90, 16 108
+C 14 126, 14 140, 18 150
+L 20 156
+L 20 195
+L 18 230
+C 18 248, 22 260, 30 266
+L 40 268
+L 42 240
+L 44 200
+L 46 178
+L 46 200
+L 46 252
+C 46 262, 48 270, 50 270
+C 52 270, 54 262, 54 252
+L 54 200
+L 54 178
+L 56 200
+L 58 240
+L 60 268
+L 70 266
+C 78 260, 82 248, 82 230
+L 80 195
+L 80 156
+L 82 150
+C 86 140, 86 126, 84 108
+C 82 90, 78 74, 74 62
+C 70 50, 62 44, 55 42
+L 55 38
+C 60 35, 64 29, 64 20
+C 64 11, 58 5, 50 5
+Z
 `;
 
-// E-burn style anatomical adult body - BACK view (same silhouette)
+// Adult BACK view (same silhouette)
 const ADULT_BODY_BACK_PATH = ADULT_BODY_FRONT_PATH;
 
-// Pediatric body - larger head, shorter limbs, rounder proportions
-// Viewbox: 0 0 100 320
+// Human body silhouette - Pediatric FRONT view
+// Larger head, shorter body proportions
+// Viewbox: 0 0 100 280
 const PEDS_BODY_FRONT_PATH = `
-M50,4 C40,4 32,10 28,20 C24,30 23,38 23,46 C23,54 26,62 31,68 L31,74
-L24,80 C18,86 14,94 12,104 L10,122 C9,132 10,140 15,148 L20,156
-C18,172 15,190 12,212 L8,240 C7,252 8,262 13,270 L18,278
-L20,300 C21,308 26,314 32,315 L38,314 L42,294 L44,265 L46,232
-L46,280 C45,305 44,328 44,348 C44,354 47,358 52,358 L52,358
-L56,358 C60,358 62,354 62,348 C62,328 61,305 60,280 L60,232
-L62,265 L64,294 L68,314 L74,315 C80,314 85,308 86,300 L88,278
-L93,270 C98,262 99,252 98,240 L94,212 C91,190 88,172 86,156
-L91,148 C96,140 97,132 96,122 L94,104 C92,94 88,86 82,80 L75,74
-L75,68 C80,62 83,54 83,46 C83,38 82,30 78,20 C74,10 66,4 56,4 L50,4 Z
+M 50 4
+C 40 4, 32 12, 32 24
+C 32 36, 38 44, 45 48
+L 45 54
+C 36 56, 28 64, 24 78
+C 20 92, 16 110, 14 130
+C 12 150, 12 166, 16 178
+L 18 186
+L 18 220
+L 16 252
+C 16 266, 22 276, 32 280
+L 42 280
+L 44 252
+L 46 215
+L 47 192
+L 47 215
+L 47 260
+C 47 270, 48 276, 50 276
+C 52 276, 53 270, 53 260
+L 53 215
+L 53 192
+L 54 215
+L 56 252
+L 58 280
+L 68 280
+C 78 276, 84 266, 84 252
+L 82 220
+L 82 186
+L 84 178
+C 88 166, 88 150, 86 130
+C 84 110, 80 92, 76 78
+C 72 64, 64 56, 55 54
+L 55 48
+C 62 44, 68 36, 68 24
+C 68 12, 60 4, 50 4
+Z
 `;
 
 const PEDS_BODY_BACK_PATH = PEDS_BODY_FRONT_PATH;
@@ -773,11 +827,11 @@ function buildEburnPainter(
   calculatorType: 'adult' | 'peds' = 'adult',
 ): void {
   // Canvas sized to fit on mobile without scrolling
-  // Body paths use 100x300 (adult) and 100x360 (peds) viewbox
+  // Body paths use 100x280 viewbox (both adult and peds)
   const CANVAS_WIDTH = 220;
-  const CANVAS_HEIGHT = calculatorType === 'peds' ? 320 : 280;
+  const CANVAS_HEIGHT = 280;
   const SVG_VIEWBOX_WIDTH = 100;
-  const SVG_VIEWBOX_HEIGHT = calculatorType === 'peds' ? 360 : 300;
+  const SVG_VIEWBOX_HEIGHT = 280;
   const SCALE_X = CANVAS_WIDTH / SVG_VIEWBOX_WIDTH;
   const SCALE_Y = CANVAS_HEIGHT / SVG_VIEWBOX_HEIGHT;
 
