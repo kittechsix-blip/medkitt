@@ -691,9 +691,9 @@ const CORRECTED_NA_CALCULATOR: CalculatorDefinition = {
 // -------------------------------------------------------------------
 // TBSA Calculator — E-burn Style Finger-Paint
 // -------------------------------------------------------------------
-// Draw/paint burn areas directly on body silhouettes.
-// Pixel counting within body regions for precise TBSA calculation.
-// Like E-burn app: intuitive, precise bedside burn assessment.
+// Draw/paint burn areas directly on body silhouette.
+// Single view at a time with flip button (like E-burn app).
+// Pixel counting for precise TBSA calculation.
 
 interface BodyRegion {
   id: string;
@@ -703,11 +703,51 @@ interface BodyRegion {
 }
 
 const BURN_COLOR = '#FF7800';
-const BODY_FILL = '#3a3a3a';
-const BODY_STROKE = '#555';
+const BODY_FILL = '#f5f5f5';
+const BODY_STROKE = '#cc0000';
+
+// More anatomical adult body SVG path (single continuous outline)
+const ADULT_BODY_FRONT_PATH = `
+M65,8 C55,8 48,16 48,28 C48,38 53,46 60,50 L60,55
+C45,58 38,65 38,72 L36,130 L20,135 C16,136 14,140 14,144 L14,180
+C14,184 16,188 20,189 L28,192 C26,200 22,220 18,240 C16,246 18,250 22,250 L36,248
+L38,175 L42,175 L42,200 L44,280 C40,320 38,360 38,400 C38,420 42,440 48,450
+L48,480 C48,490 52,496 58,496 L72,496 C78,496 82,490 82,480 L82,450
+C88,440 92,420 92,400 C92,360 90,320 86,280 L88,200 L88,175 L92,175
+L94,248 L108,250 C112,250 114,246 112,240 C108,220 104,200 102,192 L110,189
+C114,188 116,184 116,180 L116,144 C116,140 114,136 110,135 L94,130
+L92,72 C92,65 85,58 70,55 L70,50 C77,46 82,38 82,28 C82,16 75,8 65,8 Z
+`;
+
+const ADULT_BODY_BACK_PATH = `
+M65,8 C55,8 48,16 48,28 C48,38 53,46 60,50 L60,55
+C45,58 38,65 38,72 L36,130 L20,135 C16,136 14,140 14,144 L14,180
+C14,184 16,188 20,189 L28,192 C26,200 22,220 18,240 C16,246 18,250 22,250 L36,248
+L38,175 L42,175 L42,200 L44,280 C40,320 38,360 38,400 C38,420 42,440 48,450
+L48,480 C48,490 52,496 58,496 L72,496 C78,496 82,490 82,480 L82,450
+C88,440 92,420 92,400 C92,360 90,320 86,280 L88,200 L88,175 L92,175
+L94,248 L108,250 C112,250 114,246 112,240 C108,220 104,200 102,192 L110,189
+C114,188 116,184 116,180 L116,144 C116,140 114,136 110,135 L94,130
+L92,72 C92,65 85,58 70,55 L70,50 C77,46 82,38 82,28 C82,16 75,8 65,8 Z
+`;
+
+// Pediatric body (larger head proportions)
+const PEDS_BODY_FRONT_PATH = `
+M65,6 C50,6 40,18 40,35 C40,50 48,62 58,66 L58,72
+C42,76 35,85 35,95 L33,145 L18,150 C14,151 12,156 12,162 L12,195
+C12,200 14,205 18,206 L26,210 C24,220 20,245 16,270 C14,278 16,284 20,284 L34,282
+L36,200 L40,200 L42,240 L44,320 C40,355 38,390 38,420 C38,445 42,465 48,478
+L48,510 C48,522 52,530 58,530 L72,530 C78,530 82,522 82,510 L82,478
+C88,465 92,445 92,420 C92,390 90,355 86,320 L88,240 L90,200 L94,200
+L96,282 L110,284 C114,284 116,278 114,270 C110,245 106,220 104,210 L112,206
+C116,205 118,200 118,195 L118,162 C118,156 116,151 112,150 L97,145
+L95,95 C95,85 88,76 72,72 L72,66 C82,62 90,50 90,35 C90,18 80,6 65,6 Z
+`;
+
+const PEDS_BODY_BACK_PATH = PEDS_BODY_FRONT_PATH;
 
 // -------------------------------------------------------------------
-// E-burn Style Canvas Painter
+// E-burn Style Canvas Painter (Single View with Flip)
 // -------------------------------------------------------------------
 
 interface PaintState {
@@ -725,6 +765,7 @@ interface PaintState {
   lastX: number;
   lastY: number;
   perineumPct: number;
+  showingFront: boolean;
 }
 
 function buildEburnPainter(
@@ -735,13 +776,17 @@ function buildEburnPainter(
   onUpdate: (values: Record<string, number>) => void,
   calculatorType: 'adult' | 'peds' = 'adult',
 ): void {
-  // Much larger canvas for easy finger painting on mobile
-  const CANVAS_WIDTH = 260;
-  const CANVAS_HEIGHT = 580;
+  // Full-width canvas for single body view
+  const CANVAS_WIDTH = 280;
+  const CANVAS_HEIGHT = 520;
   const SVG_VIEWBOX_WIDTH = 130;
-  const SVG_VIEWBOX_HEIGHT = 310;
+  const SVG_VIEWBOX_HEIGHT = calculatorType === 'peds' ? 540 : 510;
   const SCALE_X = CANVAS_WIDTH / SVG_VIEWBOX_WIDTH;
   const SCALE_Y = CANVAS_HEIGHT / SVG_VIEWBOX_HEIGHT;
+
+  // Use anatomical body paths
+  const frontBodyPath = calculatorType === 'peds' ? PEDS_BODY_FRONT_PATH : ADULT_BODY_FRONT_PATH;
+  const backBodyPath = calculatorType === 'peds' ? PEDS_BODY_BACK_PATH : ADULT_BODY_BACK_PATH;
 
   // Collect all regions for perineum tracking
   const allRegions = [...frontRegions, ...backRegions];
@@ -759,10 +804,11 @@ function buildEburnPainter(
     backMaskCtx: null as unknown as CanvasRenderingContext2D,
     isDrawing: false,
     isErasing: false,
-    brushSize: 32,
+    brushSize: 28,
     lastX: 0,
     lastY: 0,
     perineumPct: 0,
+    showingFront: true,
   };
 
   // Initialize canvases
@@ -781,35 +827,23 @@ function buildEburnPainter(
 
   const adultLink = document.createElement('a');
   adultLink.href = '#/calculator/tbsa-adult';
-  adultLink.style.cssText = `padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:flex;align-items:center;justify-content:center;${calculatorType === 'adult' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
+  adultLink.style.cssText = `padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;min-height:48px;display:flex;align-items:center;justify-content:center;${calculatorType === 'adult' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
   adultLink.textContent = 'Adult';
 
   const pedsLink = document.createElement('a');
   pedsLink.href = '#/calculator/tbsa-peds';
-  pedsLink.style.cssText = `padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:flex;align-items:center;justify-content:center;${calculatorType === 'peds' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
+  pedsLink.style.cssText = `padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;min-height:48px;display:flex;align-items:center;justify-content:center;${calculatorType === 'peds' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
   pedsLink.textContent = 'Pediatric';
 
   switcherWrap.appendChild(adultLink);
   switcherWrap.appendChild(pedsLink);
   container.appendChild(switcherWrap);
 
-  // --- Warning banner ---
-  const warning = document.createElement('div');
-  warning.style.cssText = 'font-size:12px;color:#FF9800;margin-bottom:10px;line-height:1.4;padding:8px 10px;background:rgba(255,152,0,0.1);border-radius:8px;border-left:3px solid #FF9800;';
-  warning.textContent = '2nd/3rd degree burns only. Do NOT include 1st degree (superficial) burns.';
-  container.appendChild(warning);
-
-  // --- Instruction ---
-  const instrEl = document.createElement('div');
-  instrEl.style.cssText = 'font-size:13px;color:var(--color-text-muted);margin-bottom:10px;line-height:1.3;text-align:center;';
-  instrEl.innerHTML = '<strong>Draw</strong> on the body to paint burn areas';
-  container.appendChild(instrEl);
-
   // --- Large TBSA display ---
   const totalWrap = document.createElement('div');
-  totalWrap.style.cssText = 'text-align:center;margin-bottom:12px;';
+  totalWrap.style.cssText = 'text-align:center;margin-bottom:8px;';
   const totalEl = document.createElement('div');
-  totalEl.style.cssText = 'font-size:48px;font-weight:800;color:var(--color-text-muted);line-height:1;';
+  totalEl.style.cssText = 'font-size:56px;font-weight:800;color:var(--color-text-muted);line-height:1;';
   totalEl.textContent = '0%';
   const totalLabel = document.createElement('div');
   totalLabel.style.cssText = 'font-size:14px;color:var(--color-text-muted);margin-top:2px;';
@@ -818,17 +852,26 @@ function buildEburnPainter(
   totalWrap.appendChild(totalLabel);
   container.appendChild(totalWrap);
 
-  // --- Mode buttons (Draw / Eraser) ---
-  const modeWrap = document.createElement('div');
-  modeWrap.style.cssText = 'display:flex;gap:8px;justify-content:center;margin-bottom:12px;';
+  // --- Toolbar: Flip + Draw/Erase + Reset ---
+  const toolbarWrap = document.createElement('div');
+  toolbarWrap.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;';
+
+  // Flip button
+  const flipBtn = document.createElement('button');
+  flipBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+  flipBtn.innerHTML = '↻ Flip';
 
   const drawBtn = document.createElement('button');
-  drawBtn.style.cssText = 'padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
-  drawBtn.innerHTML = '<span style="font-size:18px;">✏️</span> Draw';
+  drawBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
+  drawBtn.innerHTML = '✏️ Draw';
 
   const eraseBtn = document.createElement('button');
-  eraseBtn.style.cssText = 'padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
-  eraseBtn.innerHTML = '<span style="font-size:18px;">🧹</span> Erase';
+  eraseBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+  eraseBtn.innerHTML = '🧹 Erase';
+
+  const resetBtn = document.createElement('button');
+  resetBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+  resetBtn.innerHTML = 'Reset';
 
   function setMode(erasing: boolean): void {
     state.isErasing = erasing;
@@ -851,32 +894,35 @@ function buildEburnPainter(
 
   drawBtn.addEventListener('click', () => setMode(false));
   eraseBtn.addEventListener('click', () => setMode(true));
-  modeWrap.appendChild(drawBtn);
-  modeWrap.appendChild(eraseBtn);
-  container.appendChild(modeWrap);
+
+  toolbarWrap.appendChild(flipBtn);
+  toolbarWrap.appendChild(drawBtn);
+  toolbarWrap.appendChild(eraseBtn);
+  toolbarWrap.appendChild(resetBtn);
+  container.appendChild(toolbarWrap);
 
   // --- Brush size slider ---
   const brushWrap = document.createElement('div');
-  brushWrap.style.cssText = 'display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:12px;padding:0 16px;';
+  brushWrap.style.cssText = 'display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;padding:0 16px;';
   const brushLabel = document.createElement('span');
   brushLabel.style.cssText = 'font-size:12px;color:var(--color-text-muted);white-space:nowrap;';
   brushLabel.textContent = 'Brush:';
   const brushSlider = document.createElement('input');
   brushSlider.type = 'range';
-  brushSlider.min = '12';
+  brushSlider.min = '16';
   brushSlider.max = '60';
-  brushSlider.value = '32';
-  brushSlider.style.cssText = 'flex:1;max-width:120px;height:24px;';
+  brushSlider.value = '28';
+  brushSlider.style.cssText = 'flex:1;max-width:150px;height:28px;';
   brushSlider.addEventListener('input', () => {
     state.brushSize = parseInt(brushSlider.value, 10);
   });
   const brushPreview = document.createElement('div');
-  brushPreview.style.cssText = 'width:50px;height:50px;display:flex;align-items:center;justify-content:center;';
+  brushPreview.style.cssText = 'width:44px;height:44px;display:flex;align-items:center;justify-content:center;';
   const brushDot = document.createElement('div');
-  brushDot.style.cssText = `width:32px;height:32px;border-radius:50%;background:${BURN_COLOR};`;
+  brushDot.style.cssText = `width:28px;height:28px;border-radius:50%;background:${BURN_COLOR};`;
   brushPreview.appendChild(brushDot);
   brushSlider.addEventListener('input', () => {
-    const size = Math.min(48, parseInt(brushSlider.value, 10));
+    const size = Math.min(44, parseInt(brushSlider.value, 10));
     brushDot.style.width = `${size}px`;
     brushDot.style.height = `${size}px`;
   });
@@ -885,73 +931,81 @@ function buildEburnPainter(
   brushWrap.appendChild(brushPreview);
   container.appendChild(brushWrap);
 
-  // --- Canvas wrapper ---
-  const canvasWrap = document.createElement('div');
-  canvasWrap.style.cssText = 'display:flex;justify-content:center;gap:12px;margin-bottom:8px;';
+  // --- View label (FRONT / BACK) ---
+  const viewLabel = document.createElement('div');
+  viewLabel.style.cssText = 'text-align:center;font-size:14px;font-weight:700;color:var(--color-text);margin-bottom:4px;letter-spacing:1px;';
+  viewLabel.textContent = 'FRONT';
+  container.appendChild(viewLabel);
 
-  // Create body mask from SVG paths
-  function createBodyMask(ctx: CanvasRenderingContext2D, regions: BodyRegion[]): void {
+  // --- Single Canvas container ---
+  const canvasWrap = document.createElement('div');
+  canvasWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:10px;';
+
+  const canvasContainer = document.createElement('div');
+  canvasContainer.style.cssText = 'position:relative;touch-action:none;background:#1a1a1a;border-radius:12px;padding:8px;';
+
+  // Style canvases
+  state.frontCanvas.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;border-radius:8px;display:block;max-width:100%;';
+  state.backCanvas.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;border-radius:8px;display:none;max-width:100%;';
+
+  canvasContainer.appendChild(state.frontCanvas);
+  canvasContainer.appendChild(state.backCanvas);
+  canvasWrap.appendChild(canvasContainer);
+  container.appendChild(canvasWrap);
+
+  // Create body mask from single path
+  function createBodyMaskFromPath(ctx: CanvasRenderingContext2D, pathStr: string): void {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = '#000';
-    ctx.scale(SCALE_X, SCALE_Y);
-    for (const region of regions) {
-      for (const pathStr of region.paths) {
-        const path = new Path2D(pathStr);
-        ctx.fill(path);
-      }
-    }
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-  }
-
-  // Draw body outline on canvas
-  function drawBodyOutline(ctx: CanvasRenderingContext2D, regions: BodyRegion[]): void {
     ctx.save();
     ctx.scale(SCALE_X, SCALE_Y);
+    const path = new Path2D(pathStr);
+    ctx.fill(path);
+    ctx.restore();
+  }
+
+  // Draw body outline on canvas with anatomical appearance
+  function drawBodyOutlineFromPath(ctx: CanvasRenderingContext2D, pathStr: string): void {
+    ctx.save();
+    ctx.scale(SCALE_X, SCALE_Y);
+    // Fill with light color
     ctx.fillStyle = BODY_FILL;
+    const path = new Path2D(pathStr);
+    ctx.fill(path);
+    // Red stroke for region boundaries (like E-burn)
     ctx.strokeStyle = BODY_STROKE;
-    ctx.lineWidth = 1 / SCALE_X;
+    ctx.lineWidth = 1.5 / SCALE_X;
     ctx.lineJoin = 'round';
-    for (const region of regions) {
-      for (const pathStr of region.paths) {
-        const path = new Path2D(pathStr);
-        ctx.fill(path);
-        ctx.stroke(path);
-      }
-    }
+    ctx.stroke(path);
     ctx.restore();
   }
 
   // Create masks
-  createBodyMask(state.frontMaskCtx, frontRegions);
-  createBodyMask(state.backMaskCtx, backRegions);
+  createBodyMaskFromPath(state.frontMaskCtx, frontBodyPath);
+  createBodyMaskFromPath(state.backMaskCtx, backBodyPath);
 
   // Draw initial body outlines
-  drawBodyOutline(state.frontCtx, frontRegions);
-  drawBodyOutline(state.backCtx, backRegions);
+  drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+  drawBodyOutlineFromPath(state.backCtx, backBodyPath);
 
-  // Create display containers with labels
-  function createBodyDisplay(canvas: HTMLCanvasElement, label: string): HTMLDivElement {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;';
-
-    const canvasContainer = document.createElement('div');
-    canvasContainer.style.cssText = 'position:relative;touch-action:none;';
-
-    canvas.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;border-radius:8px;';
-    canvasContainer.appendChild(canvas);
-
-    const labelEl = document.createElement('div');
-    labelEl.style.cssText = 'font-size:11px;color:var(--color-text-muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;';
-    labelEl.textContent = label;
-
-    wrap.appendChild(canvasContainer);
-    wrap.appendChild(labelEl);
-    return wrap;
+  // Flip handler
+  function flipView(): void {
+    state.showingFront = !state.showingFront;
+    if (state.showingFront) {
+      state.frontCanvas.style.display = 'block';
+      state.backCanvas.style.display = 'none';
+      viewLabel.textContent = 'FRONT';
+    } else {
+      state.frontCanvas.style.display = 'none';
+      state.backCanvas.style.display = 'block';
+      viewLabel.textContent = 'BACK';
+    }
   }
+  flipBtn.addEventListener('click', flipView);
 
   // Paint function
-  function paint(ctx: CanvasRenderingContext2D, maskCtx: CanvasRenderingContext2D, regions: BodyRegion[], x: number, y: number, fromX?: number, fromY?: number): void {
+  function paint(ctx: CanvasRenderingContext2D, maskCtx: CanvasRenderingContext2D, bodyPath: string, x: number, y: number, fromX?: number, fromY?: number): void {
     const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
 
     // Check if point is inside body mask
@@ -999,13 +1053,13 @@ function buildEburnPainter(
 
     ctx.restore();
 
-    // Redraw body outline on top
+    // Redraw body outline on top if erasing
     if (state.isErasing) {
-      drawBodyOutline(ctx, regions);
+      drawBodyOutlineFromPath(ctx, bodyPath);
     }
   }
 
-  // Count painted pixels per region
+  // Count painted pixels
   function calculateTbsa(): number {
     const frontData = state.frontCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
     const backData = state.backCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
@@ -1020,13 +1074,11 @@ function buildEburnPainter(
     // Count pixels
     for (let i = 0; i < frontMaskData.length; i += 4) {
       // Front
-      if (frontMaskData[i] === 0) { // Inside body
+      if (frontMaskData[i] === 0) {
         totalFrontBody++;
-        // Check if pixel is burn color (orange)
         const r = frontData[i];
         const g = frontData[i + 1];
         const b = frontData[i + 2];
-        // FF7800 = R:255, G:120, B:0
         if (r > 200 && g > 80 && g < 160 && b < 50) {
           paintedFront++;
         }
@@ -1043,8 +1095,7 @@ function buildEburnPainter(
       }
     }
 
-    // Calculate TBSA based on painted percentage
-    // Front and back each represent ~half of body regions
+    // Front = ~50%, Back = ~49%, Perineum = ~1%
     const frontRegionTbsa = frontRegions.reduce((sum, r) => sum + r.pct, 0);
     const backRegionTbsa = backRegions.reduce((sum, r) => sum + r.pct, 0);
 
@@ -1063,7 +1114,6 @@ function buildEburnPainter(
     const tbsa = calculateTbsa();
     totalEl.textContent = `${tbsa}%`;
 
-    // Color code
     if (tbsa === 0) {
       totalEl.style.color = 'var(--color-text-muted)';
     } else if (tbsa < 10) {
@@ -1099,7 +1149,7 @@ function buildEburnPainter(
     }
   }
 
-  function setupCanvasEvents(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, maskCtx: CanvasRenderingContext2D, regions: BodyRegion[]): void {
+  function setupCanvasEvents(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, maskCtx: CanvasRenderingContext2D, bodyPath: string): void {
     let activeCanvas = false;
 
     const startDraw = (e: MouseEvent | TouchEvent) => {
@@ -1109,7 +1159,7 @@ function buildEburnPainter(
       const pt = getCanvasPoint(e, canvas);
       state.lastX = pt.x;
       state.lastY = pt.y;
-      paint(ctx, maskCtx, regions, pt.x, pt.y);
+      paint(ctx, maskCtx, bodyPath, pt.x, pt.y);
       updateTbsaDisplay();
     };
 
@@ -1117,7 +1167,7 @@ function buildEburnPainter(
       if (!state.isDrawing || !activeCanvas) return;
       e.preventDefault();
       const pt = getCanvasPoint(e, canvas);
-      paint(ctx, maskCtx, regions, pt.x, pt.y, state.lastX, state.lastY);
+      paint(ctx, maskCtx, bodyPath, pt.x, pt.y, state.lastX, state.lastY);
       state.lastX = pt.x;
       state.lastY = pt.y;
       updateTbsaDisplay();
@@ -1128,45 +1178,48 @@ function buildEburnPainter(
       activeCanvas = false;
     };
 
-    // Mouse events
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', moveDraw);
     canvas.addEventListener('mouseup', endDraw);
     canvas.addEventListener('mouseleave', endDraw);
-
-    // Touch events
     canvas.addEventListener('touchstart', startDraw, { passive: false });
     canvas.addEventListener('touchmove', moveDraw, { passive: false });
     canvas.addEventListener('touchend', endDraw);
     canvas.addEventListener('touchcancel', endDraw);
   }
 
-  setupCanvasEvents(state.frontCanvas, state.frontCtx, state.frontMaskCtx, frontRegions);
-  setupCanvasEvents(state.backCanvas, state.backCtx, state.backMaskCtx, backRegions);
+  setupCanvasEvents(state.frontCanvas, state.frontCtx, state.frontMaskCtx, frontBodyPath);
+  setupCanvasEvents(state.backCanvas, state.backCtx, state.backMaskCtx, backBodyPath);
 
-  canvasWrap.appendChild(createBodyDisplay(state.frontCanvas, 'Front'));
-  canvasWrap.appendChild(createBodyDisplay(state.backCanvas, 'Back'));
-  container.appendChild(canvasWrap);
+  // Reset handler
+  resetBtn.addEventListener('click', () => {
+    state.frontCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    state.backCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+    drawBodyOutlineFromPath(state.backCtx, backBodyPath);
+    state.perineumPct = 0;
+    updateTbsaDisplay();
+  });
 
-  // --- Perineum button ---
+  // --- Perineum toggle ---
   if (perineum) {
     const periWrap = document.createElement('div');
-    periWrap.style.cssText = 'display:flex;justify-content:center;gap:8px;margin-bottom:10px;';
+    periWrap.style.cssText = 'display:flex;justify-content:center;gap:8px;margin-bottom:10px;align-items:center;';
 
     const periLabel = document.createElement('span');
-    periLabel.style.cssText = 'font-size:13px;color:var(--color-text);display:flex;align-items:center;';
+    periLabel.style.cssText = 'font-size:13px;color:var(--color-text);';
     periLabel.textContent = `Perineum (${perineum.pct}%):`;
 
     const periNone = document.createElement('button');
-    periNone.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:36px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
+    periNone.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
     periNone.textContent = 'None';
 
     const periHalf = document.createElement('button');
-    periHalf.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:36px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+    periHalf.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
     periHalf.textContent = 'Half';
 
     const periFull = document.createElement('button');
-    periFull.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:36px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+    periFull.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
     periFull.textContent = 'Full';
 
     function updatePerineumBtns(): void {
@@ -1201,27 +1254,11 @@ function buildEburnPainter(
     container.appendChild(periWrap);
   }
 
-  // --- Clear button ---
-  const clearWrap = document.createElement('div');
-  clearWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:10px;';
-  const clearBtn = document.createElement('button');
-  clearBtn.style.cssText = 'padding:10px 24px;border-radius:8px;background:transparent;color:var(--color-text-muted);border:1px solid var(--color-text-muted);font-size:13px;cursor:pointer;min-height:44px;';
-  clearBtn.textContent = 'Clear All';
-  clearBtn.addEventListener('click', () => {
-    // Clear canvases
-    state.frontCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    state.backCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    // Redraw body outlines
-    drawBodyOutline(state.frontCtx, frontRegions);
-    drawBodyOutline(state.backCtx, backRegions);
-    // Reset perineum
-    state.perineumPct = 0;
-    const periNone = container.querySelector('button:nth-child(2)');
-    if (periNone) (periNone as HTMLButtonElement).click();
-    updateTbsaDisplay();
-  });
-  clearWrap.appendChild(clearBtn);
-  container.appendChild(clearWrap);
+  // --- Warning at bottom ---
+  const warning = document.createElement('div');
+  warning.style.cssText = 'font-size:11px;color:#FF9800;margin-top:8px;line-height:1.4;padding:6px 10px;background:rgba(255,152,0,0.1);border-radius:6px;text-align:center;';
+  warning.textContent = '2nd/3rd degree burns only. Do NOT include superficial burns.';
+  container.appendChild(warning);
 }
 
 // Alias for backward compatibility
