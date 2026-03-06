@@ -707,183 +707,206 @@ const BODY_FILL = '#ffffff';
 const BODY_STROKE = '#333333';
 
 // Human body silhouette - Adult FRONT view
-// E-burn style anatomical body - arms extended, clear head/torso/limbs
-// Viewbox: 0 0 130 500
+// E-burn style anatomical body matching reference image exactly
+// Head with face shape, arms at 30deg, hands with fingers, feet with toes
+// Viewbox: 0 0 200 500
 const ADULT_BODY_FRONT_PATH = `
-M 65 5
-C 56 5 50 12 50 22
-C 50 30 54 36 60 40
-L 60 45
-L 70 45
-L 70 40
-C 76 36 80 30 80 22
-C 80 12 74 5 65 5
-Z
-M 60 46
-L 60 52
-C 48 55 42 62 42 72
-L 42 120
-L 32 124
-C 26 126 22 132 22 140
-L 22 175
-C 22 180 24 184 28 186
-L 36 190
-C 32 205 26 235 22 260
-L 22 268
-C 22 272 25 275 30 275
-L 42 272
-L 44 195
-L 46 195
-L 46 290
-C 44 320 42 355 42 390
-C 42 410 44 430 48 445
-L 48 478
-C 48 486 52 492 58 492
-L 62 492
-L 62 445
-C 60 430 58 410 58 390
-C 58 360 60 330 62 300
-L 68 300
-C 70 330 72 360 72 390
-C 72 410 70 430 68 445
-L 68 492
-L 72 492
-C 78 492 82 486 82 478
-L 82 445
-C 86 430 88 410 88 390
-C 88 355 86 320 84 290
-L 84 195
-L 86 195
-L 88 272
-L 100 275
-C 105 275 108 272 108 268
-L 108 260
-C 104 235 98 205 94 190
-L 102 186
-C 106 184 108 180 108 175
-L 108 140
-C 108 132 104 126 98 124
-L 88 120
+M 100 8
+C 88 8 78 16 78 32
+C 78 46 86 56 96 60
+L 96 68
 L 88 72
-C 88 62 82 55 70 52
-L 70 46
+C 72 78 60 90 56 108
+L 48 118
+C 36 122 28 134 28 150
+L 28 188
+C 28 198 32 206 40 210
+L 44 212
+L 40 228
+L 32 248
+L 20 264
+L 14 272
+L 6 282
+L 4 290
+L 10 294
+L 18 290
+L 26 280
+L 34 268
+L 40 256
+L 48 236
+L 52 220
+L 52 260
+L 50 300
+C 48 340 46 380 48 420
+C 50 445 54 465 58 478
+L 56 484
+L 52 490
+L 50 496
+L 56 498
+L 64 494
+L 70 486
+L 74 492
+L 80 496
+L 86 494
+L 88 488
+L 84 480
+C 80 465 76 445 76 420
+C 76 385 78 350 80 315
+L 84 280
+L 90 280
+L 94 280
+L 98 280
+L 100 315
+L 100 280
+L 102 280
+L 106 280
+L 110 280
+L 116 280
+L 120 315
+C 122 350 124 385 124 420
+C 124 445 120 465 116 480
+L 112 488
+L 114 494
+L 120 496
+L 126 492
+L 130 486
+L 136 494
+L 144 498
+L 150 496
+L 148 490
+L 144 484
+L 142 478
+C 146 465 150 445 152 420
+C 154 380 152 340 150 300
+L 148 260
+L 148 220
+L 152 236
+L 160 256
+L 166 268
+L 174 280
+L 182 290
+L 190 294
+L 196 290
+L 194 282
+L 186 272
+L 180 264
+L 168 248
+L 160 228
+L 156 212
+L 160 210
+C 168 206 172 198 172 188
+L 172 150
+C 172 134 164 122 152 118
+L 144 108
+C 140 90 128 78 112 72
+L 104 68
+L 104 60
+C 114 56 122 46 122 32
+C 122 16 112 8 100 8
 Z
 `;
 
-// Adult BACK view - same anatomical silhouette
-const ADULT_BODY_BACK_PATH = `
-M 65 5
-C 56 5 50 12 50 22
-C 50 30 54 36 60 40
-L 60 45
-L 70 45
-L 70 40
-C 76 36 80 30 80 22
-C 80 12 74 5 65 5
-Z
-M 60 46
-L 60 52
-C 48 55 42 62 42 72
-L 42 120
-L 32 124
-C 26 126 22 132 22 140
-L 22 175
-C 22 180 24 184 28 186
-L 36 190
-C 32 205 26 235 22 260
-L 22 268
-C 22 272 25 275 30 275
-L 42 272
-L 44 195
-L 46 195
-L 46 290
-C 44 320 42 355 42 390
-C 42 410 44 430 48 445
-L 48 478
-C 48 486 52 492 58 492
-L 62 492
-L 62 445
-C 60 430 58 410 58 390
-C 58 360 60 330 62 300
-L 68 300
-C 70 330 72 360 72 390
-C 72 410 70 430 68 445
-L 68 492
-L 72 492
-C 78 492 82 486 82 478
-L 82 445
-C 86 430 88 410 88 390
-C 88 355 86 320 84 290
-L 84 195
-L 86 195
-L 88 272
-L 100 275
-C 105 275 108 272 108 268
-L 108 260
-C 104 235 98 205 94 190
-L 102 186
-C 106 184 108 180 108 175
-L 108 140
-C 108 132 104 126 98 124
-L 88 120
-L 88 72
-C 88 62 82 55 70 52
-L 70 46
-Z
-`;
+// Zone boundary lines for Rule of 9s visualization (coral red)
+const ADULT_ZONE_LINES = [
+  'M 96 68 L 104 68',           // Neck line
+  'M 56 108 L 144 108',         // Shoulders
+  'M 52 220 L 148 220',         // Waist (chest/abdomen divide)
+  'M 80 280 L 120 280',         // Groin line
+  'M 48 118 L 28 150',          // Left upper arm outer
+  'M 52 220 L 40 210',          // Left upper arm inner
+  'M 152 118 L 172 150',        // Right upper arm outer
+  'M 148 220 L 160 210',        // Right upper arm inner
+  'M 76 420 L 124 420',         // Knee line
+];
 
-// Pediatric FRONT view - larger head proportions, e-burn style
-// Uses same 130x500 viewbox as adult for consistency
+// Adult BACK view - same silhouette as front
+const ADULT_BODY_BACK_PATH = ADULT_BODY_FRONT_PATH;
+
+// Zone lines for back view
+const ADULT_BACK_ZONE_LINES = [
+  'M 96 68 L 104 68',           // Neck line
+  'M 56 108 L 144 108',         // Shoulders
+  'M 52 220 L 148 220',         // Waist
+  'M 80 280 L 120 280',         // Buttocks line
+  'M 76 420 L 124 420',         // Knee line
+];
+
+// Pediatric FRONT view - larger head proportions (infant/toddler)
+// Uses same 200x500 viewbox as adult - head is ~18% vs 9% for adult
 const PEDS_BODY_FRONT_PATH = `
-M 65 5
-C 52 5 44 16 44 30
-C 44 42 52 52 60 56
-L 60 62
-L 70 62
-L 70 56
-C 78 52 86 42 86 30
-C 86 16 78 5 65 5
-Z
-M 60 63
-L 60 70
-C 46 74 38 84 38 96
-L 38 140
-L 26 145
-C 20 148 16 155 16 165
-L 16 205
-C 16 212 18 218 24 222
-L 34 228
-C 30 248 24 280 20 310
-L 20 320
-C 20 326 24 330 32 330
-L 46 326
-L 48 235
-L 50 235
-L 50 330
-C 48 365 45 405 45 440
-C 45 460 47 478 52 490
-L 52 485
-C 52 492 56 496 62 496
-L 68 496
-C 74 496 78 492 78 485
-L 78 490
-C 83 478 85 460 85 440
-C 85 405 82 365 80 330
-L 80 235
-L 82 235
-L 84 326
-L 98 330
-C 106 330 110 326 110 320
-L 110 310
-C 106 280 100 248 96 228
-L 106 222
-C 112 218 114 212 114 205
-L 114 165
-C 114 155 110 148 104 145
-L 92 140
-L 92 96
-C 92 84 84 74 70 70
-L 70 63
+M 100 8
+C 82 8 68 22 68 44
+C 68 62 80 76 94 82
+L 94 90
+L 86 94
+C 66 102 52 118 48 142
+L 38 155
+C 26 162 20 178 20 198
+L 20 242
+C 20 256 26 266 38 272
+L 44 276
+L 38 298
+L 28 322
+L 18 342
+L 12 354
+L 6 368
+L 4 378
+L 12 382
+L 22 376
+L 32 362
+L 42 344
+L 50 324
+L 56 302
+L 58 320
+L 56 360
+C 54 400 52 440 56 470
+C 60 488 66 496 74 498
+L 78 496
+L 84 492
+L 88 496
+L 94 498
+L 100 496
+L 100 470
+C 98 440 96 400 94 360
+L 92 320
+L 94 280
+L 100 280
+L 106 280
+L 108 320
+C 106 360 104 400 102 440
+L 102 470
+L 102 496
+L 108 498
+L 114 496
+L 118 492
+L 124 496
+L 128 498
+C 136 496 142 488 146 470
+C 150 440 148 400 146 360
+L 144 320
+L 146 302
+L 152 324
+L 160 344
+L 170 362
+L 180 376
+L 190 382
+L 198 378
+L 196 368
+L 190 354
+L 184 342
+L 174 322
+L 164 298
+L 158 276
+L 164 272
+C 176 266 182 256 182 242
+L 182 198
+C 182 178 176 162 164 155
+L 154 142
+C 150 118 136 102 116 94
+L 108 90
+L 108 82
+C 122 76 134 62 134 44
+C 134 22 120 8 100 8
 Z
 `;
 
@@ -920,10 +943,10 @@ function buildEburnPainter(
   calculatorType: 'adult' | 'peds' = 'adult',
 ): void {
   // Canvas sized to fit on mobile without scrolling
-  // E-burn style body paths use 130x500 viewbox
-  const CANVAS_WIDTH = 260;
+  // E-burn style body paths use 200x500 viewbox (wider for arms with hands)
+  const CANVAS_WIDTH = 300;
   const CANVAS_HEIGHT = 500;
-  const SVG_VIEWBOX_WIDTH = 130;
+  const SVG_VIEWBOX_WIDTH = 200;
   const SVG_VIEWBOX_HEIGHT = 500;
   const SCALE_X = CANVAS_WIDTH / SVG_VIEWBOX_WIDTH;
   const SCALE_Y = CANVAS_HEIGHT / SVG_VIEWBOX_HEIGHT;
@@ -1110,24 +1133,42 @@ function buildEburnPainter(
   }
 
   // Draw body outline on canvas with anatomical appearance
-  function drawBodyOutlineFromPath(ctx: CanvasRenderingContext2D, pathStr: string): void {
+  function drawBodyOutlineFromPath(ctx: CanvasRenderingContext2D, pathStr: string, isFront: boolean = true): void {
     ctx.save();
     ctx.scale(SCALE_X, SCALE_Y);
-    // Fill with light color
+
+    // 1. Fill body with light color
     ctx.fillStyle = BODY_FILL;
     const path = new Path2D(pathStr);
     ctx.fill(path);
-    // Clean dark stroke outline (like E-burn)
+
+    // 2. Draw zone boundary lines (red/coral like e-burn)
+    const zoneLines = calculatorType === 'adult'
+      ? (isFront ? ADULT_ZONE_LINES : ADULT_BACK_ZONE_LINES)
+      : []; // Peds uses Lund-Browder, different zones
+
+    if (zoneLines.length > 0) {
+      ctx.strokeStyle = '#E74C3C'; // Coral red
+      ctx.lineWidth = 0.8 / SCALE_X;
+      ctx.setLineDash([]);
+      zoneLines.forEach(line => {
+        const zonePath = new Path2D(line);
+        ctx.stroke(zonePath);
+      });
+    }
+
+    // 3. Draw body outline stroke
     ctx.strokeStyle = BODY_STROKE;
-    ctx.lineWidth = 1 / SCALE_X;
+    ctx.lineWidth = 1.2 / SCALE_X;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
+    ctx.setLineDash([]);
     ctx.stroke(path);
+
     ctx.restore();
   }
 
-  // Zone labels will be shown as HTML below the canvas instead of on the canvas
-  // This avoids issues with text visibility on white body fill
+  // Zone labels shown as HTML legend below canvas
   function drawZoneLabels(_ctx: CanvasRenderingContext2D, _isFront: boolean): void {
     // Intentionally empty - labels shown via HTML legend below
   }
@@ -1136,10 +1177,10 @@ function buildEburnPainter(
   createBodyMaskFromPath(state.frontMaskCtx, frontBodyPath);
   createBodyMaskFromPath(state.backMaskCtx, backBodyPath);
 
-  // Draw initial body outlines with zone labels
-  drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+  // Draw initial body outlines with zone lines
+  drawBodyOutlineFromPath(state.frontCtx, frontBodyPath, true);
   drawZoneLabels(state.frontCtx, true);
-  drawBodyOutlineFromPath(state.backCtx, backBodyPath);
+  drawBodyOutlineFromPath(state.backCtx, backBodyPath, false);
   drawZoneLabels(state.backCtx, false);
 
   // Flip handler
@@ -1208,9 +1249,8 @@ function buildEburnPainter(
 
     // Redraw body outline on top if erasing
     if (state.isErasing) {
-      drawBodyOutlineFromPath(ctx, bodyPath);
-      // Re-add zone labels after redraw
       const isFront = ctx === state.frontCtx;
+      drawBodyOutlineFromPath(ctx, bodyPath, isFront);
       drawZoneLabels(ctx, isFront);
     }
   }
@@ -1351,9 +1391,9 @@ function buildEburnPainter(
   resetBtn.addEventListener('click', () => {
     state.frontCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     state.backCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+    drawBodyOutlineFromPath(state.frontCtx, frontBodyPath, true);
     drawZoneLabels(state.frontCtx, true);
-    drawBodyOutlineFromPath(state.backCtx, backBodyPath);
+    drawBodyOutlineFromPath(state.backCtx, backBodyPath, false);
     drawZoneLabels(state.backCtx, false);
     state.perineumPct = 0;
     updateTbsaDisplay();
