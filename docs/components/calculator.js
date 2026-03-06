@@ -602,337 +602,479 @@ const CORRECTED_NA_CALCULATOR = {
         };
     },
 };
-// -------------------------------------------------------------------
-// TBSA Calculator — Slider-Based Body Diagram
-// -------------------------------------------------------------------
-// Tap a body region → it expands with a slider to select % burned.
-// No 2nd/3rd degree distinction — only 2nd+ burns count toward TBSA.
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const BURN_STROKE = '#FF7800';
-const EMPTY_FILL = 'var(--color-surface)';
-const EMPTY_STROKE = '#555';
-function createSvgPath(d) {
-    const path = document.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', d);
-    return path;
-}
-// Inject slider thumb styles (can't be done inline)
-function injectSliderStyles() {
-    if (document.getElementById('tbsa-slider-styles'))
-        return;
-    const style = document.createElement('style');
-    style.id = 'tbsa-slider-styles';
-    style.textContent = `
-    input.tbsa-slider { -webkit-appearance:none; width:100%; height:10px; border-radius:5px; outline:none; margin:16px 0; }
-    input.tbsa-slider::-webkit-slider-thumb { -webkit-appearance:none; width:36px; height:36px; border-radius:50%; background:#FF7800; cursor:pointer; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
-  `;
-    document.head.appendChild(style);
-}
-function buildSliderDiagram(container, frontRegions, backRegions, perineum, onUpdate) {
-    injectSliderStyles();
+const BURN_COLOR = '#FF7800';
+const BODY_FILL = '#ffffff';
+const BODY_STROKE = '#333333';
+// E-burn style anatomical adult body - FRONT view
+// Single closed path for proper fill - human silhouette
+// Viewbox: 0 0 100 300
+const ADULT_BODY_FRONT_PATH = `
+M50,5 C42,5 36,10 33,17 C30,24 29,30 29,36 C29,42 31,47 34,51 L34,56
+L28,60 C22,64 18,70 16,78 L14,92 C13,100 14,107 18,112 L22,118
+C20,130 17,145 14,162 L10,185 C9,194 10,202 14,208 L18,214
+L20,232 C21,238 25,242 30,243 L34,242 L38,225 L40,200 L42,172
+L42,220 C41,245 40,270 40,290 C40,295 42,298 46,299 L50,300
+L54,299 C58,298 60,295 60,290 C60,270 59,245 58,220 L58,172
+L60,200 L62,225 L66,242 L70,243 C75,242 79,238 80,232 L82,214
+L86,208 C90,202 91,194 90,185 L86,162 C83,145 80,130 78,118
+L82,112 C86,107 87,100 86,92 L84,78 C82,70 78,64 72,60 L66,56
+L66,51 C69,47 71,42 71,36 C71,30 70,24 67,17 C64,10 58,5 50,5 Z
+`;
+// E-burn style anatomical adult body - BACK view (same silhouette)
+const ADULT_BODY_BACK_PATH = ADULT_BODY_FRONT_PATH;
+// Pediatric body - larger head, shorter limbs, rounder proportions
+// Viewbox: 0 0 100 320
+const PEDS_BODY_FRONT_PATH = `
+M50,4 C40,4 32,10 28,20 C24,30 23,38 23,46 C23,54 26,62 31,68 L31,74
+L24,80 C18,86 14,94 12,104 L10,122 C9,132 10,140 15,148 L20,156
+C18,172 15,190 12,212 L8,240 C7,252 8,262 13,270 L18,278
+L20,300 C21,308 26,314 32,315 L38,314 L42,294 L44,265 L46,232
+L46,280 C45,305 44,328 44,348 C44,354 47,358 52,358 L52,358
+L56,358 C60,358 62,354 62,348 C62,328 61,305 60,280 L60,232
+L62,265 L64,294 L68,314 L74,315 C80,314 85,308 86,300 L88,278
+L93,270 C98,262 99,252 98,240 L94,212 C91,190 88,172 86,156
+L91,148 C96,140 97,132 96,122 L94,104 C92,94 88,86 82,80 L75,74
+L75,68 C80,62 83,54 83,46 C83,38 82,30 78,20 C74,10 66,4 56,4 L50,4 Z
+`;
+const PEDS_BODY_BACK_PATH = PEDS_BODY_FRONT_PATH;
+function buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate, calculatorType = 'adult') {
+    // Canvas sized to fit on mobile without scrolling
+    // Body paths use 100x300 (adult) and 100x360 (peds) viewbox
+    const CANVAS_WIDTH = 220;
+    const CANVAS_HEIGHT = calculatorType === 'peds' ? 320 : 280;
+    const SVG_VIEWBOX_WIDTH = 100;
+    const SVG_VIEWBOX_HEIGHT = calculatorType === 'peds' ? 360 : 300;
+    const SCALE_X = CANVAS_WIDTH / SVG_VIEWBOX_WIDTH;
+    const SCALE_Y = CANVAS_HEIGHT / SVG_VIEWBOX_HEIGHT;
+    // Use anatomical body paths
+    const frontBodyPath = calculatorType === 'peds' ? PEDS_BODY_FRONT_PATH : ADULT_BODY_FRONT_PATH;
+    const backBodyPath = calculatorType === 'peds' ? PEDS_BODY_BACK_PATH : ADULT_BODY_BACK_PATH;
+    // Collect all regions for perineum tracking
     const allRegions = [...frontRegions, ...backRegions];
     if (perineum)
         allRegions.push(perineum);
-    // State: burn percentage per region (0-100% of that region)
-    const burnState = {};
-    for (const r of allRegions)
-        burnState[r.id] = 0;
-    let selectedRegionId = null;
-    // --- Warning: 1st degree excluded ---
-    const warning = document.createElement('div');
-    warning.style.cssText = 'font-size:13px;color:#FF9800;margin-bottom:12px;line-height:1.4;padding:10px 12px;background:rgba(255,152,0,0.1);border-radius:8px;border-left:3px solid #FF9800;';
-    warning.textContent = 'Do NOT include 1st degree (superficial) burns. Only 2nd degree (partial thickness) and 3rd degree (full thickness) burns count toward TBSA.';
-    container.appendChild(warning);
-    // --- Instruction ---
-    const instrEl = document.createElement('div');
-    instrEl.style.cssText = 'font-size:13px;color:var(--color-text-muted);margin-bottom:12px;line-height:1.4;';
-    instrEl.textContent = 'Tap a body region to expand it, then use the slider to set what percentage of that region is burned.';
-    container.appendChild(instrEl);
-    // --- Total display + Clear ---
-    const topRow = document.createElement('div');
-    topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;';
+    // State
+    const state = {
+        frontCanvas: document.createElement('canvas'),
+        backCanvas: document.createElement('canvas'),
+        frontMask: document.createElement('canvas'),
+        backMask: document.createElement('canvas'),
+        frontCtx: null,
+        backCtx: null,
+        frontMaskCtx: null,
+        backMaskCtx: null,
+        isDrawing: false,
+        isErasing: false,
+        brushSize: 28,
+        lastX: 0,
+        lastY: 0,
+        perineumPct: 0,
+        showingFront: true,
+    };
+    // Initialize canvases
+    [state.frontCanvas, state.backCanvas, state.frontMask, state.backMask].forEach(c => {
+        c.width = CANVAS_WIDTH;
+        c.height = CANVAS_HEIGHT;
+    });
+    state.frontCtx = state.frontCanvas.getContext('2d', { willReadFrequently: true });
+    state.backCtx = state.backCanvas.getContext('2d', { willReadFrequently: true });
+    state.frontMaskCtx = state.frontMask.getContext('2d');
+    state.backMaskCtx = state.backMask.getContext('2d');
+    // --- Calculator switcher (Adult / Peds) ---
+    const switcherWrap = document.createElement('div');
+    switcherWrap.style.cssText = 'display:flex;gap:8px;justify-content:center;margin-bottom:12px;';
+    const adultLink = document.createElement('a');
+    adultLink.href = '#/calculator/tbsa-adult';
+    adultLink.style.cssText = `padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;min-height:48px;display:flex;align-items:center;justify-content:center;${calculatorType === 'adult' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
+    adultLink.textContent = 'Adult';
+    const pedsLink = document.createElement('a');
+    pedsLink.href = '#/calculator/tbsa-peds';
+    pedsLink.style.cssText = `padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;min-height:48px;display:flex;align-items:center;justify-content:center;${calculatorType === 'peds' ? 'background:#FF7800;color:#fff;border:2px solid #FF7800;' : 'background:var(--color-surface);color:var(--color-text);border:2px solid #666;'}`;
+    pedsLink.textContent = 'Pediatric';
+    switcherWrap.appendChild(adultLink);
+    switcherWrap.appendChild(pedsLink);
+    container.appendChild(switcherWrap);
+    // --- Large TBSA display ---
+    const totalWrap = document.createElement('div');
+    totalWrap.style.cssText = 'text-align:center;margin-bottom:8px;';
     const totalEl = document.createElement('div');
-    totalEl.style.cssText = 'font-size:24px;font-weight:700;color:var(--color-primary);';
-    totalEl.textContent = 'TBSA: 0%';
-    const clearBtn = document.createElement('button');
-    clearBtn.style.cssText = 'padding:8px 16px;border-radius:8px;background:var(--color-surface);color:var(--color-text-muted);border:1px solid var(--color-text-muted);font-size:13px;cursor:pointer;min-height:44px;';
-    clearBtn.textContent = 'Clear All';
-    topRow.appendChild(totalEl);
-    topRow.appendChild(clearBtn);
-    container.appendChild(topRow);
-    // --- SVG wrapper ---
-    const svgWrap = document.createElement('div');
-    svgWrap.style.cssText = 'display:flex;justify-content:center;gap:16px;margin-bottom:6px;';
-    function buildSilhouette(regions, viewLabel) {
-        const svg = document.createElementNS(SVG_NS, 'svg');
-        svg.setAttribute('viewBox', '0 0 130 310');
-        svg.setAttribute('width', '145');
-        svg.setAttribute('height', '345');
-        svg.style.cssText = 'touch-action:manipulation;user-select:none;-webkit-user-select:none;';
-        const text = document.createElementNS(SVG_NS, 'text');
-        text.setAttribute('x', '65');
-        text.setAttribute('y', '308');
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', 'var(--color-text-muted)');
-        text.setAttribute('font-size', '11');
-        text.textContent = viewLabel;
-        svg.appendChild(text);
-        for (const region of regions) {
-            const group = document.createElementNS(SVG_NS, 'g');
-            group.setAttribute('data-region', region.id);
-            group.style.cursor = 'pointer';
-            for (const d of region.paths) {
-                const path = createSvgPath(d);
-                path.setAttribute('fill', EMPTY_FILL);
-                path.setAttribute('stroke', EMPTY_STROKE);
-                path.setAttribute('stroke-width', '0.8');
-                path.setAttribute('stroke-linejoin', 'round');
-                group.appendChild(path);
-            }
-            // Percentage label
-            const pctLabel = document.createElementNS(SVG_NS, 'text');
-            pctLabel.setAttribute('text-anchor', 'middle');
-            pctLabel.setAttribute('fill', 'var(--color-text-muted)');
-            pctLabel.setAttribute('font-size', '7');
-            pctLabel.setAttribute('pointer-events', 'none');
-            pctLabel.textContent = `${region.pct}%`;
-            group.appendChild(pctLabel);
-            group.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                selectRegion(region.id);
-            });
-            svg.appendChild(group);
+    totalEl.style.cssText = 'font-size:56px;font-weight:800;color:var(--color-text-muted);line-height:1;';
+    totalEl.textContent = '0%';
+    const totalLabel = document.createElement('div');
+    totalLabel.style.cssText = 'font-size:14px;color:var(--color-text-muted);margin-top:2px;';
+    totalLabel.textContent = 'TBSA';
+    totalWrap.appendChild(totalEl);
+    totalWrap.appendChild(totalLabel);
+    container.appendChild(totalWrap);
+    // --- Toolbar: Flip + Draw/Erase + Reset ---
+    const toolbarWrap = document.createElement('div');
+    toolbarWrap.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;';
+    // Flip button
+    const flipBtn = document.createElement('button');
+    flipBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+    flipBtn.innerHTML = '↻ Flip';
+    const drawBtn = document.createElement('button');
+    drawBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
+    drawBtn.innerHTML = '✏️ Draw';
+    const eraseBtn = document.createElement('button');
+    eraseBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+    eraseBtn.innerHTML = '🧹 Erase';
+    const resetBtn = document.createElement('button');
+    resetBtn.style.cssText = 'padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:6px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+    resetBtn.innerHTML = 'Reset';
+    function setMode(erasing) {
+        state.isErasing = erasing;
+        if (erasing) {
+            eraseBtn.style.background = '#666';
+            eraseBtn.style.borderColor = '#888';
+            eraseBtn.style.color = '#fff';
+            drawBtn.style.background = 'var(--color-surface)';
+            drawBtn.style.borderColor = '#666';
+            drawBtn.style.color = 'var(--color-text)';
         }
-        return svg;
+        else {
+            drawBtn.style.background = '#FF7800';
+            drawBtn.style.borderColor = '#FF7800';
+            drawBtn.style.color = '#fff';
+            eraseBtn.style.background = 'var(--color-surface)';
+            eraseBtn.style.borderColor = '#666';
+            eraseBtn.style.color = 'var(--color-text)';
+        }
     }
-    // --- Region fill based on burn percentage ---
-    function updateRegionFill(regionId) {
-        const pct = burnState[regionId];
-        const opacity = 0.3 + (pct / 100) * 0.5;
-        const isSelected = regionId === selectedRegionId;
-        svgWrap.querySelectorAll(`g[data-region="${regionId}"] path`).forEach(p => {
-            if (pct > 0) {
-                p.setAttribute('fill', `rgba(255, 120, 0, ${opacity})`);
-                p.setAttribute('stroke', BURN_STROKE);
-                p.setAttribute('stroke-width', isSelected ? '2.5' : '1.5');
-            }
-            else {
-                p.setAttribute('fill', EMPTY_FILL);
-                p.setAttribute('stroke', isSelected ? '#fff' : EMPTY_STROKE);
-                p.setAttribute('stroke-width', isSelected ? '2.5' : '0.8');
-            }
-        });
-        // Perineum button
-        if (regionId === 'perineum') {
-            const periBtn = container.querySelector('[data-perineum-btn]');
-            if (periBtn) {
-                if (pct > 0) {
-                    periBtn.style.background = `rgba(255, 120, 0, ${opacity})`;
-                    periBtn.style.borderColor = BURN_STROKE;
-                    periBtn.style.color = '#fff';
+    drawBtn.addEventListener('click', () => setMode(false));
+    eraseBtn.addEventListener('click', () => setMode(true));
+    toolbarWrap.appendChild(flipBtn);
+    toolbarWrap.appendChild(drawBtn);
+    toolbarWrap.appendChild(eraseBtn);
+    toolbarWrap.appendChild(resetBtn);
+    container.appendChild(toolbarWrap);
+    // --- Brush size slider ---
+    const brushWrap = document.createElement('div');
+    brushWrap.style.cssText = 'display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;padding:0 16px;';
+    const brushLabel = document.createElement('span');
+    brushLabel.style.cssText = 'font-size:12px;color:var(--color-text-muted);white-space:nowrap;';
+    brushLabel.textContent = 'Brush:';
+    const brushSlider = document.createElement('input');
+    brushSlider.type = 'range';
+    brushSlider.min = '16';
+    brushSlider.max = '60';
+    brushSlider.value = '28';
+    brushSlider.style.cssText = 'flex:1;max-width:150px;height:28px;';
+    brushSlider.addEventListener('input', () => {
+        state.brushSize = parseInt(brushSlider.value, 10);
+    });
+    const brushPreview = document.createElement('div');
+    brushPreview.style.cssText = 'width:44px;height:44px;display:flex;align-items:center;justify-content:center;';
+    const brushDot = document.createElement('div');
+    brushDot.style.cssText = `width:28px;height:28px;border-radius:50%;background:${BURN_COLOR};`;
+    brushPreview.appendChild(brushDot);
+    brushSlider.addEventListener('input', () => {
+        const size = Math.min(44, parseInt(brushSlider.value, 10));
+        brushDot.style.width = `${size}px`;
+        brushDot.style.height = `${size}px`;
+    });
+    brushWrap.appendChild(brushLabel);
+    brushWrap.appendChild(brushSlider);
+    brushWrap.appendChild(brushPreview);
+    container.appendChild(brushWrap);
+    // --- View label (FRONT / BACK) ---
+    const viewLabel = document.createElement('div');
+    viewLabel.style.cssText = 'text-align:center;font-size:14px;font-weight:700;color:var(--color-text);margin-bottom:4px;letter-spacing:1px;';
+    viewLabel.textContent = 'FRONT';
+    container.appendChild(viewLabel);
+    // --- Single Canvas container ---
+    const canvasWrap = document.createElement('div');
+    canvasWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:10px;';
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = 'position:relative;touch-action:none;background:#1a1a1a;border-radius:12px;padding:8px;';
+    // Style canvases
+    state.frontCanvas.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;border-radius:8px;display:block;max-width:100%;';
+    state.backCanvas.style.cssText = 'touch-action:none;user-select:none;-webkit-user-select:none;border-radius:8px;display:none;max-width:100%;';
+    canvasContainer.appendChild(state.frontCanvas);
+    canvasContainer.appendChild(state.backCanvas);
+    canvasWrap.appendChild(canvasContainer);
+    container.appendChild(canvasWrap);
+    // Create body mask from single path
+    function createBodyMaskFromPath(ctx, pathStr) {
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#000';
+        ctx.save();
+        ctx.scale(SCALE_X, SCALE_Y);
+        const path = new Path2D(pathStr);
+        ctx.fill(path);
+        ctx.restore();
+    }
+    // Draw body outline on canvas with anatomical appearance
+    function drawBodyOutlineFromPath(ctx, pathStr) {
+        ctx.save();
+        ctx.scale(SCALE_X, SCALE_Y);
+        // Fill with light color
+        ctx.fillStyle = BODY_FILL;
+        const path = new Path2D(pathStr);
+        ctx.fill(path);
+        // Clean dark stroke outline (like E-burn)
+        ctx.strokeStyle = BODY_STROKE;
+        ctx.lineWidth = 1 / SCALE_X;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke(path);
+        ctx.restore();
+    }
+    // Create masks
+    createBodyMaskFromPath(state.frontMaskCtx, frontBodyPath);
+    createBodyMaskFromPath(state.backMaskCtx, backBodyPath);
+    // Draw initial body outlines
+    drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+    drawBodyOutlineFromPath(state.backCtx, backBodyPath);
+    // Flip handler
+    function flipView() {
+        state.showingFront = !state.showingFront;
+        if (state.showingFront) {
+            state.frontCanvas.style.display = 'block';
+            state.backCanvas.style.display = 'none';
+            viewLabel.textContent = 'FRONT';
+        }
+        else {
+            state.frontCanvas.style.display = 'none';
+            state.backCanvas.style.display = 'block';
+            viewLabel.textContent = 'BACK';
+        }
+    }
+    flipBtn.addEventListener('click', flipView);
+    // Paint function
+    function paint(ctx, maskCtx, bodyPath, x, y, fromX, fromY) {
+        const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        // Check if point is inside body mask
+        const checkInBody = (px, py) => {
+            const ix = Math.floor(px);
+            const iy = Math.floor(py);
+            if (ix < 0 || ix >= CANVAS_WIDTH || iy < 0 || iy >= CANVAS_HEIGHT)
+                return false;
+            const idx = (iy * CANVAS_WIDTH + ix) * 4;
+            return maskData[idx] === 0; // Black pixels are inside body
+        };
+        ctx.save();
+        if (state.isErasing) {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0,0,0,1)';
+        }
+        else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = BURN_COLOR;
+        }
+        const radius = state.brushSize / 2;
+        // Draw line from last point to current point
+        if (fromX !== undefined && fromY !== undefined) {
+            const dist = Math.sqrt((x - fromX) ** 2 + (y - fromY) ** 2);
+            const steps = Math.max(1, Math.ceil(dist / (radius / 2)));
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const px = fromX + (x - fromX) * t;
+                const py = fromY + (y - fromY) * t;
+                if (checkInBody(px, py)) {
+                    ctx.beginPath();
+                    ctx.arc(px, py, radius, 0, Math.PI * 2);
+                    ctx.fill();
                 }
-                else {
-                    periBtn.style.background = 'var(--color-surface)';
-                    periBtn.style.borderColor = isSelected ? '#fff' : '#555';
-                    periBtn.style.color = 'var(--color-text)';
+            }
+        }
+        else if (checkInBody(x, y)) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+        // Redraw body outline on top if erasing
+        if (state.isErasing) {
+            drawBodyOutlineFromPath(ctx, bodyPath);
+        }
+    }
+    // Count painted pixels
+    function calculateTbsa() {
+        const frontData = state.frontCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        const backData = state.backCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        const frontMaskData = state.frontMaskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        const backMaskData = state.backMaskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        let totalFrontBody = 0;
+        let totalBackBody = 0;
+        let paintedFront = 0;
+        let paintedBack = 0;
+        // Count pixels
+        for (let i = 0; i < frontMaskData.length; i += 4) {
+            // Front
+            if (frontMaskData[i] === 0) {
+                totalFrontBody++;
+                const r = frontData[i];
+                const g = frontData[i + 1];
+                const b = frontData[i + 2];
+                if (r > 200 && g > 80 && g < 160 && b < 50) {
+                    paintedFront++;
+                }
+            }
+            // Back
+            if (backMaskData[i] === 0) {
+                totalBackBody++;
+                const r = backData[i];
+                const g = backData[i + 1];
+                const b = backData[i + 2];
+                if (r > 200 && g > 80 && g < 160 && b < 50) {
+                    paintedBack++;
                 }
             }
         }
+        // Front = ~50%, Back = ~49%, Perineum = ~1%
+        const frontRegionTbsa = frontRegions.reduce((sum, r) => sum + r.pct, 0);
+        const backRegionTbsa = backRegions.reduce((sum, r) => sum + r.pct, 0);
+        const frontPct = totalFrontBody > 0 ? paintedFront / totalFrontBody : 0;
+        const backPct = totalBackBody > 0 ? paintedBack / totalBackBody : 0;
+        const tbsaFromFront = frontPct * frontRegionTbsa;
+        const tbsaFromBack = backPct * backRegionTbsa;
+        const perineumContrib = state.perineumPct > 0 && perineum ? (state.perineumPct / 100) * perineum.pct : 0;
+        return Math.round((tbsaFromFront + tbsaFromBack + perineumContrib) * 10) / 10;
     }
-    // --- Detail panel (appears below SVGs when region selected) ---
-    const detailPanel = document.createElement('div');
-    detailPanel.style.cssText = 'display:none;padding:16px;background:var(--color-surface);border-radius:12px;border:2px solid #FF7800;margin-bottom:14px;';
-    function selectRegion(regionId) {
-        if (selectedRegionId === regionId) {
-            selectedRegionId = null;
-            detailPanel.style.display = 'none';
-            updateAllHighlights();
-            return;
+    // Update display
+    function updateTbsaDisplay() {
+        const tbsa = calculateTbsa();
+        totalEl.textContent = `${tbsa}%`;
+        if (tbsa === 0) {
+            totalEl.style.color = 'var(--color-text-muted)';
         }
-        selectedRegionId = regionId;
-        showDetailPanel(regionId);
-        updateAllHighlights();
-    }
-    function updateAllHighlights() {
-        for (const r of allRegions)
-            updateRegionFill(r.id);
-    }
-    function showDetailPanel(regionId) {
-        const region = allRegions.find(r => r.id === regionId);
-        detailPanel.innerHTML = '';
-        detailPanel.style.display = 'block';
-        // Title row
-        const titleRow = document.createElement('div');
-        titleRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
-        const titleEl = document.createElement('div');
-        titleEl.style.cssText = 'font-size:16px;font-weight:700;color:var(--color-text);';
-        titleEl.textContent = region.label;
-        const maxEl = document.createElement('div');
-        maxEl.style.cssText = 'font-size:14px;color:var(--color-text-muted);';
-        maxEl.textContent = `Max: ${region.pct}% TBSA`;
-        titleRow.appendChild(titleEl);
-        titleRow.appendChild(maxEl);
-        detailPanel.appendChild(titleRow);
-        // Zoomed SVG of the region
-        const zoomWrap = document.createElement('div');
-        zoomWrap.style.cssText = 'display:flex;justify-content:center;margin:8px 0;';
-        if (region.paths.length > 0) {
-            const zoomSvg = document.createElementNS(SVG_NS, 'svg');
-            zoomSvg.setAttribute('width', '140');
-            zoomSvg.setAttribute('height', '120');
-            zoomSvg.style.cssText = 'pointer-events:none;';
-            for (const d of region.paths) {
-                const path = createSvgPath(d);
-                const bp = burnState[regionId];
-                const op = bp > 0 ? 0.3 + (bp / 100) * 0.5 : 0;
-                path.setAttribute('fill', bp > 0 ? `rgba(255, 120, 0, ${op})` : 'var(--color-surface)');
-                path.setAttribute('stroke', bp > 0 ? BURN_STROKE : '#888');
-                path.setAttribute('stroke-width', '2');
-                path.setAttribute('stroke-linejoin', 'round');
-                zoomSvg.appendChild(path);
-            }
-            zoomWrap.appendChild(zoomSvg);
-            detailPanel.appendChild(zoomWrap);
-            // Set viewBox to bounding box after rendering
-            requestAnimationFrame(() => {
-                const paths = zoomSvg.querySelectorAll('path');
-                if (paths.length > 0) {
-                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-                    paths.forEach(p => {
-                        const bbox = p.getBBox();
-                        minX = Math.min(minX, bbox.x);
-                        minY = Math.min(minY, bbox.y);
-                        maxX = Math.max(maxX, bbox.x + bbox.width);
-                        maxY = Math.max(maxY, bbox.y + bbox.height);
-                    });
-                    const pad = 6;
-                    zoomSvg.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`);
-                }
-            });
+        else if (tbsa < 10) {
+            totalEl.style.color = 'var(--color-primary)';
         }
-        // Slider
-        const currentPct = burnState[regionId];
-        const slider = document.createElement('input');
-        slider.type = 'range';
-        slider.min = '0';
-        slider.max = '100';
-        slider.step = '5';
-        slider.value = String(currentPct);
-        slider.className = 'tbsa-slider';
-        slider.style.background = sliderGradient(currentPct);
-        // Value display
-        const valueEl = document.createElement('div');
-        valueEl.style.cssText = 'text-align:center;font-size:18px;font-weight:600;color:var(--color-text);margin-top:4px;';
-        const contribution = Math.round(region.pct * currentPct / 100 * 10) / 10;
-        valueEl.textContent = currentPct > 0 ? `${currentPct}% burned = ${contribution}% TBSA` : 'No burn';
-        // Quick-set buttons row
-        const quickRow = document.createElement('div');
-        quickRow.style.cssText = 'display:flex;gap:6px;margin-top:10px;justify-content:center;flex-wrap:wrap;';
-        for (const qv of [0, 25, 50, 75, 100]) {
-            const qBtn = document.createElement('button');
-            qBtn.style.cssText = `padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-height:38px;border:1px solid ${qv === currentPct ? '#FF7800' : '#555'};background:${qv === currentPct ? 'rgba(255,120,0,0.2)' : 'var(--color-surface)'};color:${qv === currentPct ? '#FF7800' : 'var(--color-text-muted)'};`;
-            qBtn.textContent = qv === 0 ? 'None' : `${qv}%`;
-            qBtn.addEventListener('click', () => {
-                slider.value = String(qv);
-                slider.dispatchEvent(new Event('input'));
-            });
-            quickRow.appendChild(qBtn);
+        else if (tbsa < 20) {
+            totalEl.style.color = '#FF9800';
         }
-        slider.addEventListener('input', () => {
-            const val = parseInt(slider.value, 10);
-            burnState[regionId] = val;
-            slider.style.background = sliderGradient(val);
-            const contrib = Math.round(region.pct * val / 100 * 10) / 10;
-            valueEl.textContent = val > 0 ? `${val}% burned = ${contrib}% TBSA` : 'No burn';
-            // Update zoomed SVG fill
-            zoomWrap.querySelectorAll('path').forEach(p => {
-                const op = val > 0 ? 0.3 + (val / 100) * 0.5 : 0;
-                p.setAttribute('fill', val > 0 ? `rgba(255, 120, 0, ${op})` : 'var(--color-surface)');
-                p.setAttribute('stroke', val > 0 ? BURN_STROKE : '#888');
-            });
-            // Update quick-set button highlights
-            quickRow.querySelectorAll('button').forEach((b, i) => {
-                const qv = [0, 25, 50, 75, 100][i];
-                b.style.borderColor = qv === val ? '#FF7800' : '#555';
-                b.style.background = qv === val ? 'rgba(255,120,0,0.2)' : 'var(--color-surface)';
-                b.style.color = qv === val ? '#FF7800' : 'var(--color-text-muted)';
-            });
-            updateRegionFill(regionId);
-            recalc();
-        });
-        detailPanel.appendChild(slider);
-        detailPanel.appendChild(valueEl);
-        detailPanel.appendChild(quickRow);
-        // Scroll detail into view
-        requestAnimationFrame(() => {
-            detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
-    }
-    function sliderGradient(val) {
-        return `linear-gradient(to right, #FF7800 0%, #FF7800 ${val}%, #333 ${val}%, #333 100%)`;
-    }
-    function recalc() {
-        let total = 0;
-        const vals = {};
-        for (const r of allRegions) {
-            const contribution = Math.round(r.pct * burnState[r.id] / 100 * 10) / 10;
-            vals[r.id] = contribution;
-            total += contribution;
+        else if (tbsa < 40) {
+            totalEl.style.color = '#FF7800';
         }
-        total = Math.round(total * 10) / 10;
-        vals['__tbsa'] = total;
-        totalEl.textContent = `TBSA: ${total}%`;
-        onUpdate(vals);
+        else {
+            totalEl.style.color = '#E53935';
+        }
+        onUpdate({ '__tbsa': tbsa });
     }
-    // --- Build and append SVGs ---
-    const frontSvg = buildSilhouette(frontRegions, 'FRONT');
-    const backSvg = buildSilhouette(backRegions, 'BACK');
-    svgWrap.appendChild(frontSvg);
-    svgWrap.appendChild(backSvg);
-    container.appendChild(svgWrap);
-    // Perineum button
+    // Touch/mouse event handlers
+    function getCanvasPoint(e, canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        if ('touches' in e) {
+            const touch = e.touches[0] || e.changedTouches[0];
+            return {
+                x: (touch.clientX - rect.left) * scaleX,
+                y: (touch.clientY - rect.top) * scaleY,
+            };
+        }
+        else {
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY,
+            };
+        }
+    }
+    function setupCanvasEvents(canvas, ctx, maskCtx, bodyPath) {
+        let activeCanvas = false;
+        const startDraw = (e) => {
+            e.preventDefault();
+            state.isDrawing = true;
+            activeCanvas = true;
+            const pt = getCanvasPoint(e, canvas);
+            state.lastX = pt.x;
+            state.lastY = pt.y;
+            paint(ctx, maskCtx, bodyPath, pt.x, pt.y);
+            updateTbsaDisplay();
+        };
+        const moveDraw = (e) => {
+            if (!state.isDrawing || !activeCanvas)
+                return;
+            e.preventDefault();
+            const pt = getCanvasPoint(e, canvas);
+            paint(ctx, maskCtx, bodyPath, pt.x, pt.y, state.lastX, state.lastY);
+            state.lastX = pt.x;
+            state.lastY = pt.y;
+            updateTbsaDisplay();
+        };
+        const endDraw = () => {
+            state.isDrawing = false;
+            activeCanvas = false;
+        };
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', moveDraw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('mouseleave', endDraw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', moveDraw, { passive: false });
+        canvas.addEventListener('touchend', endDraw);
+        canvas.addEventListener('touchcancel', endDraw);
+    }
+    setupCanvasEvents(state.frontCanvas, state.frontCtx, state.frontMaskCtx, frontBodyPath);
+    setupCanvasEvents(state.backCanvas, state.backCtx, state.backMaskCtx, backBodyPath);
+    // Reset handler
+    resetBtn.addEventListener('click', () => {
+        state.frontCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        state.backCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        drawBodyOutlineFromPath(state.frontCtx, frontBodyPath);
+        drawBodyOutlineFromPath(state.backCtx, backBodyPath);
+        state.perineumPct = 0;
+        updateTbsaDisplay();
+    });
+    // --- Perineum toggle ---
     if (perineum) {
         const periWrap = document.createElement('div');
-        periWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:10px;';
-        const periBtn = document.createElement('button');
-        periBtn.style.cssText = 'padding:10px 20px;border-radius:8px;background:var(--color-surface);color:var(--color-text);border:1px solid #555;font-size:13px;cursor:pointer;min-height:44px;';
-        periBtn.textContent = `Perineum (${perineum.pct}%)`;
-        periBtn.setAttribute('data-perineum-btn', '');
-        periBtn.addEventListener('click', () => selectRegion(perineum.id));
-        periWrap.appendChild(periBtn);
+        periWrap.style.cssText = 'display:flex;justify-content:center;gap:8px;margin-bottom:10px;align-items:center;';
+        const periLabel = document.createElement('span');
+        periLabel.style.cssText = 'font-size:13px;color:var(--color-text);';
+        periLabel.textContent = `Perineum (${perineum.pct}%):`;
+        const periNone = document.createElement('button');
+        periNone.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #FF7800;background:#FF7800;color:#fff;';
+        periNone.textContent = 'None';
+        const periHalf = document.createElement('button');
+        periHalf.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+        periHalf.textContent = 'Half';
+        const periFull = document.createElement('button');
+        periFull.style.cssText = 'padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;min-height:40px;border:2px solid #666;background:var(--color-surface);color:var(--color-text);';
+        periFull.textContent = 'Full';
+        function updatePerineumBtns() {
+            [periNone, periHalf, periFull].forEach(btn => {
+                btn.style.background = 'var(--color-surface)';
+                btn.style.borderColor = '#666';
+                btn.style.color = 'var(--color-text)';
+            });
+            if (state.perineumPct === 0) {
+                periNone.style.background = '#FF7800';
+                periNone.style.borderColor = '#FF7800';
+                periNone.style.color = '#fff';
+            }
+            else if (state.perineumPct === 50) {
+                periHalf.style.background = 'rgba(255, 120, 0, 0.6)';
+                periHalf.style.borderColor = '#FF7800';
+                periHalf.style.color = '#fff';
+            }
+            else {
+                periFull.style.background = '#FF7800';
+                periFull.style.borderColor = '#FF7800';
+                periFull.style.color = '#fff';
+            }
+        }
+        periNone.addEventListener('click', () => { state.perineumPct = 0; updatePerineumBtns(); updateTbsaDisplay(); });
+        periHalf.addEventListener('click', () => { state.perineumPct = 50; updatePerineumBtns(); updateTbsaDisplay(); });
+        periFull.addEventListener('click', () => { state.perineumPct = 100; updatePerineumBtns(); updateTbsaDisplay(); });
+        periWrap.appendChild(periLabel);
+        periWrap.appendChild(periNone);
+        periWrap.appendChild(periHalf);
+        periWrap.appendChild(periFull);
         container.appendChild(periWrap);
     }
-    // Detail panel below SVGs
-    container.appendChild(detailPanel);
-    // Legend
-    const legendEl = document.createElement('div');
-    legendEl.style.cssText = 'display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--color-text-muted);margin-bottom:8px;';
-    legendEl.innerHTML = '<span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(255,120,0,0.75);border:1px solid #FF7800;"></span>Burned (2nd\u00B0/3rd\u00B0)</span>';
-    container.appendChild(legendEl);
-    clearBtn.addEventListener('click', () => {
-        for (const r of allRegions) {
-            burnState[r.id] = 0;
-            updateRegionFill(r.id);
-        }
-        selectedRegionId = null;
-        detailPanel.style.display = 'none';
-        recalc();
-    });
-    // Position percentage labels after SVG is in DOM
-    requestAnimationFrame(() => {
-        [frontSvg, backSvg].forEach(svg => {
-            svg.querySelectorAll('g[data-region]').forEach(g => {
-                const paths = g.querySelectorAll('path');
-                const textEl = g.querySelector('text');
-                if (paths.length > 0 && textEl) {
-                    const bbox = paths[0].getBBox();
-                    textEl.setAttribute('x', String(bbox.x + bbox.width / 2));
-                    textEl.setAttribute('y', String(bbox.y + bbox.height / 2 + 3));
-                }
-            });
-        });
-    });
+    // --- Warning at bottom ---
+    const warning = document.createElement('div');
+    warning.style.cssText = 'font-size:11px;color:#FF9800;margin-top:8px;line-height:1.4;padding:6px 10px;background:rgba(255,152,0,0.1);border-radius:6px;text-align:center;';
+    warning.textContent = '2nd/3rd degree burns only. Do NOT include superficial burns.';
+    container.appendChild(warning);
+}
+// Alias for backward compatibility
+function buildSliderDiagram(container, frontRegions, backRegions, perineum, onUpdate, calculatorType = 'adult') {
+    buildEburnPainter(container, frontRegions, backRegions, perineum, onUpdate, calculatorType);
 }
 // -------------------------------------------------------------------
 // TBSA Adult — Rule of 9's (Slider)
@@ -1004,7 +1146,7 @@ const ADULT_PERINEUM = { id: 'perineum', label: 'Perineum', pct: 1, paths: [] };
 function tbsaComputeResult(values, isPeds) {
     const tbsa = values['__tbsa'] || 0;
     if (tbsa === 0) {
-        return { value: '0%', label: 'No Burn Selected', description: 'Tap a body region and use the slider to set burn percentage.', colorVar: '--color-text-muted' };
+        return { value: '0%', label: 'No Burn Selected', description: 'Draw on the body to paint burn areas. Use the eraser to correct.', colorVar: '--color-text-muted' };
     }
     let label;
     let colorVar;
@@ -1036,7 +1178,7 @@ const TBSA_ADULT_CALCULATOR = {
     id: 'tbsa-adult',
     title: 'TBSA \u2014 Rule of 9s',
     subtitle: 'Adult Total Body Surface Area',
-    description: 'Interactive body diagram for estimating burn TBSA in adults using the Rule of 9s. Tap a region, then slide to set the percentage burned.',
+    description: 'Draw burn areas directly on the body diagram. Finger-paint interface for precise TBSA estimation. Rule of 9s for adults.',
     fields: [],
     results: [],
     thresholdNote: 'ABA Burn Center referral criteria: partial thickness >10% TBSA, full thickness any size, burns to face/hands/feet/genitalia/perineum/major joints, electrical/chemical/inhalation, circumferential burns.',
@@ -1046,7 +1188,7 @@ const TBSA_ADULT_CALCULATOR = {
     ],
     computeResult: (values) => tbsaComputeResult(values, false),
     customRender: (container, onUpdate) => {
-        buildSliderDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate);
+        buildSliderDiagram(container, ADULT_FRONT_REGIONS, ADULT_BACK_REGIONS, ADULT_PERINEUM, onUpdate, 'adult');
     },
 };
 const LUND_BROWDER_AGES = [
@@ -1156,7 +1298,7 @@ const TBSA_PEDS_CALCULATOR = {
     id: 'tbsa-peds',
     title: 'TBSA \u2014 Lund-Browder',
     subtitle: 'Pediatric Total Body Surface Area',
-    description: 'Age-adjusted Lund-Browder chart for pediatric burn TBSA. Tap a region, then slide to set burn percentage.',
+    description: 'Draw burn areas on the Lund-Browder chart. Finger-paint interface with age-adjusted percentages for pediatric burns.',
     fields: [],
     results: [],
     thresholdNote: 'Pediatric burn center referral: >10% TBSA partial thickness, any full thickness, burns to face/hands/feet/genitalia/perineum/joints, electrical/chemical/inhalation, circumferential burns, suspected abuse.',
@@ -1188,7 +1330,7 @@ const TBSA_PEDS_CALCULATOR = {
         function buildDiagram() {
             diagramContainer.innerHTML = '';
             const regions = buildPedsRegions(currentAgeIdx);
-            buildSliderDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate);
+            buildSliderDiagram(diagramContainer, regions.front, regions.back, regions.perineum, onUpdate, 'peds');
         }
         ageSelect.addEventListener('change', () => {
             currentAgeIdx = parseInt(ageSelect.value, 10);
