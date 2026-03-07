@@ -834,6 +834,7 @@ function buildTbsaPainter(
   let currentView: 'front' | 'back' = 'front';
   let regionMap = new Int16Array(0);
   let regionList: { id: string; path: Path2D; totalPx: number }[] = [];
+  let bodyClipPath: Path2D | null = null; // composite clip of all regions
   const history: ImageData[] = [];
   let isPainting = false;
   let lastPt: { x: number; y: number } | null = null;
@@ -902,6 +903,11 @@ function buildTbsaPainter(
     const paths = getPaths();
     const entries = Object.entries(paths);
     regionList = entries.map(([id, d]) => ({ id, path: new Path2D(d), totalPx: 0 }));
+
+    // Build composite clip path from all regions
+    const clip = new Path2D();
+    for (const r of regionList) clip.addPath(r.path);
+    bodyClipPath = clip;
 
     const map = new Int16Array(CW * CH).fill(-1);
     const tc = document.createElement('canvas');
@@ -983,11 +989,19 @@ function buildTbsaPainter(
   function paintAt(cx: number, cy: number): void {
     if (!isInBody(cx, cy)) return;
     const ctx = paintCanvas.getContext('2d')!;
+    ctx.save();
+    // Clip to body silhouette so paint never bleeds outside
+    if (bodyClipPath) {
+      ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+      ctx.clip(bodyClipPath);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = `rgba(${BURN_RGBA[0]},${BURN_RGBA[1]},${BURN_RGBA[2]},0.85)`;
     ctx.beginPath();
     ctx.arc(cx, cy, BRUSH, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
   }
 
   function paintLine(x1: number, y1: number, x2: number, y2: number): void {
