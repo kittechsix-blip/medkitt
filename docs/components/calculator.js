@@ -854,7 +854,15 @@ function buildTbsaPainter(container, frontPaths, backPaths, pctMap, onUpdate) {
         if (history.length > 30)
             history.shift();
     }
+    function isInBody(cx, cy) {
+        const px = Math.round(cx), py = Math.round(cy);
+        if (px < 0 || px >= CW || py < 0 || py >= CH)
+            return false;
+        return regionMap[py * CW + px] >= 0;
+    }
     function paintAt(cx, cy) {
+        if (!isInBody(cx, cy))
+            return;
         const ctx = paintCanvas.getContext('2d');
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = `rgba(${BURN_RGBA[0]},${BURN_RGBA[1]},${BURN_RGBA[2]},0.85)`;
@@ -876,14 +884,14 @@ function buildTbsaPainter(container, frontPaths, backPaths, pctMap, onUpdate) {
         return { x: ((e.clientX - rect.left) / rect.width) * CW, y: ((e.clientY - rect.top) / rect.height) * CH };
     }
     function onPointerDown(e) {
+        const pt = clientToCanvas(e);
+        if (!pt || !isInBody(pt.x, pt.y))
+            return; // allow scroll outside body
         e.preventDefault();
         isPainting = true;
         saveSnap();
-        const pt = clientToCanvas(e);
-        if (pt) {
-            paintAt(pt.x, pt.y);
-            lastPt = pt;
-        }
+        paintAt(pt.x, pt.y);
+        lastPt = pt;
     }
     function onPointerMove(e) {
         if (!isPainting)
