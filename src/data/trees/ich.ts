@@ -245,10 +245,14 @@ export const ICH_NODES: DecisionNode[] = [
     type: 'result',
     module: 6,
     title: 'Disposition & Prognosis',
-    body: '**All ICH patients → ICU admission** for continuous neuro monitoring and BP management.\n\n**Ongoing care:**\n• Neuro checks q1h minimum (more frequent during acute phase)\n• Serial CT: 6h, 24h, and with any neuro decline\n• ICP monitoring if EVD placed\n• Transition IV antihypertensives to PO after >24h if stable\n• DVT prophylaxis per protocol\n• Early rehabilitation consultation\n• Goals of care discussion with family — especially for severe ICH\n\n**[Prognostication](#/info/ich-prognostication)** — ICH Score & FUNC Score\n\n**Overall prognosis:**\n• 30-day mortality: ~40%\n• 1-year survival: ~50%\n• Functional independence at 1 year: ~20%\n\n**[Cerebral Amyloid Angiopathy](#/info/ich-caa)** — if lobar ICH in elderly, normotensive patient\n\nRestart anticoagulation decisions should be individualized (typically deferred ≥4 weeks, and avoided entirely in CAA).',
+    body: '**All ICH patients → ICU admission** for continuous neuro monitoring and BP management.\n\n**Ongoing care:**\n• Neuro checks q1h minimum (more frequent during acute phase)\n• Serial CT: 6h, 24h, and with any neuro decline\n• ICP monitoring if EVD placed\n• Transition IV antihypertensives to PO after >24h if stable\n• DVT prophylaxis per protocol\n• Early rehabilitation consultation\n• Goals of care discussion with family — especially for severe ICH\n\n**Prognostication:**\n• [ICH Score](#/calculator/ich-score) — 30-day mortality prediction (0–6 points)\n• [FUNC Score](#/calculator/func-score) — 90-day functional independence (0–11 points)\n• [Prognostication Details & Limitations](#/info/ich-prognostication)\n\n**Overall prognosis:**\n• 30-day mortality: ~40%\n• 1-year survival: ~50%\n• Functional independence at 1 year: ~20%\n\n**[Cerebral Amyloid Angiopathy](#/info/ich-caa)** — if lobar ICH in elderly, normotensive patient\n\nRestart anticoagulation decisions should be individualized (typically deferred ≥4 weeks, and avoided entirely in CAA).',
     recommendation: 'Admit to ICU. Serial CT at 6h and 24h. IPC for DVT. Transition to PO antihypertensives when stable >24h. Early rehab and goals-of-care discussions.',
     confidence: 'definitive',
     citation: [1, 2, 3],
+    calculatorLinks: [
+      { id: 'ich-score', label: 'ICH Score' },
+      { id: 'func-score', label: 'FUNC Score' },
+    ],
   },
 
 ];

@@ -1263,6 +1263,157 @@ const DELL_SETON_CALCULATOR = {
     },
 };
 // -------------------------------------------------------------------
+// ICH Score Calculator
+// -------------------------------------------------------------------
+const ICH_SCORE_CALCULATOR = {
+    id: 'ich-score',
+    title: 'ICH Score',
+    subtitle: 'Intracerebral Hemorrhage Score',
+    description: 'The ICH Score is the most widely used clinical grading scale for intracerebral hemorrhage. It predicts 30-day mortality based on 5 components: GCS, hematoma volume, intraventricular hemorrhage, infratentorial origin, and age. Score range: 0\u20136.',
+    fields: [
+        {
+            name: 'gcs',
+            label: 'Glasgow Coma Scale (GCS)',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'GCS 13\u201315', points: 0 },
+                { label: 'GCS 5\u201312', points: 1 },
+                { label: 'GCS 3\u20134', points: 2 },
+            ],
+        },
+        {
+            name: 'volume',
+            label: 'Hematoma Volume (ABC/2)',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: '<30 mL', points: 0 },
+                { label: '\u226530 mL', points: 1 },
+            ],
+        },
+        {
+            name: 'ivh',
+            label: 'Intraventricular Hemorrhage (IVH)',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'No', points: 0 },
+                { label: 'Yes', points: 1 },
+            ],
+        },
+        {
+            name: 'infratentorial',
+            label: 'Infratentorial Origin',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'No (supratentorial)', points: 0 },
+                { label: 'Yes (cerebellar or brainstem)', points: 1 },
+            ],
+        },
+        {
+            name: 'age',
+            label: 'Age',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: '<80 years', points: 0 },
+                { label: '\u226580 years', points: 1 },
+            ],
+        },
+    ],
+    results: [
+        { min: -Infinity, max: 1, label: 'ICH Score 0', risk: 'Very Low Risk', mortality: '30-day mortality: ~0%', colorVar: '--color-primary' },
+        { min: 1, max: 2, label: 'ICH Score 1', risk: 'Low Risk', mortality: '30-day mortality: ~13%', colorVar: '--color-primary' },
+        { min: 2, max: 3, label: 'ICH Score 2', risk: 'Moderate Risk', mortality: '30-day mortality: ~26%', colorVar: '--color-warning' },
+        { min: 3, max: 4, label: 'ICH Score 3', risk: 'High Risk', mortality: '30-day mortality: ~72%', colorVar: '--color-danger' },
+        { min: 4, max: 5, label: 'ICH Score 4', risk: 'Very High Risk', mortality: '30-day mortality: ~97%', colorVar: '--color-danger' },
+        { min: 5, max: Infinity, label: 'ICH Score 5\u20136', risk: 'Critical', mortality: '30-day mortality: ~100%', colorVar: '--color-danger' },
+    ],
+    thresholdNote: 'ICH Score should NOT be used in isolation to make withdrawal-of-care decisions. Limitations: does not distinguish tiny vs massive IVH, pontine vs cerebellar bleeds, or account for frailty/pre-morbid function. Self-fulfilling prophecy bias is well-documented \u2014 aggressive early treatment may improve outcomes beyond score predictions.',
+    citations: [
+        'Hemphill JC 3rd, Bonovich DC, Besmertis L, et al. The ICH Score: A Simple, Reliable Grading Scale for Intracerebral Hemorrhage. Stroke. 2001;32(4):891-897.',
+        'Greenberg SM, et al. 2022 Guideline for the Management of Patients With Spontaneous Intracerebral Hemorrhage. Stroke. 2022;53(7):e282-e361.',
+    ],
+};
+// -------------------------------------------------------------------
+// FUNC Score Calculator
+// -------------------------------------------------------------------
+const FUNC_SCORE_CALCULATOR = {
+    id: 'func-score',
+    title: 'FUNC Score',
+    subtitle: 'Functional Outcome After ICH',
+    description: 'The FUNC Score estimates the likelihood of functional independence at 90 days after intracerebral hemorrhage. Higher scores predict better outcomes. Score range: 0\u201311.',
+    fields: [
+        {
+            name: 'volume',
+            label: 'ICH Volume (ABC/2)',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: '\u226560 mL', points: 0 },
+                { label: '30\u201359 mL', points: 2 },
+                { label: '<30 mL', points: 4 },
+            ],
+        },
+        {
+            name: 'age',
+            label: 'Age',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: '\u226580 years', points: 0 },
+                { label: '70\u201379 years', points: 1 },
+                { label: '<70 years', points: 2 },
+            ],
+        },
+        {
+            name: 'location',
+            label: 'ICH Location',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'Infratentorial', points: 0 },
+                { label: 'Deep (basal ganglia, thalamus)', points: 1 },
+                { label: 'Lobar', points: 2 },
+            ],
+        },
+        {
+            name: 'gcs',
+            label: 'Glasgow Coma Scale (GCS)',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'GCS <9', points: 0 },
+                { label: 'GCS \u22659', points: 2 },
+            ],
+        },
+        {
+            name: 'cognitive',
+            label: 'Pre-ICH Cognitive Impairment',
+            type: 'select',
+            points: 0,
+            selectOptions: [
+                { label: 'Yes', points: 0 },
+                { label: 'No', points: 1 },
+            ],
+        },
+    ],
+    results: [
+        { min: -Infinity, max: 5, label: 'FUNC 0\u20134', risk: 'Very Poor', mortality: 'Functional independence at 90 days: 0\u20132%', colorVar: '--color-danger' },
+        { min: 5, max: 8, label: 'FUNC 5\u20137', risk: 'Poor', mortality: 'Functional independence at 90 days: 6\u201329%', colorVar: '--color-danger' },
+        { min: 8, max: 9, label: 'FUNC 8', risk: 'Intermediate', mortality: 'Functional independence at 90 days: ~42%', colorVar: '--color-warning' },
+        { min: 9, max: 11, label: 'FUNC 9\u201310', risk: 'Favorable', mortality: 'Functional independence at 90 days: 55\u201366%', colorVar: '--color-primary' },
+        { min: 11, max: Infinity, label: 'FUNC 11', risk: 'Good', mortality: 'Functional independence at 90 days: ~80%', colorVar: '--color-primary' },
+    ],
+    thresholdNote: 'FUNC Score shares many limitations with the ICH Score. Should NOT be used to justify withdrawal of care. Does not account for timing of intervention, reversible causes of decreased consciousness (e.g., hydrocephalus treatable with EVD), or pre-morbid frailty.',
+    citations: [
+        'Rost NS, Smith EE, Chang Y, et al. Prediction of Functional Outcome in Patients With Primary Intracerebral Hemorrhage: The FUNC Score. Stroke. 2008;39(8):2304-2309.',
+        'Greenberg SM, et al. 2022 Guideline for the Management of Patients With Spontaneous Intracerebral Hemorrhage. Stroke. 2022;53(7):e282-e361.',
+    ],
+};
+// -------------------------------------------------------------------
 // Calculator Registry
 // -------------------------------------------------------------------
 const CALCULATORS = {
@@ -1279,6 +1430,8 @@ const CALCULATORS = {
     'burn-rule-of-10': RULE_OF_10_CALCULATOR,
     'burn-parkland': PARKLAND_CALCULATOR,
     'burn-dell-seton': DELL_SETON_CALCULATOR,
+    'ich-score': ICH_SCORE_CALCULATOR,
+    'func-score': FUNC_SCORE_CALCULATOR,
 };
 /** Get all available calculators sorted alphabetically by title */
 export function getAllCalculators() {
