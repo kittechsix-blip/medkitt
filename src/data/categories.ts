@@ -268,6 +268,15 @@ export const DEFAULT_CATEGORIES: Category[] = [
         version: '1.0',
         nodeCount: 11,
         entryNodeId: 'sd-start',
+      },
+      {
+        id: 'aub',
+        title: 'Abnormal Uterine Bleeding',
+        subtitle: 'Stability \u2192 Workup \u2192 PALM-COEIN \u2192 Treatment \u2192 Disposition',
+        categoryId: 'ob-gyn',
+        version: '1.0',
+        nodeCount: 21,
+        entryNodeId: 'aub-start',
       }
     ],
     isCustom: false,

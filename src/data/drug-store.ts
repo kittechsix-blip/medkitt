@@ -981,6 +981,41 @@ const CIPROFLOXACIN: DrugEntry = {
   ],
 };
 
+const CONJUGATED_ESTROGEN: DrugEntry = {
+  id: 'conjugated-estrogen',
+  name: 'Conjugated Estrogen (Premarin)',
+  genericName: 'Conjugated equine estrogens',
+  drugClass: 'Estrogen',
+  route: 'IV',
+  indications: ['Acute abnormal uterine bleeding (unstable or heavy)'],
+  dosing: [
+    {
+      indication: 'Unstable AUB / Acute Heavy Bleeding',
+      regimen: '25 mg IV over 5 min, may repeat q4-6h for up to 24h (max 6 doses). 72% stop bleeding within 8h (only FDA-approved treatment for acute AUB). MUST follow with progestin (medroxyprogesterone 10 mg PO daily × 10 days) after bleeding controlled to stabilize endometrium and prevent rebound. Start antiemetic prophylaxis (ondansetron) — IV estrogen causes significant nausea.',
+    },
+  ],
+  contraindications: [
+    'Active or past venous thromboembolism (DVT/PE)',
+    'Active or past arterial thromboembolic disease (stroke, MI)',
+    'Breast cancer (estrogen-receptor positive)',
+    'Active hepatic disease or liver dysfunction',
+    'Known thrombophilia',
+  ],
+  cautions: [
+    'VTE risk increases with duration of use — limit to 24h acute treatment',
+    'Nausea/vomiting very common with IV dosing — premedicate with ondansetron',
+    'Must be followed by progestin therapy to stabilize endometrium',
+    'Use with caution in patients with cardiovascular risk factors',
+    'Not for long-term use — transition to OCPs or progestin for maintenance',
+  ],
+  monitoring: 'Bleeding reassessment q4-6h. Hemodynamics. CBC q6h if unstable. Watch for signs of VTE.',
+  notes: 'Only treatment specifically FDA-approved for acute AUB. Mechanism: promotes rapid endometrial growth over denuded areas, stabilizing fragile vessels. DeVore 1982 RCT showed 72% efficacy vs 38% placebo within 8h. Must always be followed by a progestin course to prevent unopposed estrogen effects (endometrial hyperplasia).',
+  citations: [
+    'ACOG Committee Opinion No. 557. Management of Acute AUB in Nonpregnant Reproductive-Aged Women. Obstet Gynecol. 2013;121(4):891-896.',
+    'DeVore GR, et al. IV Premarin for dysfunctional uterine bleeding. Obstet Gynecol. 1982;59(3):285-291.',
+  ],
+};
+
 const CLOPIDOGREL: DrugEntry = {
   id: 'clopidogrel',
   name: 'Clopidogrel (Plavix)',
@@ -1628,6 +1663,44 @@ const MAGNESIUM_SULFATE: DrugEntry = {
     'Joglar JA, et al. 2023 ACC/AHA/ACCP/HRS Guideline for AF. J Am Coll Cardiol. 2024;83(1):109-279.',
     'Moran JL, et al. Parenteral MgSO4 vs Amiodarone for Atrial Tachyarrhythmias. Crit Care Med. 1995;23(11):1816-24.',
     'Bosch NA, et al. Atrial Fibrillation in the ICU. Chest. 2018;154(6):1424-1434.',
+  ],
+};
+
+const MEDROXYPROGESTERONE: DrugEntry = {
+  id: 'medroxyprogesterone',
+  name: 'Medroxyprogesterone Acetate (MPA)',
+  genericName: 'Medroxyprogesterone acetate',
+  drugClass: 'Progestin',
+  route: 'PO',
+  indications: ['Acute abnormal uterine bleeding', 'Endometrial stabilization post-estrogen'],
+  dosing: [
+    {
+      indication: 'AUB — Acute Management',
+      regimen: '20 mg PO TID × 7 days. 76% efficacy in stopping acute bleeding. Preferred when estrogen is contraindicated (VTE history, migraine with aura, smoker >35). Especially appropriate for obese/PCOS patients — progesterone withdrawal stabilizes the endometrium.',
+    },
+    {
+      indication: 'Post-IV Estrogen Stabilization',
+      regimen: '10 mg PO daily × 10 days. Must follow IV conjugated estrogen to prevent rebound bleeding from unopposed estrogen stimulation of the endometrium.',
+    },
+  ],
+  contraindications: [
+    'Active deep vein thrombosis or pulmonary embolism',
+    'Active or recent arterial thromboembolic disease',
+    'Current or past breast cancer',
+    'Impaired liver function or liver disease',
+    'Known or suspected pregnancy',
+  ],
+  cautions: [
+    'Breakthrough bleeding common during first cycle of treatment',
+    'May cause mood changes, headache, bloating, breast tenderness',
+    'Transition to long-term hormonal therapy (LNG-IUD, OCPs) after acute course',
+    'For obese/PCOS patients: ongoing hormonal management needed to prevent endometrial hyperplasia',
+  ],
+  monitoring: 'Bleeding pattern reassessment at GYN follow-up (1-2 weeks). CBC if anemic at discharge.',
+  notes: 'Munro 2006 RCT compared MPA 20 mg TID vs OCPs TID for acute AUB: MPA stopped bleeding in 76% vs 88% for OCPs. MPA is preferred over OCPs when estrogen is contraindicated. Mechanism: stabilizes endometrium by providing the progesterone that anovulatory patients lack, then organized withdrawal bleeding occurs after stopping the course.',
+  citations: [
+    'ACOG Committee Opinion No. 557. Management of Acute AUB in Nonpregnant Reproductive-Aged Women. Obstet Gynecol. 2013;121(4):891-896.',
+    'Munro MG, et al. Oral MPA and combination OCPs for acute uterine bleeding: RCT. Obstet Gynecol. 2006;108:924-929.',
   ],
 };
 
@@ -3075,24 +3148,31 @@ const TRANEXAMIC_ACID: DrugEntry = {
   genericName: 'Tranexamic acid',
   drugClass: 'Antifibrinolytic (lysine analog)',
   route: 'IV',
-  indications: ['ICH hemostasis (adjunct)', 'Trauma hemorrhage', 'Postpartum hemorrhage', 'Thrombolysis reversal (adjunct)'],
+  indications: ['ICH hemostasis (adjunct)', 'Abnormal uterine bleeding (AUB)', 'Trauma hemorrhage', 'Postpartum hemorrhage', 'Thrombolysis reversal (adjunct)'],
   dosing: [
     {
       indication: 'ICH hemostasis (adjunct \u2014 within 3h of onset)',
       regimen: '1 g IV over 10 min. Reduced hematoma expansion (OR 0.82, TICH-2) but no improvement in mortality or functional outcome. Consider as adjunct.',
     },
+    {
+      indication: 'Abnormal Uterine Bleeding (AUB)',
+      regimen: 'Oral: 1.3 g PO TID \u00d7 5 days. IV: 10 mg/kg IV (max 600 mg/dose) q8h. Reduces menstrual blood loss 30\u201355%. Can be used alone if hormonal therapy is contraindicated, or as adjunct to hormonal regimens. Does not affect fertility or cycle regularity.',
+      weightCalc: { dosePerKg: 10, unit: 'mg', maxDose: 600, label: 'IV dosing (q8h)' },
+    },
   ],
   contraindications: [
     'Active thromboembolic disease (DVT, PE, stroke)',
     'Subarachnoid hemorrhage (risk of vasospasm)',
+    'Impaired color vision (acquired defective)',
   ],
   cautions: [
     'Seizure risk at high doses (>2 g)',
     'Renal impairment \u2014 dose reduce if CrCl <50 mL/min',
     'Thrombotic risk \u2014 avoid in patients with active DVT/PE',
+    'Concurrent OCP use requires careful consideration of additive thrombotic risk',
   ],
-  monitoring: 'Repeat CT at 6h to assess hematoma stability. Watch for thrombotic complications.',
-  notes: 'Competitively inhibits plasminogen activation, stabilizing clots. TICH-2 trial (2,325 patients): significant reduction in hematoma expansion but no functional outcome benefit. TICH-3 trial underway. Most beneficial when given within 3h of onset, before clot stabilization.',
+  monitoring: 'ICH: Repeat CT at 6h to assess hematoma stability. AUB: Bleeding pattern assessment. Watch for thrombotic complications.',
+  notes: 'Competitively inhibits plasminogen activation, stabilizing clots. ICH: TICH-2 trial (2,325 patients) showed significant reduction in hematoma expansion but no functional outcome benefit. AUB: Cochrane review (Lethaby 2000) showed 30\u201355% reduction in menstrual blood loss. FDA-approved for cyclic heavy menstrual bleeding (Lysteda).',
   citations: [
     'Sprigg N, et al. Tranexamic acid for hyperacute primary IntraCerebral Haemorrhage (TICH-2). Lancet. 2018;391(10135):2107-2115.',
     'Steiner T, et al. ESO/EANS guideline on stroke due to spontaneous ICH. Eur Stroke J. 2025;10(4):1007-1086.',
@@ -3161,6 +3241,7 @@ export const ALL_DRUGS: DrugEntry[] = [
   CIPROFLOXACIN,
   CLEVIDIPINE,
   CLOPIDOGREL,
+  CONJUGATED_ESTROGEN,
   DABIGATRAN,
   DARUNAVIR,
   DESMOPRESSIN,
@@ -3187,6 +3268,7 @@ export const ALL_DRUGS: DrugEntry[] = [
   LIDOCAINE,
   SODIUM_ZIRCONIUM_CYCLOSILICATE,
   MAGNESIUM_SULFATE,
+  MEDROXYPROGESTERONE,
   METOLAZONE,
   METOPROLOL,
   MIDAZOLAM,
@@ -3269,6 +3351,7 @@ const NAME_TO_ID: [RegExp, string][] = [
   [/ciprofloxacin|cipro/i, 'ciprofloxacin'],
   [/clevidipine|cleviprex/i, 'clevidipine'],
   [/clopidogrel|plavix/i, 'clopidogrel'],
+  [/conjugated.*estrogen|premarin|CEE/i, 'conjugated-estrogen'],
   [/dabigatran/i, 'dabigatran'],
   [/darunavir|prezista/i, 'darunavir'],
   [/dexamethasone|decadron/i, 'dexamethasone'],
@@ -3295,6 +3378,7 @@ const NAME_TO_ID: [RegExp, string][] = [
   [/lidocaine/i, 'lidocaine'],
   [/lokelma|sodium\s*zirconium|szc/i, 'sodium-zirconium-cyclosilicate'],
   [/magnesium sulfate|mag sulfate|MgSO4/i, 'magnesium-sulfate'],
+  [/medroxyprogesterone|MPA|provera|depo.provera/i, 'medroxyprogesterone'],
   [/metolazone|zaroxolyn/i, 'metolazone'],
   [/metoprolol|lopressor|toprol/i, 'metoprolol'],
   [/midazolam|versed/i, 'midazolam'],

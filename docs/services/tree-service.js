@@ -197,6 +197,10 @@ async function loadHardcodedFallback(treeId) {
             const m = await import('../data/trees/ich.js');
             return { nodes: m.ICH_NODES, entryNodeId: 'ich-start', categoryId: 'neurology', moduleLabels: m.ICH_MODULE_LABELS, citations: m.ICH_CITATIONS };
         },
+        'aub': async () => {
+            const m = await import('../data/trees/aub.js');
+            return { nodes: m.AUB_NODES, entryNodeId: 'aub-start', categoryId: 'ob-gyn', moduleLabels: m.AUB_MODULE_LABELS, citations: m.AUB_CITATIONS };
+        },
     };
     const loader = TREE_IMPORTS[treeId];
     if (!loader)

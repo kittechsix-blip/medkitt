@@ -2619,6 +2619,226 @@ const ICH_PROGNOSTICATION: InfoPage = {
 };
 
 // -------------------------------------------------------------------
+// AUB — Coagulopathy Screening Tool
+// -------------------------------------------------------------------
+
+const AUB_COAG_SCREEN: InfoPage = {
+  id: 'aub-coag-screen',
+  title: 'Coagulopathy Screening Tool',
+  subtitle: 'ACOG screening for underlying bleeding disorders in AUB',
+  sections: [
+    {
+      heading: 'Positive Screen Criteria (ACOG)',
+      body: 'A positive screening result comprises:\n\n\u2022 **Heavy menstrual bleeding since menarche**\n\nPLUS one of the following:\n\u2022 Postpartum hemorrhage\n\u2022 Surgery-related bleeding\n\u2022 Bleeding associated with dental work\n\nOR two or more of the following:\n\u2022 Bruising 1\u20132 times per month\n\u2022 Epistaxis 1\u20132 times per month\n\u2022 Frequent gum bleeding\n\u2022 Family history of bleeding symptoms',
+    },
+    {
+      heading: 'If Screening is Positive',
+      body: '\u2022 Order: **von Willebrand factor antigen**, **ristocetin cofactor activity**, **Factor VIII**\n\u2022 Consult hematology for interpretation\n\u2022 Up to 13% of women with heavy menstrual bleeding have von Willebrand disease\n\u2022 Up to 20% may have some underlying coagulation disorder\n\u2022 Also consider: other coagulation factor deficiencies, platelet function disorders, hemophilia carriers',
+    },
+    {
+      heading: 'Other Lab Considerations',
+      body: '\u2022 Systemic diseases (leukemia, liver failure) can impair coagulation\n\u2022 Medications (anticoagulants, chemotherapy) should be reviewed\n\u2022 Adolescents with heavy menses since menarche presenting with acute AUB should undergo vWD testing regardless of screening result',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB in Nonpregnant Reproductive-Aged Women. Obstet Gynecol. 2013;121(4):891-896.' },
+    { num: 2, text: 'Kouides PA, et al. Hemostasis and menstruation. Fertil Steril. 2005;84(5):1345-1351.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — PALM-COEIN Classification
+// -------------------------------------------------------------------
+
+const AUB_PALM_COEIN: InfoPage = {
+  id: 'aub-palm-coein',
+  title: 'PALM-COEIN Classification',
+  subtitle: 'FIGO classification system for causes of AUB',
+  sections: [
+    {
+      heading: 'PALM — Structural Causes',
+      body: '**Polyp (AUB-P)**\nEndometrial or endocervical growths. Often asymptomatic but can cause intermenstrual or heavy bleeding. Diagnosed by US or hysteroscopy. Treatment: polypectomy.\n\n**Adenomyosis (AUB-A)**\nEndometrial tissue within the myometrium. Causes heavy, painful periods with diffuse uterine enlargement. Diagnosed by MRI or US. Treatment: medical or hysterectomy.\n\n**Leiomyoma (AUB-L)**\nBenign smooth muscle tumors. Submucosal fibroids (AUB-L\u209bM) most likely to cause AUB. Size and location guide management. Treatment: medical, myomectomy, UAE, or hysterectomy.\n\n**Malignancy & Hyperplasia (AUB-M)**\nEndometrial hyperplasia or carcinoma. Diagnosed by endometrial biopsy. Risk factors: age, obesity, unopposed estrogen, PCOS, tamoxifen, Lynch syndrome. Requires GYN oncology referral.',
+    },
+    {
+      heading: 'COEIN — Non-Structural Causes',
+      body: '**Coagulopathy (AUB-C)**\nInherited or acquired bleeding disorders. vWD most common (up to 13% of HMB). Screen with structured tool.\n\n**Ovulatory Dysfunction (AUB-O)**\nMost common cause of dysfunctional uterine bleeding (~80%). Anovulatory cycles lead to unopposed estrogen \u2192 endometrial proliferation \u2192 irregular shedding. Common in: PCOS, obesity, perimenarchal, perimenopausal, stress, weight changes.\n\n**Endometrial (AUB-E)**\nPrimary endometrial disorder with normal ovulatory cycles. Defects in local hemostasis, inflammation, or angiogenesis.\n\n**Iatrogenic (AUB-I)**\nMedication-related: anticoagulants, hormonal therapy, IUD, chemotherapy, steroids.\n\n**Not Yet Classified (AUB-N)**\nRare or poorly understood etiologies (e.g., AV malformations, myometrial hypertrophy).',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Munro MG, et al. FIGO classification system (PALM-COEIN) for causes of AUB. Int J Gynaecol Obstet. 2011;113(1):3-13.' },
+    { num: 2, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB. Obstet Gynecol. 2013;121(4):891-896.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — Endometrial Cancer Risk Factors
+// -------------------------------------------------------------------
+
+const AUB_ENDO_CANCER_RISK: InfoPage = {
+  id: 'aub-endo-cancer-risk',
+  title: 'Endometrial Cancer Risk Factors',
+  subtitle: 'Who needs endometrial biopsy?',
+  sections: [
+    {
+      heading: 'Risk Factors & Relative Risk',
+      body: '\u2022 **Increasing age** \u2014 1.4% prevalence in women 50\u201370\n\u2022 **Unopposed estrogen therapy** \u2014 RR 2\u201310\n\u2022 **Tamoxifen therapy** \u2014 RR 2\n\u2022 **Early menarche** \u2014 increased risk\n\u2022 **Late menopause (after age 55)** \u2014 RR 2\n\u2022 **Nulliparity** \u2014 RR 2\n\u2022 **PCOS (chronic anovulation)** \u2014 RR 3\n\u2022 **Obesity** \u2014 RR 2\u20134\n\u2022 **Diabetes mellitus** \u2014 RR 2\n\u2022 **Lynch syndrome (HNPCC)** \u2014 22\u201350% lifetime risk\n\u2022 **Cowden syndrome** \u2014 13\u201319% lifetime risk\n\u2022 **Family history** of endometrial, ovarian, breast, or colon cancer',
+    },
+    {
+      heading: 'Biopsy Indications (ACOG)',
+      body: '\u2022 **Age \u226545** with AUB \u2014 first-line test\n\u2022 **Age <45** with any of:\n  \u2014 Obesity or PCOS (unopposed estrogen exposure)\n  \u2014 Chronic anovulation\n  \u2014 Failed medical management of AUB\n  \u2014 Persistent AUB\n\u2022 Postmenopausal bleeding (always evaluate)\n\n**Obese patients** are at particularly high risk \u2014 adipose tissue converts androgens to estrogen via aromatase, creating chronic unopposed estrogen stimulation of the endometrium.',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Smith RA, et al. ACS guidelines for early detection of cancer. CA Cancer J Clin. 2001;51:38.' },
+    { num: 2, text: 'ACOG Practice Bulletin No. 128. Diagnosis of AUB in reproductive-aged women. Obstet Gynecol. 2012;120:197-206.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — Treatment Regimens Table
+// -------------------------------------------------------------------
+
+const AUB_TREATMENT_TABLE: InfoPage = {
+  id: 'aub-treatment-table',
+  title: 'AUB Treatment Regimens',
+  subtitle: 'Medical management comparison — dosing, efficacy, and contraindications',
+  sections: [
+    {
+      heading: 'IV Conjugated Equine Estrogen (Premarin)',
+      body: '**Dose:** 25 mg IV q4\u20136h for up to 24h\n**Efficacy:** 72% stop bleeding within 8h\n**Key CI:** Active VTE, breast cancer, hepatic disease\n**Notes:** Only FDA-approved treatment for acute AUB. Must follow with progestin (MPA 10 mg PO \u00d7 10d). Premedicate with antiemetic.',
+    },
+    {
+      heading: 'Combined Oral Contraceptives (OCPs)',
+      body: '**Dose:** Monophasic OCP with 35 mcg ethinyl estradiol, 1 tab TID \u00d7 7 days\n**Efficacy:** 88% stop bleeding (median 3 days)\n**Key CI:** Smoking + age >35, HTN, VTE history, migraine with aura, breast cancer\n**Notes:** Preferred for ovulatory dysfunction AUB. Provides cycle regulation. Can transition to daily OCP for maintenance.',
+    },
+    {
+      heading: 'Medroxyprogesterone Acetate (MPA)',
+      body: '**Dose:** 20 mg PO TID \u00d7 7 days\n**Efficacy:** 76% stop bleeding (median 3 days)\n**Key CI:** Active VTE, breast cancer, hepatic disease\n**Notes:** Preferred when estrogen contraindicated. Good for obese/PCOS patients. Alternative progestins (norethindrone acetate) may also be effective.',
+    },
+    {
+      heading: 'Tranexamic Acid (TXA)',
+      body: '**Dose:** 1.3 g PO TID \u00d7 5 days OR 10 mg/kg IV (max 600 mg) q8h\n**Efficacy:** Reduces menstrual blood loss 30\u201355%\n**Key CI:** Active thrombosis, impaired color vision\n**Notes:** Antifibrinolytic \u2014 can use alone or as adjunct. Does not affect fertility. Caution with concurrent OCPs (additive thrombotic risk).',
+    },
+    {
+      heading: 'Intrauterine Tamponade (Procedural)',
+      body: '**Method:** 26F Foley catheter inflated with 30 mL saline in uterine cavity. Bakri balloon (up to 300 mL) for enlarged uterus. Alternative: gauze packing with thrombin.\n**When:** GYN unavailable and medical therapy insufficient\n**Notes:** Temporizing measure while arranging definitive care. Consult GYN STAT.',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB. Obstet Gynecol. 2013;121(4):891-896.' },
+    { num: 2, text: 'DeVore GR, et al. IV Premarin for DUB. Obstet Gynecol. 1982;59(3):285-291.' },
+    { num: 3, text: 'Munro MG, et al. Oral MPA and OCPs for acute uterine bleeding: RCT. Obstet Gynecol. 2006;108:924-929.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — Surgical Management Options
+// -------------------------------------------------------------------
+
+const AUB_SURGICAL: InfoPage = {
+  id: 'aub-surgical',
+  title: 'Surgical Management Options',
+  subtitle: 'When medical therapy fails or is contraindicated',
+  sections: [
+    {
+      heading: 'Indications for Surgery',
+      body: '\u2022 Clinically unstable despite medical management\n\u2022 Failed medical therapy\n\u2022 Contraindications to all medical therapies\n\u2022 Suspected structural pathology requiring tissue diagnosis\n\u2022 Known malignancy',
+    },
+    {
+      heading: 'D&C with Hysteroscopy',
+      body: '**Diagnostic + therapeutic.** Preferred if intrauterine pathology suspected (polyp, submucosal fibroid). D&C alone (without hysteroscopy) is inadequate for evaluation and provides only temporary reduction \u2014 subsequent cycles are not improved. Preserves fertility.',
+    },
+    {
+      heading: 'Endometrial Ablation',
+      body: 'Destroys the endometrial lining. Only if:\n\u2022 Other treatments ineffective or contraindicated\n\u2022 **Childbearing complete** (pregnancy after ablation is dangerous)\n\u2022 Endometrial/uterine cancer **reliably ruled out**\n\nMultiple techniques: thermal balloon, radiofrequency, cryoablation.',
+    },
+    {
+      heading: 'Uterine Artery Embolization (UAE)',
+      body: 'Interventional radiology procedure. Most effective for fibroid-related AUB. Reduces blood supply to fibroids. May affect future fertility \u2014 discuss with patient. Case reports show successful use for acute AUB control.',
+    },
+    {
+      heading: 'Hysterectomy',
+      body: '**Definitive treatment** for controlling heavy bleeding. Reserved for:\n\u2022 Failure of all medical and less-invasive surgical options\n\u2022 Completed childbearing\n\u2022 Known malignancy\n\u2022 Patient preference after counseling\n\nMay be performed vaginally, laparoscopically, or via laparotomy depending on clinical context.',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB. Obstet Gynecol. 2013;121(4):891-896.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — Long-term Maintenance Options
+// -------------------------------------------------------------------
+
+const AUB_MAINTENANCE: InfoPage = {
+  id: 'aub-maintenance',
+  title: 'Long-term Maintenance Options',
+  subtitle: 'After acute AUB is controlled',
+  sections: [
+    {
+      heading: 'Levonorgestrel IUD (Mirena)',
+      body: 'Most effective medical option for long-term AUB management. Reduces menstrual blood loss by up to **97%**. Lasts 5\u20138 years. Especially beneficial for obese/PCOS patients \u2014 provides continuous endometrial suppression and reduces endometrial cancer risk.',
+    },
+    {
+      heading: 'Cyclic OCPs',
+      body: 'Monthly or extended-cycle regimens. Regulate ovulation, thin endometrium, reduce blood loss. Good first-line for younger patients who also need contraception. Review CDC MEC for eligibility.',
+    },
+    {
+      heading: 'Progestin Therapy',
+      body: '\u2022 **Oral progestins** (MPA, norethindrone) \u2014 cyclic (days 14\u201325) or continuous\n\u2022 **Depo-medroxyprogesterone** (DMPA) 150 mg IM q3 months\n\u2022 **Etonogestrel implant** (Nexplanon)\n\nPreferred when estrogen is contraindicated. Critical for obese/PCOS patients to prevent endometrial hyperplasia from chronic unopposed estrogen.',
+    },
+    {
+      heading: 'Tranexamic Acid',
+      body: '1.3 g PO TID during menses (first 5 days). Non-hormonal option. Can be combined with hormonal therapies. Does not affect fertility or cycle regularity.',
+    },
+    {
+      heading: 'NSAIDs',
+      body: 'Ibuprofen, naproxen, mefenamic acid. Reduce menstrual blood loss by 20\u201350% via prostaglandin inhibition. Take during menses only. **Avoid in patients with bleeding disorders** (impair platelet aggregation).',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'NICE. Heavy menstrual bleeding: assessment and management. Clinical guideline CG44. 2007 (updated 2018).' },
+    { num: 2, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB. Obstet Gynecol. 2013;121(4):891-896.' },
+  ],
+};
+
+// -------------------------------------------------------------------
+// AUB — Discharge Instructions (shareable)
+// -------------------------------------------------------------------
+
+const AUB_DISCHARGE: InfoPage = {
+  id: 'aub-discharge',
+  title: 'Discharge Instructions',
+  shareable: true,
+  subtitle: 'Abnormal Uterine Bleeding',
+  sections: [
+    {
+      heading: 'Your Diagnosis',
+      body: 'You were seen in the emergency department for abnormal uterine bleeding. You have been started on medication to help control the bleeding.',
+    },
+    {
+      heading: 'Medications',
+      body: '\u2022 Take your prescribed medication exactly as directed\n\u2022 Complete the **full course** (usually 7 days) even if bleeding improves\n\u2022 You may experience nausea with hormonal medications \u2014 take with food\n\u2022 If prescribed iron supplements, take on an empty stomach with vitamin C for best absorption (or with food if nausea occurs)',
+    },
+    {
+      heading: 'Return to the ED Immediately If',
+      body: '\u2022 Soaking through more than 1 pad or tampon per hour for 2 or more hours in a row\n\u2022 Feeling dizzy, lightheaded, or faint\n\u2022 Passing out (syncope)\n\u2022 Chest pain or difficulty breathing\n\u2022 Fever (temperature above 100.4\u00b0F / 38\u00b0C)\n\u2022 Severe abdominal or pelvic pain\n\u2022 Bleeding does not improve after completing your medication course',
+    },
+    {
+      heading: 'Follow-Up Care',
+      body: '\u2022 **See a gynecologist (OB/GYN) within 1\u20132 weeks**\n\u2022 Your doctor may recommend additional testing or long-term treatment to prevent future episodes\n\u2022 If you have obesity or irregular periods, long-term hormonal management is important to reduce your risk of future complications\n\u2022 Continue iron supplements if you were told you are anemic',
+    },
+    {
+      heading: 'Important Reminders',
+      body: '\u2022 Do not skip doses of your medication\n\u2022 Avoid aspirin and ibuprofen unless approved by your doctor (they can worsen bleeding)\n\u2022 Stay well hydrated\n\u2022 Rest as needed \u2014 you may feel tired from blood loss\n\u2022 Keep track of your bleeding pattern to share with your gynecologist',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'ACOG Committee Opinion No. 557. Management of Acute AUB. Obstet Gynecol. 2013;121(4):891-896.' },
+  ],
+};
+
+// -------------------------------------------------------------------
 // Info Page Registry
 // -------------------------------------------------------------------
 
@@ -2692,6 +2912,13 @@ export const INFO_PAGES: Record<string, InfoPage> = {
   'ich-causes': ICH_CAUSES,
   'ich-caa': ICH_CAA,
   'ich-prognostication': ICH_PROGNOSTICATION,
+  'aub-coag-screen': AUB_COAG_SCREEN,
+  'aub-palm-coein': AUB_PALM_COEIN,
+  'aub-endo-cancer-risk': AUB_ENDO_CANCER_RISK,
+  'aub-treatment-table': AUB_TREATMENT_TABLE,
+  'aub-surgical': AUB_SURGICAL,
+  'aub-maintenance': AUB_MAINTENANCE,
+  'aub-discharge': AUB_DISCHARGE,
 };
 
 /** Get a single info page by ID (hardcoded fallback) */
