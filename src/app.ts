@@ -101,15 +101,22 @@ function setHomeTheme(isHome: boolean): void {
   }
 }
 
-/** Update bottom tab bar active state */
+/** Update bottom tab bar active state and shared-mode visibility */
 function updateTabBar(activeTab: string): void {
   const tabs = document.querySelectorAll('.tab-item');
+  const shared = isSharedMode();
   tabs.forEach(tab => {
     const tabId = tab.getAttribute('data-tab');
     if (tabId === activeTab) {
       tab.classList.add('active');
     } else {
       tab.classList.remove('active');
+    }
+    // Hide Pharmacy/Med-Calc tabs in shared mode
+    if (shared && (tabId === 'pharmacy' || tabId === 'med-calc')) {
+      (tab as HTMLElement).style.display = 'none';
+    } else {
+      (tab as HTMLElement).style.display = '';
     }
   });
 }
@@ -119,6 +126,13 @@ function updateTabBar(activeTab: string): void {
 // -------------------------------------------------------------------
 
 function handleHome(_params: RouteParams): void {
+  // Grant full access to organic visitors (found the app directly, not via share link).
+  // Placed here instead of init() so it only fires when the user actually reaches
+  // the home screen — avoids race conditions with SW reloads and hash-based detection.
+  if (!hasFullAccess()) {
+    markOrganicVisit();
+  }
+
   setHomeTheme(true);
   updateTabBar('home');
   const main = clearMain();
@@ -259,17 +273,6 @@ async function init(): Promise<void> {
   // Initialize data services (loads from IndexedDB/Supabase/hardcoded fallback)
   await Promise.all([initDrugs(), initCategories(), initInfoPages()]);
 
-  // Hide Pharmacy/Med-Calc tabs in shared mode
-  if (isSharedMode()) {
-    const tabBar = document.getElementById('bottom-tab-bar');
-    if (tabBar) {
-      const pharmacyTab = tabBar.querySelector('[data-tab="pharmacy"]') as HTMLElement | null;
-      const medCalcTab = tabBar.querySelector('[data-tab="med-calc"]') as HTMLElement | null;
-      if (pharmacyTab) pharmacyTab.style.display = 'none';
-      if (medCalcTab) medCalcTab.style.display = 'none';
-    }
-  }
-
   // Tab bar click delegation
   const tabBar = document.getElementById('bottom-tab-bar');
   if (tabBar) {
@@ -283,13 +286,6 @@ async function init(): Promise<void> {
         router.navigate(path);
       }
     });
-  }
-
-  // Detect organic visit (user found the app directly, not via share link)
-  // Must happen before routing so the home screen knows to show full access
-  const initialHash = window.location.hash;
-  if (!initialHash.startsWith('#/share/') && !hasFullAccess()) {
-    markOrganicVisit();
   }
 
   // Register routes
