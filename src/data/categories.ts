@@ -242,6 +242,15 @@ export const DEFAULT_CATEGORIES: Category[] = [
         version: '1.0',
         nodeCount: 17,
         entryNodeId: 'ich-start',
+      },
+      {
+        id: 'status-epilepticus',
+        title: 'Status Epilepticus',
+        subtitle: 'BZD \u2192 2nd-Line ASM \u2192 RSE Infusions \u2192 cEEG',
+        categoryId: 'neurology',
+        version: '1.0',
+        nodeCount: 26,
+        entryNodeId: 'se-start',
       }
     ],
     isCustom: false,

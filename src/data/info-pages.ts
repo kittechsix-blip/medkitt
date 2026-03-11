@@ -2839,6 +2839,221 @@ const AUB_DISCHARGE: InfoPage = {
 };
 
 // -------------------------------------------------------------------
+// Status Epilepticus
+// -------------------------------------------------------------------
+
+const SE_SUMMARY: InfoPage = {
+  id: 'se-summary',
+  title: 'Status Epilepticus Steps Summary',
+  subtitle: 'Time-Critical Treatment Ladder',
+  sections: [
+    {
+      body: 'Quick-reference checklist for the escalating treatment of status epilepticus. Tap any step to jump directly to that decision point in the consult.',
+    },
+    {
+      heading: 'Phase 1: Recognition & Stabilization (0-5 min)',
+      body: '• [Confirm SE: seizure >5 min or recurrent without recovery](#/node/se-is-this-se)\n• [ABCs — left lateral decubitus, O2, IV access × 2, monitor](#/node/se-abcs)\n• [Fingerstick glucose STAT — treat hypoglycemia immediately](#/node/se-glucose-labs)\n• [Obtain labs: BMP (Na, Ca, Mg), CBC, UDS, lactate, ASM levels](#/node/se-glucose-labs)',
+    },
+    {
+      heading: 'Phase 2: First-Line Benzodiazepine (0-5 min)',
+      body: '• [IV access: Lorazepam 0.1 mg/kg IV (max 4 mg), repeat × 1](#/node/se-iv-bzd)\n• [No IV: Midazolam 0.2 mg/kg IM (max 10 mg)](#/node/se-no-iv-bzd)\n• [Assess response 5 min after BZD — up to 2 doses allowed](#/node/se-bzd-response)',
+    },
+    {
+      heading: 'Phase 3: Screen Special Populations',
+      body: '• [Pregnant / eclampsia → Magnesium sulfate first](#/node/se-pregnancy)\n• [Toxic ingestion (INH) → Pyridoxine is specific antidote](#/node/se-substance)\n• [Pediatric → same algorithm, weight-based dosing](#/node/se-peds)',
+    },
+    {
+      heading: 'Phase 4: Second-Line ASM (5-20 min)',
+      body: '• [Select 2nd-line agent — ESETT: all three are equivalent](#/node/se-2nd-line-choice)\n• [Levetiracetam 60 mg/kg IV (max 4500 mg) — fewest interactions](#/node/se-levetiracetam)\n• [Valproate 40 mg/kg IV (max 3000 mg) — avoid in pregnancy/liver disease](#/node/se-valproate)\n• [Fosphenytoin 20 mg PE/kg IV (max 1500 mg PE) — cardiac monitoring required](#/node/se-fosphenytoin)\n• [Phenobarbital 15-20 mg/kg IV — if above unavailable](#/node/se-phenobarbital)',
+    },
+    {
+      heading: 'Phase 5: Refractory SE (>20 min)',
+      body: '• [Intubate — RSI with short-acting paralytic](#/node/se-rse-prep)\n• [Start continuous EEG monitoring — MANDATORY](#/node/se-rse-prep)\n• [Select continuous infusion: midazolam, propofol, pentobarbital, or ketamine](#/node/se-rse-infusion)\n• [Target burst suppression on EEG × 24-48h before wean attempt](#/node/se-rse-monitoring)',
+    },
+    {
+      heading: 'Phase 6: Disposition',
+      body: '• [All SE → ICU admission with continuous EEG](#/node/se-disposition)\n• [Complete etiology workup: MRI, LP if indicated, autoimmune panel](#/node/se-disposition)\n• [Neurology consultation for all SE patients](#/node/se-disposition)',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).' },
+    { num: 2, text: 'Brophy GM, et al. Guidelines for Status Epilepticus. Neurocrit Care. 2012;17(1):3-23.' },
+  ],
+};
+
+const SE_LABS: InfoPage = {
+  id: 'se-labs',
+  title: 'SE Diagnostic Workup',
+  subtitle: 'Laboratory Testing, Imaging & EEG',
+  sections: [
+    {
+      body: 'Comprehensive workup for status epilepticus — identify reversible causes and guide management.',
+    },
+    {
+      heading: 'Immediate (Do Not Delay Treatment)',
+      body: '• **Fingerstick glucose** — hypoglycemia and hyperglycemia (non-ketotic hyperosmolar) cause seizures\n• **Point-of-care electrolytes** if available — Na, Ca, glucose',
+    },
+    {
+      heading: 'Priority Laboratory Tests',
+      body: '• **Complete blood count** — leukocytosis may indicate infection (transient leukocytosis common post-seizure)\n• **Comprehensive metabolic panel** — Na, Ca, Mg, Phos as metabolic seizure etiologies\n• **Urine drug screen** — cocaine, amphetamines, MDMA, marijuana, heroin all associated with seizures\n• **Serum toxicology** — acetaminophen, salicylate, ethanol levels\n• **Lactate** — excess from muscle tissue; if elevated >1h post-seizure, monitor for persistent acidosis. Lactate >2.45 mmol/L distinguishes GTC from syncope/PNES (sensitivity 88%, specificity 87%)\n• **Blood gas (VBG/ABG)** — respiratory acidosis, hypercarbia in depressed mental status\n• **Pregnancy test** — positive test limits certain ASMs due to teratogenicity',
+    },
+    {
+      heading: 'Additional Studies',
+      body: '• **ASM levels** — assess medication compliance in known epilepsy patients\n• **Prolactin** — draw 10-20 min post-seizure. Sensitivity 53%, specificity 93% for convulsive SE. Limited by narrow collection window.\n• **Creatine kinase (CK)** — rises 1-12h, peaks 24-72h. Trend for rhabdomyolysis and AKI. Sensitivity 14-87%, specificity 85-100%.\n• **Troponin** — can be elevated with seizures (autonomic features). Prompt cardiac evaluation if elevated.\n• **Cultures** — blood, urine, CSF if infection suspected',
+    },
+    {
+      heading: 'Imaging',
+      body: '• **CT head non-contrast** — first-line after stabilization. Evaluate for hemorrhage, mass, edema, herniation. Normal CT does not rule out elevated ICP.\n• **CT/MR venogram** — consider if risk for cerebral venous thrombosis (hypercoagulability, recent pregnancy, OCP use, headache, papilledema)\n• **MRI brain** — superior for structural causes. Obtain when stable. DWI for acute ischemia, FLAIR for edema/encephalitis.',
+    },
+    {
+      heading: 'Lumbar Puncture',
+      body: '• **Indications:** Signs of meningitis, critically ill patients, age ≤18 months with febrile seizure, new-onset seizures without obvious cause, antibiotics given prior to evaluation, incomplete/unknown vaccination history\n• Obtain CT head before LP if altered mental status or focal neurologic deficit\n• CSF pleocytosis should prompt further investigation — seizures alone do NOT cause CSF pleocytosis\n• Low threshold to test CSF for infectious causes — delays in treating CNS infection worsen outcomes',
+    },
+    {
+      heading: 'Electroencephalogram (EEG)',
+      body: '• **Continuous EEG** recommended when: patient does not return to baseline, concern for NCSE, clinical evaluation limited by sedation or paralysis\n• ESETT: 48% of patients with altered consciousness post-SE had NCSE on EEG\n• **Intermittent EEG** (30-60 min) may miss up to 10% of subclinical seizures\n• High-risk populations for NCSE: ICU patients on neurotoxic medications, history of epilepsy, prior GTC, prior head injury/stroke, female sex',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).' },
+    { num: 2, text: 'Brophy GM, et al. Guidelines for Status Epilepticus. Neurocrit Care. 2012;17(1):3-23.' },
+  ],
+};
+
+const SE_ASM_COMPARISON: InfoPage = {
+  id: 'se-asm-comparison',
+  title: '2nd-Line ASM Comparison',
+  subtitle: 'ESETT Trial Results & Clinical Selection',
+  sections: [
+    {
+      body: 'The ESETT trial (2019) randomized 475 patients to levetiracetam, fosphenytoin, or valproate for BZD-refractory SE. **No significant difference in efficacy or adverse events** between the three agents. Choice should be tailored to patient comorbidities. [1]',
+    },
+    {
+      heading: 'Efficacy (ESETT)',
+      body: '',
+      drugTable: [
+        { drug: 'Levetiracetam', regimen: '60 mg/kg IV (max 4500 mg) over 10-15 min. **47% seizure cessation at 60 min.** Onset: 5-10 min. [1]' },
+        { drug: 'Valproate Sodium', regimen: '40 mg/kg IV (max 3000 mg) over 10 min. **46% seizure cessation at 60 min.** Onset: 5-10 min. [1]' },
+        { drug: 'Fosphenytoin', regimen: '20 mg PE/kg IV (max 1500 mg PE) at 150 mg PE/min. **45% seizure cessation at 60 min.** Onset: 10-20 min. [1]' },
+        { drug: 'Phenobarbital', regimen: '15-20 mg/kg IV at 50-100 mg/min (max 2000 mg). Not in ESETT. Use if above unavailable. [2]' },
+      ],
+    },
+    {
+      heading: 'When to Choose Each Agent',
+      body: '**Levetiracetam** — Best overall safety profile\n• Fewest drug interactions\n• No cardiac effects (no telemetry needed during infusion)\n• Safe in hepatic failure, renal impairment (dose adjust)\n• Safe in pregnancy (preferred 2nd-line)\n• Caution: psychiatric side effects (irritability, agitation)\n\n**Valproate** — Broad-spectrum efficacy\n• Well-tolerated even at rapid infusion rates\n• AVOID in: pregnancy (Category X), liver disease, mitochondrial disorders, thrombocytopenia, pancreatitis, urea cycle disorders\n• Check ammonia if AMS persists\n\n**Fosphenytoin** — When specific indication exists\n• Requires cardiac monitoring during/after infusion\n• INEFFECTIVE for drug/alcohol-induced seizures\n• AVOID in: cardiac conduction disease, hypotension, drug-induced SE\n• Can be given IM (unlike phenytoin)\n\n**Phenobarbital** — Backup option\n• When ESETT agents unavailable\n• Effective for alcohol withdrawal seizures\n• Significant respiratory depression and hypotension\n• Also first-line for neonatal seizures',
+    },
+    {
+      heading: 'Side-Effect Comparison',
+      body: '• **Levetiracetam:** Psychiatric symptoms, drowsiness. Caution in mood disorders.\n• **Valproate:** Thrombocytopenia, hyperammonemia, hepatotoxicity, teratogenicity. Caution in liver disease, pregnancy.\n• **Fosphenytoin:** Cardiac arrhythmia, hypotension, Stevens-Johnson syndrome. Caution in cardiac disease.\n• **Lacosamide (adjunct):** PR prolongation, cardiac arrhythmia. Caution in cardiovascular disease. Not yet standard of care.\n• **Phenobarbital:** Respiratory depression, hypotension. Caution with concurrent BZDs. [3]',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Kapur J, et al. ESETT: Randomized Trial of Three Anticonvulsant Medications for Status Epilepticus. N Engl J Med. 2019;381(22):2103-2113.' },
+    { num: 2, text: 'Brophy GM, et al. Guidelines for the Evaluation and Management of Status Epilepticus. Neurocrit Care. 2012;17(1):3-23.' },
+    { num: 3, text: 'Yasiry Z, Shorvon SD. Relative Effectiveness of Five Antiepileptic Drugs in Treatment of BZD-Resistant Convulsive SE. Epilepsia. 2014;55(9):1349-1361.' },
+  ],
+};
+
+const SE_INFUSION_COMPARISON: InfoPage = {
+  id: 'se-infusion-comparison',
+  title: 'RSE Continuous Infusion Comparison',
+  subtitle: 'Refractory SE Anesthetic Agents',
+  sections: [
+    {
+      body: 'No large RCTs demonstrate clear superiority between agents for refractory SE. Choice based on clinical factors. All require mechanical ventilation, continuous EEG monitoring, and ICU-level care. [1]',
+    },
+    {
+      heading: 'Agent Comparison',
+      body: '',
+      drugTable: [
+        { drug: 'Midazolam', regimen: 'Load 0.2 mg/kg IV, infuse 0.05-2 mg/kg/hr. Repeat bolus 0.1-0.2 mg/kg for breakthrough. **Lowest hemodynamic impact.** Easiest to wean. Tachyphylaxis may require dose escalation. [1]' },
+        { drug: 'Propofol', regimen: 'Load 1-2 mg/kg IV, infuse 30-200 mcg/kg/min. Rapid onset/offset. **Watch for PRIS** (propofol infusion syndrome) with doses >80 mcg/kg/min for >48h — rhabdomyolysis, metabolic acidosis, cardiac failure. Check triglycerides q24-48h. [1]' },
+        { drug: 'Pentobarbital', regimen: 'Load 5-15 mg/kg IV over 1h, infuse 0.5-5 mg/kg/hr. **Deepest cerebral suppression.** Most hemodynamic compromise — vasopressors almost always required. Very long half-life (15-50h). [1]' },
+        { drug: 'Ketamine', regimen: 'Load 0.5-3 mg/kg IV, infuse 0.1-5 mg/kg/hr. **NMDA antagonist** — different mechanism from GABAergic agents. May be tried when midazolam and propofol fail. Some reports suggest trial before other anesthetics to potentially avoid intubation. [2]' },
+      ],
+    },
+    {
+      heading: 'Clinical Decision Factors',
+      body: '**Choose midazolam when:**\n• Hemodynamic instability is a concern\n• Short duration of suppression anticipated\n• Easier ICU nursing management\n\n**Choose propofol when:**\n• Need for rapid onset and frequent neuro assessments\n• Younger patients (lower PRIS risk)\n• Shorter anticipated duration (<48h)\n\n**Choose pentobarbital when:**\n• Other agents have failed\n• Deepest level of suppression required\n• Hemodynamic support is available\n\n**Choose ketamine when:**\n• GABAergic agents have failed (different mechanism)\n• Hemodynamic support is limited (sympathomimetic effect)\n• Consider early trial to potentially avoid intubation',
+    },
+    {
+      heading: 'EEG Targets',
+      body: '• **Burst suppression:** 3-10 second bursts, <50% suppression ratio\n• **Seizure suppression:** Complete absence of electrographic seizures\n• Maintain for **24-48 hours** before first wean attempt\n• Wean by reducing infusion 25% every 4-6 hours with continuous EEG monitoring\n• Seizure recurrence on wean → restart at effective dose, extend 24h, retry',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Claassen J, et al. Treatment of Refractory SE with Pentobarbital, Propofol, or Midazolam: A Systematic Review. Epilepsia. 2002;43(2):146-153.' },
+    { num: 2, text: 'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).' },
+  ],
+};
+
+const SE_RSE_PRINCIPLES: InfoPage = {
+  id: 'se-rse-principles',
+  title: 'RSE Management Principles',
+  subtitle: 'Intubation, EEG, and ICU Care',
+  sections: [
+    {
+      body: 'Refractory SE requires coordinated critical care management with a focus on seizure suppression, airway protection, and neuroprotection.',
+    },
+    {
+      heading: 'Airway Management',
+      body: '• **RSI is indicated** — secure airway before starting continuous anesthetic infusions\n• Use **short-acting paralytic** (succinylcholine preferred over rocuronium) to allow ongoing clinical seizure assessment\n• Avoid prolonged paralysis — masks clinical seizure activity\n• Once paralyzed, **continuous EEG is the ONLY way** to monitor seizure activity\n• Post-intubation sedation with the chosen anesthetic infusion',
+    },
+    {
+      heading: 'Continuous EEG Monitoring',
+      body: '• **MANDATORY** for all RSE patients — cannot assess seizure activity in sedated/paralyzed patient\n• Target: burst suppression or complete seizure suppression (per clinical scenario)\n• Duration: maintain suppression × **24-48 hours** before first wean attempt\n• Automated seizure detection algorithms exist but are not yet available in most EDs\n• If continuous EEG unavailable, intermittent EEGs (30-60 min) are helpful but may miss up to 10% of subclinical seizures',
+    },
+    {
+      heading: 'Hemodynamic Support',
+      body: '• Anesthetic agents cause significant hypotension — arterial line for continuous BP monitoring\n• Central venous access for vasopressor infusions\n• Pentobarbital almost always requires vasopressors\n• Propofol and midazolam may require vasopressors at higher doses\n• Goal: MAP >65 mmHg (or higher if concern for elevated ICP)',
+    },
+    {
+      heading: 'Supportive ICU Care',
+      body: '• Nutrition: enteral feeding when feasible (propofol contributes 1.1 kcal/mL toward caloric intake)\n• DVT prophylaxis (SCD + pharmacologic when safe)\n• Stress ulcer prophylaxis\n• Head of bed elevation 30°\n• Temperature management — fever worsens neuronal injury; target normothermia\n• Daily labs: CBC, CMP, CK, lactate, triglycerides (if propofol), drug levels',
+    },
+    {
+      heading: 'Weaning Protocol',
+      body: '• After 24-48h of seizure suppression on EEG:\n• Reduce infusion rate by **25% every 4-6 hours**\n• Maintain continuous EEG monitoring throughout wean\n• If seizures recur → restart at prior effective dose, extend suppression 24h, retry wean\n• **Super-refractory SE (SRSE):** SE that persists/recurs despite 24h of anesthetic therapy\n• SRSE options: switch anesthetic agent, add lacosamide, immunotherapy (if autoimmune suspected), therapeutic hypothermia (32-35°C), ketogenic diet',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Claassen J, et al. Treatment of Refractory SE with Pentobarbital, Propofol, or Midazolam. Epilepsia. 2002;43(2):146-153.' },
+    { num: 2, text: 'Brophy GM, et al. Guidelines for Status Epilepticus. Neurocrit Care. 2012;17(1):3-23.' },
+  ],
+};
+
+const SE_NCSE_CRITERIA: InfoPage = {
+  id: 'se-ncse-criteria',
+  title: 'NCSE Diagnostic Criteria',
+  subtitle: 'Salzburg Criteria & BZD Trial',
+  sections: [
+    {
+      body: 'Nonconvulsive status epilepticus (NCSE) is underrecognized due to lack of overt motor signs. Diagnosis requires EEG, but clinical suspicion and a benzodiazepine trial can guide management while awaiting formal EEG.',
+    },
+    {
+      heading: 'When to Suspect NCSE',
+      body: '• Unexplained altered mental status / coma\n• Failure to return to baseline after convulsive seizure treatment\n• Subtle motor signs: nystagmus, gaze deviation, eyelid fluttering, lip smacking, subtle facial twitching, myoclonus\n• Fluctuating level of consciousness\n• Unexplained aphasia or cognitive decline\n• ICU patients on neurotoxic medications (cephalosporins, methotrexate, baclofen, lithium, opioids)\n• History of epilepsy, prior GTC, prior head injury or stroke',
+    },
+    {
+      heading: 'Salzburg Consensus Criteria (2015)',
+      body: 'EEG criteria for diagnosing NCSE: [1]\n\n**Primary criteria (any one sufficient):**\n• Epileptiform discharges (EDs) >2.5 Hz\n• EDs ≤2.5 Hz OR rhythmic delta/theta activity with ONE of:\n  — EEG AND clinical improvement after IV BZD\n  — Subtle clinical ictal phenomena during EEG pattern\n  — Typical spatiotemporal evolution (frequency, morphology, or location change)\n\n**Absent primary criteria:** The recording does NOT show NCSE',
+    },
+    {
+      heading: 'Benzodiazepine Trial (Diagnostic + Therapeutic)',
+      body: '**Protocol:**\n• Administer lorazepam 1-2 mg IV while monitoring EEG (if available) and clinical status\n• **Positive trial:** Clinical improvement (increased responsiveness, improved cognition) AND/OR EEG improvement (reduction/cessation of epileptiform activity)\n• A positive trial confirms NCSE and initiates treatment\n• **Negative trial:** No clinical or EEG change — does not definitively rule out NCSE but makes it less likely\n• Even without EEG, clinical improvement after BZD trial supports NCSE diagnosis',
+    },
+    {
+      heading: 'Treatment Approach',
+      body: '• Same escalating algorithm as convulsive SE (BZD → 2nd-line ASM → anesthetic infusions)\n• **Urgency of aggressive treatment is debated** — NCSE generally has lower mortality than convulsive SE\n• Weigh risks of anesthetic agents and intubation against ongoing subclinical seizure activity\n• Treat underlying etiology aggressively (infection, metabolic, structural)\n• Continuous EEG monitoring throughout treatment to guide escalation/de-escalation\n• Maintain a high index of suspicion — NCSE accounts for up to 48% of post-SE altered consciousness (ESETT) [2]',
+    },
+  ],
+  citations: [
+    { num: 1, text: 'Leitinger M, et al. Salzburg Consensus Criteria for Non-Convulsive Status Epilepticus. Epilepsia. 2015;56(10):1515-1523.' },
+    { num: 2, text: 'Kapur J, et al. ESETT: Randomized Trial of Three Anticonvulsant Medications for Status Epilepticus. N Engl J Med. 2019;381(22):2103-2113.' },
+  ],
+};
+
+// -------------------------------------------------------------------
 // Info Page Registry
 // -------------------------------------------------------------------
 
@@ -2919,6 +3134,12 @@ export const INFO_PAGES: Record<string, InfoPage> = {
   'aub-surgical': AUB_SURGICAL,
   'aub-maintenance': AUB_MAINTENANCE,
   'aub-discharge': AUB_DISCHARGE,
+  'se-summary': SE_SUMMARY,
+  'se-labs': SE_LABS,
+  'se-asm-comparison': SE_ASM_COMPARISON,
+  'se-infusion-comparison': SE_INFUSION_COMPARISON,
+  'se-rse-principles': SE_RSE_PRINCIPLES,
+  'se-ncse-criteria': SE_NCSE_CRITERIA,
 };
 
 /** Get a single info page by ID (hardcoded fallback) */

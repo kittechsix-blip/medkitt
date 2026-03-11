@@ -201,6 +201,10 @@ async function loadHardcodedFallback(treeId) {
             const m = await import('../data/trees/aub.js');
             return { nodes: m.AUB_NODES, entryNodeId: 'aub-start', categoryId: 'ob-gyn', moduleLabels: m.AUB_MODULE_LABELS, citations: m.AUB_CITATIONS };
         },
+        'status-epilepticus': async () => {
+            const m = await import('../data/trees/status-epilepticus.js');
+            return { nodes: m.STATUS_EPILEPTICUS_NODES, entryNodeId: 'se-start', categoryId: 'neurology', moduleLabels: m.STATUS_EPILEPTICUS_MODULE_LABELS, citations: m.STATUS_EPILEPTICUS_CITATIONS };
+        },
     };
     const loader = TREE_IMPORTS[treeId];
     if (!loader)

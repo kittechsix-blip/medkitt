@@ -1569,6 +1569,10 @@ const MAGNESIUM_SULFATE = {
             indication: 'Hypomagnesemia / Hypokalemia (adjunct)',
             regimen: '2 g IV over 1 hour. Correct hypomagnesemia before potassium repletion \u2014 hypokalemia is refractory until Mg is repleted.',
         },
+        {
+            indication: 'Eclampsia / Pregnancy SE',
+            regimen: 'Loading dose: 4-6 g IV over 15-20 min. Maintenance: 1-2 g/hr continuous infusion. Primary treatment for eclamptic seizures. If seizures persist despite magnesium, add benzodiazepines then standard SE algorithm. Monitor deep tendon reflexes (loss = first sign of toxicity), respiratory rate, urine output. Antidote for Mg toxicity: Calcium gluconate 1 g IV.',
+        },
     ],
     contraindications: [
         'Severe renal failure (GFR <30 mL/min or oliguria) for continuous infusion \u2014 use intermittent boluses instead',
@@ -2756,7 +2760,7 @@ const KETAMINE = {
     genericName: 'Ketamine hydrochloride',
     drugClass: 'Dissociative anesthetic / NMDA antagonist',
     route: 'IV/IM',
-    indications: ['Burns analgesia', 'Burns procedural sedation', 'RSI induction'],
+    indications: ['Burns analgesia', 'Burns procedural sedation', 'RSI induction', 'Refractory SE'],
     dosing: [
         {
             indication: 'Burns — sub-dissociative analgesia',
@@ -2775,6 +2779,11 @@ const KETAMINE = {
             indication: 'RSI induction',
             regimen: '1-2 mg/kg IV push. Hemodynamically stable induction agent — ideal for burns/trauma patients.',
             weightCalc: { dosePerKg: 1.5, unit: 'mg' },
+        },
+        {
+            indication: 'Refractory SE — continuous infusion',
+            regimen: 'Load 0.5-3 mg/kg IV bolus, then infuse 0.1-5 mg/kg/hr. NMDA receptor antagonist — different mechanism from GABAergic agents. Consider when midazolam and propofol fail. Some case reports suggest trial of ketamine before other IV anesthetics to potentially avoid intubation. Requires continuous EEG monitoring.',
+            weightCalc: { dosePerKg: 2, unit: 'mg', label: 'Loading bolus' },
         },
     ],
     contraindications: ['Age <3 months (relative)', 'Known psychotic disorder (relative)'],
@@ -2797,7 +2806,7 @@ const MIDAZOLAM = {
     genericName: 'Midazolam hydrochloride',
     drugClass: 'Benzodiazepine (short-acting)',
     route: 'IV/IN/IM',
-    indications: ['Burns anxiolysis', 'Procedural sedation adjunct', 'Seizures'],
+    indications: ['Burns anxiolysis', 'Procedural sedation adjunct', 'Seizures', 'Status epilepticus', 'Refractory SE'],
     dosing: [
         {
             indication: 'Burns — anxiolysis',
@@ -2808,6 +2817,16 @@ const MIDAZOLAM = {
             indication: 'Ketamine emergence prophylaxis',
             regimen: '0.05 mg/kg IV given with ketamine. Reduces emergence reactions in adults.',
             weightCalc: { dosePerKg: 0.05, unit: 'mg', maxDose: 2 },
+        },
+        {
+            indication: 'Status Epilepticus — IM (no IV access)',
+            regimen: '0.2 mg/kg IM (max 10 mg). ≥40 kg: 10 mg; 13-40 kg: 5 mg. RAMPART trial: IM midazolam terminated seizures in 73% vs 63% for IV lorazepam. May also give intranasal 0.2 mg/kg via mucosal atomizer.',
+            weightCalc: { dosePerKg: 0.2, unit: 'mg', maxDose: 10 },
+        },
+        {
+            indication: 'Refractory SE — continuous infusion',
+            regimen: 'Load 0.2 mg/kg IV bolus, then infuse 0.05-2 mg/kg/hr. Repeat bolus 0.1-0.2 mg/kg for breakthrough seizures. Titrate to EEG seizure suppression or burst suppression. Requires intubation and continuous EEG monitoring.',
+            weightCalc: { dosePerKg: 0.2, unit: 'mg', label: 'Loading bolus' },
         },
     ],
     contraindications: ['Acute narrow-angle glaucoma', 'Known hypersensitivity to benzodiazepines'],
@@ -2924,12 +2943,17 @@ const LEVETIRACETAM = {
     genericName: 'Levetiracetam',
     drugClass: 'Antiepileptic (SV2A ligand)',
     route: 'IV / PO',
-    indications: ['Seizure treatment in ICH', 'Status epilepticus (adjunct)', 'Seizure disorders'],
+    indications: ['Seizure treatment in ICH', 'Status epilepticus (adjunct)', 'Seizure disorders', 'Status epilepticus (ESETT 2nd-line)'],
     dosing: [
         {
             indication: 'ICH seizure treatment',
             regimen: '20 mg/kg IV (max 3000 mg) as loading dose over 15 min. Maintenance: 500\u20131500 mg IV/PO q12h. Preferred over phenytoin in ICH \u2014 fewer side effects and drug interactions.',
             weightCalc: { dosePerKg: 20, unit: 'mg', maxDose: 3000, label: 'Loading dose' },
+        },
+        {
+            indication: 'Status Epilepticus — 2nd line (ESETT)',
+            regimen: '60 mg/kg IV (max 4500 mg) over 10-15 min. ESETT trial: 47% seizure termination (equivalent to fosphenytoin and valproate). Fewest drug interactions, no cardiac effects, safe in pregnancy. Preferred 2nd-line in pregnant patients (89% of neurologists).',
+            weightCalc: { dosePerKg: 60, unit: 'mg', maxDose: 4500, label: 'SE loading dose (ESETT)' },
         },
     ],
     contraindications: [
@@ -3086,6 +3110,347 @@ const VITAMIN_K = {
     ],
 };
 // -------------------------------------------------------------------
+// Status Epilepticus Drugs
+// -------------------------------------------------------------------
+const DIAZEPAM = {
+    id: 'diazepam',
+    name: 'Diazepam (Valium)',
+    genericName: 'Diazepam',
+    drugClass: 'Benzodiazepine (long-acting)',
+    route: 'IV/PR',
+    indications: ['Status epilepticus (alternative)', 'Seizure disorders'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — IV',
+            regimen: '0.15-0.2 mg/kg IV (max 10 mg), may repeat once. Push slowly over 2 min. Alternative to lorazepam when lorazepam unavailable. Lower seizure termination rate than lorazepam (56% vs 65%). Shorter duration of anticonvulsant effect — seizures more likely to recur.',
+            weightCalc: { dosePerKg: 0.2, unit: 'mg', maxDose: 10 },
+        },
+        {
+            indication: 'Status Epilepticus — Rectal',
+            regimen: '0.2-0.5 mg/kg PR (max 20 mg), one time. Used when IV/IM not available. No longer recommended as first-line — IM midazolam is preferred. Rectal route historically used in pediatric and prehospital settings.',
+            weightCalc: { dosePerKg: 0.5, unit: 'mg', maxDose: 20, label: 'Rectal (max dose)' },
+        },
+    ],
+    contraindications: [
+        'Acute narrow-angle glaucoma',
+        'Severe respiratory insufficiency',
+        'Myasthenia gravis',
+        'Severe hepatic insufficiency',
+    ],
+    cautions: [
+        'Respiratory depression — especially with repeated doses or opioid co-administration',
+        'Hypotension with rapid IV push',
+        'Propylene glycol toxicity with high doses or prolonged infusion',
+        'Contains propylene glycol and benzoic acid — not IM compatible (unpredictable absorption)',
+        'Rectal diazepam gel (Diastat) available for home/prehospital use',
+    ],
+    monitoring: 'Continuous SpO2, respiratory rate, blood pressure. Have BVM and flumazenil available.',
+    notes: 'Historically first BZD used for SE. Now second-line to lorazepam (IV) and midazolam (IM). Longer half-life than lorazepam but shorter anticonvulsant duration paradoxically — highly lipophilic, redistributes rapidly from brain to peripheral tissues. For this reason, lorazepam (less lipophilic, stays in brain longer) is preferred.',
+    citations: [
+        'Betjemann JP, Bhatt J, Engel A. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+        'Treiman DM, et al. A Comparison of Four Treatments for Generalized Convulsive Status Epilepticus. N Engl J Med. 1998;339(12):792-798.',
+    ],
+};
+const FOSPHENYTOIN = {
+    id: 'fosphenytoin',
+    name: 'Fosphenytoin (Cerebyx)',
+    genericName: 'Fosphenytoin sodium',
+    drugClass: 'Hydantoin anticonvulsant (prodrug of phenytoin)',
+    route: 'IV/IM',
+    indications: ['Status epilepticus (2nd-line)', 'Seizure prophylaxis'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — 2nd line (ESETT)',
+            regimen: '20 mg PE/kg IV (max 1500 mg PE) at max rate 150 mg PE/min. ESETT trial: 45% seizure termination at 60 min (equivalent to levetiracetam and valproate). Dosed in PE (phenytoin equivalents). Requires continuous cardiac monitoring during infusion and for 20 min after.',
+            weightCalc: { dosePerKg: 20, unit: 'mg PE', maxDose: 1500 },
+        },
+    ],
+    contraindications: [
+        'Sinus bradycardia, sinoatrial block, second/third-degree AV block, Adams-Stokes syndrome',
+        'Known hypersensitivity to hydantoins',
+        'Decompensated heart failure',
+        'Drug/alcohol-induced seizures (ineffective)',
+    ],
+    cautions: [
+        'Cardiac arrhythmia — continuous telemetry required during infusion',
+        'Hypotension — infuse at rate ≤150 mg PE/min',
+        'QT prolongation',
+        'Stevens-Johnson syndrome / toxic epidermal necrolysis (rare, HLA-B*15:02 in Southeast Asian descent)',
+        'Teratogenic — use with caution in pregnancy (1st trimester)',
+        'Purple glove syndrome does NOT occur with fosphenytoin (only with IV phenytoin)',
+    ],
+    monitoring: 'Continuous cardiac monitoring during and 20 min after infusion. Blood pressure q5 min during infusion. Free phenytoin level 2h after loading (target 1-2 mcg/mL free, 10-20 mcg/mL total).',
+    notes: 'Water-soluble prodrug of phenytoin — can be given IM (unlike phenytoin). Converted to phenytoin by phosphatases in 7-15 min. INEFFECTIVE for drug/alcohol-induced seizures — phenytoin\'s selective voltage-gated sodium channel action cannot overcome diffuse CNS toxicity. ESETT trial showed equivalent efficacy to levetiracetam and valproate, but cardiac monitoring requirement and drug interaction profile make it less favorable in many clinical scenarios.',
+    citations: [
+        'Kapur J, et al. Randomized Trial of Three Anticonvulsant Medications for Status Epilepticus (ESETT). N Engl J Med. 2019;381(22):2103-2113.',
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+    ],
+};
+const LACOSAMIDE = {
+    id: 'lacosamide',
+    name: 'Lacosamide (Vimpat)',
+    genericName: 'Lacosamide',
+    drugClass: 'Anticonvulsant (sodium channel — slow inactivation enhancer)',
+    route: 'IV',
+    indications: ['Status epilepticus (adjunct)', 'Refractory SE adjunct'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — adjunct',
+            regimen: '200-400 mg IV over 15 min. Not FDA-approved for SE but emerging as adjunct after BZD and 2nd-line ASM, before escalation to anesthetic agents. Meta-analysis: 57% overall efficacy. No large RCTs in SE; one trial showed noninferiority to fosphenytoin in NCSE.',
+        },
+    ],
+    contraindications: [
+        'Known second/third-degree AV block without pacemaker',
+        'Known hypersensitivity to lacosamide',
+    ],
+    cautions: [
+        'PR interval prolongation — obtain ECG before administration',
+        'Cardiac arrhythmia in patients with cardiac conduction disease',
+        'Dizziness, diplopia, nausea (common)',
+        'Use with caution alongside other PR-prolonging medications',
+    ],
+    monitoring: 'ECG before and after administration (PR interval). Cardiac monitoring if cardiac history. Therapeutic drug level monitoring not routinely available.',
+    notes: 'Enhances slow inactivation of voltage-gated sodium channels — mechanistically different from phenytoin (which affects fast inactivation). Not yet standard of care for SE but increasingly used as adjunct between conventional 2nd-line ASMs and anesthetic infusions. Advantages: no significant drug interactions, no hepatic metabolism issues, simple flat dosing (not weight-based), well-tolerated.',
+    citations: [
+        'Strzelczyk A, et al. Lacosamide in Status Epilepticus: Systematic Review of Current Evidence. Epilepsia. 2017;58(6):933-950.',
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+    ],
+};
+const LORAZEPAM = {
+    id: 'lorazepam',
+    name: 'Lorazepam (Ativan)',
+    genericName: 'Lorazepam',
+    drugClass: 'Benzodiazepine (intermediate-acting)',
+    route: 'IV',
+    indications: ['Status epilepticus (first-line IV)', 'Seizure disorders'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — IV (first-line)',
+            regimen: '0.1 mg/kg IV push over 2 min (max 4 mg/dose). May repeat once in 5-10 min if seizure persists. Total max 8 mg. Preferred IV benzodiazepine — higher seizure termination rate than diazepam (65% vs 56%) and longer anticonvulsant duration.',
+            weightCalc: { dosePerKg: 0.1, unit: 'mg', maxDose: 4 },
+        },
+    ],
+    contraindications: [
+        'Acute narrow-angle glaucoma',
+        'Known hypersensitivity to benzodiazepines',
+        'Severe respiratory insufficiency (without ventilatory support)',
+    ],
+    cautions: [
+        'Respiratory depression — risk increases with repeated doses, opioid co-administration, and elderly patients',
+        'Hypotension with rapid IV push',
+        'Requires refrigeration — check for precipitate before administration',
+        'Contains propylene glycol — accumulation risk with prolonged/high-dose use',
+        'Reduce dose 30-50% in elderly or hepatic impairment',
+        'Paradoxical agitation in elderly and pediatric patients',
+    ],
+    monitoring: 'Continuous SpO2, respiratory rate, blood pressure. Capnography if available. Have BVM, suction, and flumazenil available. Monitor for return of seizure activity.',
+    notes: 'First-line IV benzodiazepine for SE per AES and NCS guidelines. Less lipophilic than diazepam — remains in the brain longer, providing more sustained anticonvulsant effect (12-24h vs 15-30 min for diazepam). Onset: 2-3 min IV. When IV access is unavailable, IM midazolam (not IM lorazepam) is preferred — lorazepam has unpredictable IM absorption. Underdosing of BZDs is a common error that leads to treatment failure.',
+    citations: [
+        'Betjemann JP, Bhatt J, Engel A. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+        'Silbergleit R, et al. RAMPART: Intramuscular versus Intravenous Therapy for Prehospital SE. N Engl J Med. 2012;366(7):591-600.',
+        'Treiman DM, et al. A Comparison of Four Treatments for Generalized Convulsive Status Epilepticus. N Engl J Med. 1998;339(12):792-798.',
+    ],
+};
+const PENTOBARBITAL = {
+    id: 'pentobarbital',
+    name: 'Pentobarbital (Nembutal)',
+    genericName: 'Pentobarbital sodium',
+    drugClass: 'Barbiturate anesthetic',
+    route: 'IV',
+    indications: ['Refractory status epilepticus'],
+    dosing: [
+        {
+            indication: 'Refractory SE — continuous infusion',
+            regimen: 'Load 5-15 mg/kg IV bolus over 1 hour, then infuse 0.5-5 mg/kg/hr. Titrate to EEG burst suppression. Provides deepest level of cerebral suppression among SE infusion agents. Maintain suppression 24-48h before first wean attempt.',
+            weightCalc: { dosePerKg: 10, unit: 'mg', label: 'Loading dose (midrange)' },
+        },
+    ],
+    contraindications: [
+        'Severe cardiovascular instability (without vasopressor support)',
+        'Porphyria',
+    ],
+    cautions: [
+        'Severe hypotension — almost always requires vasopressor support',
+        'Respiratory depression — requires mechanical ventilation',
+        'Immunosuppression with prolonged use',
+        'Prolonged sedation (very long half-life — 15-50 hours)',
+        'Paralytic ileus',
+        'Propylene glycol toxicity with prolonged infusion',
+    ],
+    monitoring: 'Continuous EEG (mandatory — target burst suppression). Arterial line for continuous BP. Central venous access. Vasopressors typically required. Daily labs: CBC, CMP, triglycerides, propylene glycol level if available.',
+    notes: 'Reserved for SE refractory to midazolam and propofol. Provides the deepest cerebral suppression but at the cost of significant hemodynamic compromise. Most patients require vasopressor support. Very long half-life makes weaning challenging — prolonged ICU stays common. Thiopental is an alternative barbiturate anesthetic (load 2-7 mg/kg, infuse 0.5-5 mg/kg/hr) but is less commonly available in the US.',
+    citations: [
+        'Claassen J, et al. Treatment of Refractory SE with Pentobarbital, Propofol, or Midazolam: A Systematic Review. Epilepsia. 2002;43(2):146-153.',
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+    ],
+};
+const PHENOBARBITAL = {
+    id: 'phenobarbital',
+    name: 'Phenobarbital',
+    genericName: 'Phenobarbital sodium',
+    drugClass: 'Barbiturate anticonvulsant',
+    route: 'IV',
+    indications: ['Status epilepticus (2nd-line alternative)', 'Neonatal seizures', 'Alcohol withdrawal seizures'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — 2nd line',
+            regimen: '15-20 mg/kg IV at max rate 50-100 mg/min. Max single dose 2000 mg. Use when levetiracetam, valproate, and fosphenytoin are unavailable or contraindicated. Also effective as adjunct for alcohol withdrawal seizures. May be used as first-line emergent therapy when benzodiazepines are unavailable.',
+            weightCalc: { dosePerKg: 20, unit: 'mg', maxDose: 2000 },
+        },
+    ],
+    contraindications: [
+        'Severe respiratory depression (without ventilatory support)',
+        'Porphyria',
+        'Severe hepatic impairment',
+    ],
+    cautions: [
+        'Respiratory depression — have intubation supplies ready before administration',
+        'Hypotension — infuse slowly, monitor BP closely',
+        'Excessive sedation — synergistic with benzodiazepines',
+        'Long half-life (53-118 hours) — effects persist long after discontinuation',
+        'Drug interactions — potent CYP inducer',
+    ],
+    monitoring: 'Continuous SpO2, respiratory rate, blood pressure q5 min during infusion. Have intubation supplies at bedside. Phenobarbital level 12-24h post-load (target 20-40 mcg/mL for SE).',
+    notes: 'Oldest anticonvulsant still in clinical use. Acts on GABAA receptors differently than benzodiazepines — increases duration (not frequency) of chloride channel opening, providing anticonvulsant effect even when GABAA receptors are partially internalized. This makes it useful when BZDs fail. First-line for neonatal seizures. Effective for alcohol withdrawal seizures (can be used when BZDs are insufficient).',
+    citations: [
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+        'Brophy GM, et al. Guidelines for the Evaluation and Management of Status Epilepticus. Neurocrit Care. 2012;17(1):3-23.',
+    ],
+};
+const PROPOFOL = {
+    id: 'propofol',
+    name: 'Propofol (Diprivan)',
+    genericName: 'Propofol',
+    drugClass: 'Sedative-hypnotic / IV anesthetic',
+    route: 'IV',
+    indications: ['Refractory status epilepticus', 'Procedural sedation', 'RSI induction'],
+    dosing: [
+        {
+            indication: 'Refractory SE — continuous infusion',
+            regimen: 'Load 1-2 mg/kg IV bolus, then infuse 30-200 mcg/kg/min (1.8-12 mg/kg/hr). Titrate to EEG burst suppression. Maintain 24-48h before wean attempt. Rapid onset and offset — easier to titrate than barbiturates.',
+            weightCalc: { dosePerKg: 2, unit: 'mg', label: 'Loading bolus' },
+        },
+    ],
+    contraindications: [
+        'Known hypersensitivity to propofol, eggs, or soy (contains egg lecithin and soybean oil)',
+        'Severe cardiovascular instability',
+        'Children <16 years for prolonged ICU sedation (PRIS risk)',
+    ],
+    cautions: [
+        'Propofol infusion syndrome (PRIS) — rhabdomyolysis, metabolic acidosis, cardiac failure, hyperkalemia, hyperlipidemia. Risk increases with doses >80 mcg/kg/min for >48h',
+        'Hypotension — bolus may cause significant BP drop',
+        'Respiratory depression — requires mechanical ventilation for continuous infusion',
+        'Hypertriglyceridemia — check triglycerides q24-48h',
+        'Contains lipid emulsion — counts toward caloric intake (1.1 kcal/mL)',
+        'Risk of bacterial contamination — use aseptic technique, discard after 12h',
+    ],
+    monitoring: 'Continuous EEG (mandatory). Arterial line. Triglycerides q24-48h. CK and lactate q12-24h (PRIS monitoring). ABG for metabolic acidosis. Urine color (green discoloration is benign).',
+    notes: 'Rapid onset (30-60 sec) and short duration — allows frequent neurologic reassessment if infusion stopped briefly. More likely than midazolam to require addition of a second anesthetic infusion per retrospective data. PRIS is the major concern — monitor closely when using high doses for >48h. Mechanism: enhances GABAA receptor activity and inhibits NMDA receptors.',
+    citations: [
+        'Claassen J, et al. Treatment of Refractory SE with Pentobarbital, Propofol, or Midazolam: A Systematic Review. Epilepsia. 2002;43(2):146-153.',
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+    ],
+};
+const PYRIDOXINE = {
+    id: 'pyridoxine',
+    name: 'Pyridoxine (Vitamin B6)',
+    genericName: 'Pyridoxine hydrochloride',
+    drugClass: 'Vitamin / Antidote',
+    route: 'IV',
+    indications: ['Isoniazid (INH) toxicity — seizures', 'Pyridoxine-dependent epilepsy (neonatal)'],
+    dosing: [
+        {
+            indication: 'INH toxicity — seizure antidote',
+            regimen: 'Gram-for-gram replacement of INH ingested. If amount unknown: 5 g IV over 5 min. May repeat 5 g IV q5-10 min until seizures stop (max total 70 mg/kg). INH depletes pyridoxine → GABA synthesis fails → refractory seizures. Standard ASMs are ineffective without pyridoxine.',
+        },
+        {
+            indication: 'Pyridoxine-dependent epilepsy (neonatal/infant)',
+            regimen: '100 mg IV single dose. Consider in neonates/infants with unexplained refractory seizures. May be both diagnostic and therapeutic. If seizures stop, confirms diagnosis.',
+        },
+    ],
+    contraindications: [
+        'Known hypersensitivity to pyridoxine',
+    ],
+    cautions: [
+        'Rapid IV push in large doses may cause transient sensory neuropathy',
+        'IV formulation may not be readily available — check pharmacy stock proactively in suspected INH ingestion',
+    ],
+    monitoring: 'Seizure cessation. Mental status improvement. ABG for acidosis correction.',
+    notes: 'Critical antidote for INH-induced seizures. INH inhibits pyridoxal kinase, depleting active pyridoxine (pyridoxal 5\'-phosphate), which is an essential cofactor for glutamic acid decarboxylase — the enzyme that converts glutamate to GABA. Without GABA synthesis, seizures are refractory to all standard anticonvulsants. Always give pyridoxine when INH toxicity is suspected — benzodiazepines alone will not terminate the seizures.',
+    citations: [
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+    ],
+};
+const THIOPENTAL = {
+    id: 'thiopental',
+    name: 'Thiopental',
+    genericName: 'Thiopental sodium',
+    drugClass: 'Barbiturate anesthetic',
+    route: 'IV',
+    indications: ['Refractory status epilepticus (alternative to pentobarbital)'],
+    dosing: [
+        {
+            indication: 'Refractory SE — continuous infusion',
+            regimen: 'Load 2-7 mg/kg IV bolus, then infuse 0.5-5 mg/kg/hr. Titrate to EEG burst suppression. Alternative to pentobarbital. Less commonly available in the US.',
+            weightCalc: { dosePerKg: 5, unit: 'mg', label: 'Loading dose (midrange)' },
+        },
+    ],
+    contraindications: [
+        'Porphyria (absolute)',
+        'Severe cardiovascular instability',
+        'Status asthmaticus',
+    ],
+    cautions: [
+        'Severe hypotension — vasopressor support typically required',
+        'Respiratory depression — requires mechanical ventilation',
+        'Immunosuppression with prolonged use',
+        'Tissue necrosis with extravasation (highly alkaline, pH 10-11)',
+        'Very long half-life (11-36 hours) — prolonged recovery',
+    ],
+    monitoring: 'Continuous EEG (mandatory). Arterial line. Central venous access. Vasopressors typically required. Monitor for extravasation at IV site.',
+    notes: 'Ultra-short-acting barbiturate anesthetic used for refractory SE when other agents fail. Less available than pentobarbital in the US. Similar hemodynamic profile to pentobarbital — significant hypotension, requires ICU-level support. Alkaline solution (pH 10-11) — extravasation causes severe tissue necrosis. Primarily used in European and international settings.',
+    citations: [
+        'Claassen J, et al. Treatment of Refractory SE with Pentobarbital, Propofol, or Midazolam. Epilepsia. 2002;43(2):146-153.',
+    ],
+};
+const VALPROATE = {
+    id: 'valproate',
+    name: 'Valproate Sodium (Depacon)',
+    genericName: 'Valproate sodium / Valproic acid',
+    drugClass: 'Anticonvulsant / Mood stabilizer',
+    route: 'IV',
+    indications: ['Status epilepticus (2nd-line)', 'Seizure disorders', 'Bipolar disorder'],
+    dosing: [
+        {
+            indication: 'Status Epilepticus — 2nd line (ESETT)',
+            regimen: '40 mg/kg IV (max 3000 mg) over 10 min. ESETT trial: 46% seizure termination at 60 min (equivalent to levetiracetam and fosphenytoin). Well-tolerated even with larger doses and faster rates of infusion.',
+            weightCalc: { dosePerKg: 40, unit: 'mg', maxDose: 3000 },
+        },
+    ],
+    contraindications: [
+        'Pregnancy (Category X — teratogenic, neural tube defects)',
+        'Hepatic disease or significant hepatic dysfunction',
+        'Known mitochondrial disorders (Alpers syndrome — fatal hepatotoxicity)',
+        'Known urea cycle disorders (risk of fatal hyperammonemic encephalopathy)',
+        'Pancreatitis (active or history)',
+    ],
+    cautions: [
+        'Thrombocytopenia — check platelets before and after administration',
+        'Hyperammonemia — check ammonia if altered mental status persists after seizure cessation',
+        'Hepatotoxicity — greatest risk in children <2 years on polytherapy',
+        'Coagulopathy — may impair coagulation',
+        'Teratogenic — avoid in women of childbearing age when possible',
+        'Drug interactions — inhibits CYP2C9, displaces protein-bound drugs',
+    ],
+    monitoring: 'Valproic acid level 2h after loading (target 50-100 mcg/mL, up to 150 for SE). CBC with platelets. Ammonia level if altered mental status. LFTs. Coagulation studies.',
+    notes: 'Broad-spectrum anticonvulsant effective against generalized and focal seizures. ESETT trial demonstrated equivalent efficacy to levetiracetam and fosphenytoin for BZD-refractory SE. Well-tolerated even at rapid infusion rates. Major limitation is teratogenicity — should be avoided in pregnancy. Hyperammonemia can cause confusion that mimics ongoing SE — always check ammonia in patients not returning to baseline.',
+    citations: [
+        'Kapur J, et al. ESETT: Randomized Trial of Three Anticonvulsant Medications for Status Epilepticus. N Engl J Med. 2019;381(22):2103-2113.',
+        'Betjemann JP, et al. Status Epilepticus. Emergency Medicine Practice. 2025;27(9).',
+        'Yasiry Z, Shorvon SD. Relative Effectiveness of Antiepileptic Drugs in Treatment of BZD-Resistant Convulsive SE. Epilepsia. 2014;55(9):1349-1361.',
+    ],
+};
+// -------------------------------------------------------------------
 // Drug Registry (Alphabetical by name)
 // -------------------------------------------------------------------
 export const ALL_DRUGS = [
@@ -3121,6 +3486,7 @@ export const ALL_DRUGS = [
     DARUNAVIR,
     DESMOPRESSIN,
     DEXAMETHASONE,
+    DIAZEPAM,
     DIGOXIN,
     DILTIAZEM,
     DOLUTEGRAVIR,
@@ -3132,6 +3498,7 @@ export const ALL_DRUGS = [
     FENTANYL,
     FLUDROCORTISONE,
     FONDAPARINUX,
+    FOSPHENYTOIN,
     FUROSEMIDE,
     GENTAMICIN,
     HYPERTONIC_SALINE,
@@ -3139,8 +3506,10 @@ export const ALL_DRUGS = [
     IDARUCIZUMAB,
     KETAMINE,
     LABETALOL,
+    LACOSAMIDE,
     LEVETIRACETAM,
     LIDOCAINE,
+    LORAZEPAM,
     SODIUM_ZIRCONIUM_CYCLOSILICATE,
     MAGNESIUM_SULFATE,
     MEDROXYPROGESTERONE,
@@ -3156,13 +3525,17 @@ export const ALL_DRUGS = [
     PENICILLIN_G_IV,
     PHENYLEPHRINE,
     PCC_4FACTOR,
+    PENTOBARBITAL,
+    PHENOBARBITAL,
     POTASSIUM_CHLORIDE_IV,
     POTASSIUM_CHLORIDE_ORAL,
     PRASUGREL,
     PREDNISOLONE,
     PROCAINAMIDE,
     PROCAINE_PENICILLIN,
+    PROPOFOL,
     PROTAMINE,
+    PYRIDOXINE,
     RABIES_IMMUNE_GLOBULIN,
     RABIES_VACCINE,
     RACEMIC_EPINEPHRINE,
@@ -3174,10 +3547,12 @@ export const ALL_DRUGS = [
     TDF_FTC,
     TERBUTALINE,
     THIAMINE,
+    THIOPENTAL,
     TICAGRELOR,
     TRANEXAMIC_ACID,
     UFH,
     VANCOMYCIN,
+    VALPROATE,
     VERAPAMIL,
     VITAMIN_K,
 ];
@@ -3227,6 +3602,7 @@ const NAME_TO_ID = [
     [/darunavir|prezista/i, 'darunavir'],
     [/dexamethasone|decadron/i, 'dexamethasone'],
     [/desmopressin|ddavp/i, 'desmopressin'],
+    [/diazepam|valium/i, 'diazepam'],
     [/digoxin|digitalis|lanoxin/i, 'digoxin'],
     [/diltiazem|cardizem/i, 'diltiazem'],
     [/dolutegravir|tivicay/i, 'dolutegravir'],
@@ -3238,6 +3614,7 @@ const NAME_TO_ID = [
     [/fentanyl|sublimaze/i, 'fentanyl'],
     [/fludrocortisone|florinef/i, 'fludrocortisone'],
     [/fondaparinux|arixtra/i, 'fondaparinux'],
+    [/fosphenytoin|cerebyx|phenytoin.*equiv/i, 'fosphenytoin'],
     [/furosemide|lasix/i, 'furosemide'],
     [/gentamicin|garamycin/i, 'gentamicin'],
     [/hypertonic.*saline|3%.*saline|3%.*nacl/i, 'hypertonic-saline'],
@@ -3245,8 +3622,10 @@ const NAME_TO_ID = [
     [/idarucizumab|praxbind/i, 'idarucizumab'],
     [/ketamine|ketalar/i, 'ketamine'],
     [/labetalol/i, 'labetalol'],
+    [/lacosamide|vimpat/i, 'lacosamide'],
     [/levetiracetam|keppra/i, 'levetiracetam'],
     [/lidocaine/i, 'lidocaine'],
+    [/lorazepam|ativan/i, 'lorazepam'],
     [/lokelma|sodium\s*zirconium|szc/i, 'sodium-zirconium-cyclosilicate'],
     [/magnesium sulfate|mag sulfate|MgSO4/i, 'magnesium-sulfate'],
     [/medroxyprogesterone|MPA|provera|depo.provera/i, 'medroxyprogesterone'],
@@ -3261,14 +3640,18 @@ const NAME_TO_ID = [
     [/oral.*urea|ure-na/i, 'oral-urea'],
     [/aqueous.*penicillin|penicillin G.*IV|crystalline.*penicillin/i, 'penicillin-g-iv'],
     [/4.factor.*pcc|pcc.*4.factor|kcentra|prothrombin.*complex/i, 'pcc-4factor'],
+    [/pentobarbital|nembutal/i, 'pentobarbital'],
+    [/phenobarbital|luminal/i, 'phenobarbital'],
     [/phenylephrine/i, 'phenylephrine'],
     [/kcl\s*iv|potassium\s*chloride.*iv|iv\s*potassium/i, 'potassium-chloride-iv'],
     [/kcl\s*oral|potassium\s*chloride.*oral|oral\s*potassium|k-dur|klor-con/i, 'potassium-chloride-oral'],
     [/procainamide|pronestyl/i, 'procainamide'],
     [/procaine.*penicillin/i, 'procaine-penicillin'],
+    [/propofol|diprivan/i, 'propofol'],
     [/protamine/i, 'protamine'],
     [/prasugrel|effient/i, 'prasugrel'],
     [/prednisolone|prelone|orapred/i, 'prednisolone'],
+    [/pyridoxine|vitamin.?b6/i, 'pyridoxine'],
     [/racemic.*epinephrine|neb.*epinephrine|vaponefrin/i, 'racemic-epinephrine'],
     [/regular\s*insulin|insulin\s*regular|humulin/i, 'regular-insulin'],
     [/ritonavir|norvir/i, 'ritonavir'],
@@ -3278,9 +3661,11 @@ const NAME_TO_ID = [
     [/tenofovir.*emtricitabine|truvada|TDF\/FTC/i, 'tdf-ftc'],
     [/terbutaline|brethine/i, 'terbutaline'],
     [/thiamine|vitamin\s*b1/i, 'thiamine'],
+    [/thiopental|pentothal/i, 'thiopental'],
     [/ticagrelor|brilinta/i, 'ticagrelor'],
     [/tranexamic.*acid|TXA/i, 'tranexamic-acid'],
     [/unfractionated heparin|^UFH$|heparin sodium/i, 'ufh'],
+    [/valproate|valproic|depacon|depakote|depakene/i, 'valproate'],
     [/vancomycin|vancocin/i, 'vancomycin'],
     [/verapamil|calan|isoptin/i, 'verapamil'],
     [/vitamin\s*k|phytonadione/i, 'vitamin-k'],
