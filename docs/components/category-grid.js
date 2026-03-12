@@ -11,6 +11,14 @@ const TOOL_ROUTES = {
     'pharmacy': { route: '/drugs', getCount: () => getAllDrugs().length, unit: 'drug' },
     'med-calc': { route: '/calculators', getCount: () => getAllCalculators().length, unit: 'tool' },
 };
+/** Lab Interpreter feature card config */
+const LAB_INTERPRETER_CARD = {
+    id: 'lab-interpreter',
+    name: 'Lab Interpreter',
+    icon: '🧪',
+    route: '/lab-interpreter',
+    subtitle: 'AI-powered lab analysis',
+};
 /** Darken or lighten a hex color by a percentage (-15 = 15% darker) */
 function adjustBrightness(hex, percent) {
     const num = parseInt(hex.replace('#', ''), 16);
@@ -83,6 +91,10 @@ export function renderCategoryGrid(container) {
         else {
             rolodex.appendChild(createRolodexCard(cat, cat.decisionTrees.length));
         }
+    }
+    // Lab Interpreter card — only in full mode
+    if (!sharedMode) {
+        rolodex.appendChild(createLabInterpreterCard());
     }
     // Add button — only in full mode
     if (!sharedMode) {
@@ -188,6 +200,44 @@ function createRolodexCard(cat, count, route, unit) {
         }
         card.appendChild(badge);
     }
+    return card;
+}
+/** Create the Lab Interpreter feature card */
+function createLabInterpreterCard() {
+    const card = document.createElement('a');
+    card.className = 'rolodex-card rolodex-card--feature';
+    card.href = '#/lab-interpreter';
+    card.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+    card.setAttribute('aria-label', 'Lab Interpreter - AI-powered lab analysis');
+    card.addEventListener('click', (e) => {
+        e.preventDefault();
+        router.navigate('/lab-interpreter');
+    });
+    // Icon
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'rolodex-icon';
+    iconWrap.style.background = 'rgba(255,255,255,0.2)';
+    iconWrap.textContent = '🧪';
+    iconWrap.style.fontSize = '24px';
+    card.appendChild(iconWrap);
+    // Name
+    const nameEl = document.createElement('div');
+    nameEl.className = 'rolodex-name';
+    nameEl.textContent = 'Lab Interpreter';
+    nameEl.style.color = '#fff';
+    card.appendChild(nameEl);
+    // Bottom line
+    const bottomLine = document.createElement('div');
+    bottomLine.className = 'rolodex-bottom-line';
+    bottomLine.style.background = 'rgba(255,255,255,0.3)';
+    card.appendChild(bottomLine);
+    // Badge
+    const badge = document.createElement('span');
+    badge.className = 'rolodex-badge';
+    badge.style.background = 'rgba(255,255,255,0.2)';
+    badge.style.color = '#fff';
+    badge.textContent = 'AI-POWERED';
+    card.appendChild(badge);
     return card;
 }
 /** Create the "+ Add Category" card */
