@@ -99,6 +99,10 @@ const TREE_REGISTRY = {
   'aub':              { prefix: 'AUB',                 entryNodeId: 'aub-start',          categoryId: 'ob-gyn' },
   'status-epilepticus': { prefix: 'STATUS_EPILEPTICUS', entryNodeId: 'se-start',           categoryId: 'neurology' },
   'first-trimester':  { prefix: 'FIRST_TRIMESTER',    entryNodeId: 'ft-start',           categoryId: 'ob-gyn' },
+  'diarrhea':         { prefix: 'DIARRHEA',            entryNodeId: 'diarrhea-start',     categoryId: 'gastroenterology' },
+  'hiv':              { prefix: 'HIV',                 entryNodeId: 'hiv-start',          categoryId: 'infectious-disease' },
+  'meningitis':       { prefix: 'MENINGITIS',          entryNodeId: 'mening-start',       categoryId: 'infectious-disease' },
+  'sah':              { prefix: 'SAH',                 entryNodeId: 'sah-start',          categoryId: 'neurology' },
 };
 
 // Cross-listing: which consults appear in multiple categories
@@ -117,6 +121,9 @@ const CROSS_LISTINGS = {
   'chest-tube':       [{ categoryId: 'procedures', displayTitle: 'Tube Thoracostomy', displaySubtitle: 'Preparation → Insertion → Management', entryNodeId: 'ctube-anatomy' }],
   'priapism':         [{ categoryId: 'urology' }],
   'afib-rvr':         [{ categoryId: 'procedures', displayTitle: 'Synchronized Cardioversion', displaySubtitle: 'A-Fib RVR: Stability → Cardioversion Protocol' }],
+  'diarrhea':         [{ categoryId: 'emergency-medicine' }],
+  'hiv':              [{ categoryId: 'emergency-medicine' }],
+  'sah':              [{ categoryId: 'emergency-medicine' }],
 };
 
 const reg = TREE_REGISTRY[consultId];

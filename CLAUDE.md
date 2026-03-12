@@ -164,7 +164,7 @@ Every node type (question, info, result) with a `citation` array MUST render exp
 
 ## Current Status
 
-v1.31 — 23 consults, Pharmacy (79 drugs), Med-Calc (PESI/sPESI/CHA₂DS₂-VASc/NIHSS/TIMI/BAS/FWD)
+v1.36 — 28 consults, Pharmacy (119 drugs), Med-Calc (PESI/sPESI/CHA₂DS₂-VASc/NIHSS/TIMI/BAS/FWD + 5 burns calcs)
 
 Core build tasks (all complete):
 - [x] Tasks 0-12: Foundation → PWA shell → TypeScript → Router → Categories → Wizard → Results → References → Deploy
