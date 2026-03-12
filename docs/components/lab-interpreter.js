@@ -1,8 +1,12 @@
 // MedKitt — Lab Interpreter Component
-// Voice/text input for lab values with AI-powered interpretation
+// Panel-based lab entry with structured fields
 
-import { interpretLabs, LAB_REFERENCE_RANGES } from '../services/lab-parser.js';
+import { LAB_PANELS, PANEL_CATEGORIES } from '../data/lab-panels.js';
 import { router } from '../services/router.js';
+
+/** Current state */
+let selectedPanel = null;
+let labValues = {};
 
 /**
  * Render the Lab Interpreter view
@@ -10,6 +14,8 @@ import { router } from '../services/router.js';
  */
 export function renderLabInterpreter(container) {
   container.innerHTML = '';
+  selectedPanel = null;
+  labValues = {};
 
   // Header
   const header = document.createElement('div');
@@ -23,254 +29,338 @@ export function renderLabInterpreter(container) {
     <h1>Lab Interpreter</h1>
     <div class="header-spacer"></div>
   `;
-  header.querySelector('.back-btn').addEventListener('click', () => router.navigate('/'));
+  header.querySelector('.back-btn').addEventListener('click', () => {
+    if (selectedPanel) {
+      // Go back to panel selection
+      renderLabInterpreter(container);
+    } else {
+      router.navigate('/');
+    }
+  });
   container.appendChild(header);
 
-  // Input section
-  const inputSection = document.createElement('div');
-  inputSection.className = 'lab-input-section';
-  inputSection.innerHTML = `
-    <div class="input-instructions">
-      <p>Enter lab values (e.g., "sodium 128, potassium 5.2, creatinine 2.1")</p>
-    </div>
-    <div class="lab-input-wrapper">
-      <textarea
-        id="lab-input"
-        class="lab-textarea"
-        placeholder="Paste or type labs here...&#10;&#10;Examples:&#10;Na 128, K 5.2, Cr 2.1&#10;Troponin 0.15&#10;Lactate 4.2"
-        rows="5"
-      ></textarea>
-      <div class="input-actions">
-        <button id="voice-btn" class="voice-btn" aria-label="Voice input">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-          </svg>
-        </button>
-        <button id="interpret-btn" class="interpret-btn">
-          Interpret
-        </button>
-      </div>
-    </div>
-  `;
-  container.appendChild(inputSection);
+  // Main content area
+  const content = document.createElement('div');
+  content.className = 'lab-content';
+  content.id = 'lab-content';
+  container.appendChild(content);
 
-  // Results section (hidden initially)
-  const resultsSection = document.createElement('div');
-  resultsSection.className = 'lab-results-section';
-  resultsSection.id = 'lab-results';
-  resultsSection.style.display = 'none';
-  container.appendChild(resultsSection);
-
-  // Quick reference section
-  const quickRef = document.createElement('details');
-  quickRef.className = 'quick-reference';
-  quickRef.innerHTML = `
-    <summary>Supported Labs</summary>
-    <div class="quick-ref-content">
-      <div class="ref-category">
-        <strong>BMP:</strong> Na, K, Cl, CO2/Bicarb, BUN, Cr, Glucose, Ca, Mg, Phos
-      </div>
-      <div class="ref-category">
-        <strong>CBC:</strong> WBC, Hgb/Hemoglobin, Hct, Platelets
-      </div>
-      <div class="ref-category">
-        <strong>LFTs:</strong> AST, ALT, Alk Phos, Bilirubin, Albumin
-      </div>
-      <div class="ref-category">
-        <strong>Cardiac:</strong> Troponin, BNP, NT-proBNP
-      </div>
-      <div class="ref-category">
-        <strong>Coags:</strong> PT, INR, PTT, Fibrinogen, D-dimer
-      </div>
-      <div class="ref-category">
-        <strong>Other:</strong> Lactate, pH, pCO2, pO2, Lipase, TSH, A1c
-      </div>
-    </div>
-  `;
-  container.appendChild(quickRef);
+  // Render panel selection
+  renderPanelSelection(content);
 
   // Disclaimer
   const disclaimer = document.createElement('div');
   disclaimer.className = 'lab-disclaimer';
   disclaimer.innerHTML = `
-    <p><strong>Clinical Decision Support</strong> - Not a diagnosis. All outputs must be verified by a licensed clinician. Reference ranges may vary by lab.</p>
+    <p><strong>Clinical Decision Support</strong> — Not a diagnosis. All outputs must be verified by a licensed clinician. Reference ranges may vary by lab.</p>
   `;
   container.appendChild(disclaimer);
-
-  // Event handlers
-  const labInput = document.getElementById('lab-input');
-  const interpretBtn = document.getElementById('interpret-btn');
-  const voiceBtn = document.getElementById('voice-btn');
-
-  interpretBtn.addEventListener('click', () => {
-    const input = labInput.value.trim();
-    if (input) {
-      displayResults(input, resultsSection);
-    }
-  });
-
-  // Voice input
-  voiceBtn.addEventListener('click', () => {
-    startVoiceInput(labInput, voiceBtn);
-  });
-
-  // Enter key to interpret
-  labInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.metaKey) {
-      e.preventDefault();
-      interpretBtn.click();
-    }
-  });
 }
 
 /**
- * Start voice input using Web Speech API
+ * Render panel selection grid
  */
-function startVoiceInput(textarea, button) {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Voice input is not supported in this browser. Try Chrome or Safari.');
-    return;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-
-  button.classList.add('listening');
-  button.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="pulse">
-      <circle cx="12" cy="12" r="8"/>
-    </svg>
-  `;
-
-  recognition.onresult = (event) => {
-    let transcript = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    textarea.value = transcript;
-  };
-
-  recognition.onerror = (event) => {
-    console.error('Speech recognition error:', event.error);
-    resetVoiceButton(button);
-  };
-
-  recognition.onend = () => {
-    resetVoiceButton(button);
-  };
-
-  recognition.start();
-}
-
-function resetVoiceButton(button) {
-  button.classList.remove('listening');
-  button.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-    </svg>
-  `;
-}
-
-/**
- * Display interpretation results
- */
-function displayResults(input, container) {
-  const { parsedLabs, interpretations, conditions } = interpretLabs(input);
-
-  container.style.display = 'block';
+function renderPanelSelection(container) {
   container.innerHTML = '';
 
-  if (interpretations.length === 0) {
-    container.innerHTML = `
-      <div class="no-results">
-        <p>No labs recognized. Try formats like "sodium 128" or "Na 128, K 5.2"</p>
-      </div>
-    `;
-    return;
-  }
+  const intro = document.createElement('p');
+  intro.className = 'lab-intro';
+  intro.textContent = 'Select a lab panel to interpret:';
+  container.appendChild(intro);
 
-  // Lab values table
-  const labTable = document.createElement('div');
-  labTable.className = 'lab-results-table';
-  labTable.innerHTML = `<h3>Lab Values</h3>`;
+  for (const category of PANEL_CATEGORIES) {
+    const section = document.createElement('div');
+    section.className = 'panel-category';
 
-  const table = document.createElement('div');
-  table.className = 'lab-grid';
+    const categoryHeader = document.createElement('h3');
+    categoryHeader.className = 'panel-category-header';
+    categoryHeader.textContent = category.name;
+    section.appendChild(categoryHeader);
 
-  for (const lab of interpretations) {
-    const row = document.createElement('div');
-    row.className = `lab-row ${lab.interpretation.severity}`;
-    row.innerHTML = `
-      <div class="lab-name">${lab.displayName}</div>
-      <div class="lab-value">${lab.value}</div>
-      <div class="lab-status ${lab.interpretation.status}">${lab.interpretation.message}</div>
-    `;
-    table.appendChild(row);
-  }
+    const grid = document.createElement('div');
+    grid.className = 'panel-grid';
 
-  labTable.appendChild(table);
-  container.appendChild(labTable);
+    for (const panelId of category.panels) {
+      const panel = LAB_PANELS[panelId];
+      if (!panel) continue;
 
-  // Clinical conditions
-  if (conditions.length > 0) {
-    const conditionsSection = document.createElement('div');
-    conditionsSection.className = 'clinical-conditions';
-    conditionsSection.innerHTML = `<h3>Clinical Considerations</h3>`;
-
-    for (const condition of conditions) {
-      const card = document.createElement('div');
-      card.className = `condition-card ${condition.severity}`;
+      const card = document.createElement('button');
+      card.className = 'panel-card';
       card.innerHTML = `
-        <div class="condition-header">
-          <span class="condition-name">${condition.condition}</span>
-          <span class="condition-severity ${condition.severity}">${condition.severity.toUpperCase()}</span>
-        </div>
-        <div class="condition-guidance">${condition.guidance}</div>
-        <div class="condition-actions">
-          ${condition.consults.map(c => `
-            <button class="action-btn consult-btn" data-type="consult" data-id="${c}">
-              View ${formatConsultName(c)} Consult
-            </button>
-          `).join('')}
-          ${condition.calculators.map(c => `
-            <button class="action-btn calc-btn" data-type="calculator" data-id="${c}">
-              Open ${formatConsultName(c)} Calculator
-            </button>
-          `).join('')}
-        </div>
+        <span class="panel-icon">${panel.icon}</span>
+        <span class="panel-name">${panel.name}</span>
+        <span class="panel-count">${panel.labs.length} values</span>
       `;
-      conditionsSection.appendChild(card);
+      card.addEventListener('click', () => {
+        selectedPanel = panel;
+        labValues = {};
+        renderPanelEntry(container, panel);
+      });
+      grid.appendChild(card);
     }
 
-    // Add click handlers for action buttons
-    conditionsSection.querySelectorAll('.action-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const type = btn.dataset.type;
-        const id = btn.dataset.id;
-        if (type === 'consult') {
-          router.navigate(`/tree/${id}`);
-        } else if (type === 'calculator') {
-          router.navigate(`/calculator/${id}`);
-        }
-      });
-    });
-
-    container.appendChild(conditionsSection);
+    section.appendChild(grid);
+    container.appendChild(section);
   }
-
-  // Scroll to results
-  container.scrollIntoView({ behavior: 'smooth' });
 }
 
 /**
- * Format consult name for display
+ * Render panel entry form
  */
-function formatConsultName(id) {
-  return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+function renderPanelEntry(container, panel) {
+  container.innerHTML = '';
+
+  // Panel header
+  const panelHeader = document.createElement('div');
+  panelHeader.className = 'panel-entry-header';
+  panelHeader.innerHTML = `
+    <span class="panel-icon-large">${panel.icon}</span>
+    <h2>${panel.name}</h2>
+  `;
+  container.appendChild(panelHeader);
+
+  // Lab fields
+  const form = document.createElement('div');
+  form.className = 'lab-form';
+
+  for (const lab of panel.labs) {
+    const field = document.createElement('div');
+    field.className = 'lab-field';
+
+    if (lab.isQualitative) {
+      // Qualitative (pos/neg) field
+      field.innerHTML = `
+        <label class="lab-label">${lab.name}</label>
+        <div class="lab-input-row">
+          <div class="qualitative-toggle" data-lab-id="${lab.id}">
+            <button type="button" class="qual-btn" data-value="">—</button>
+            <button type="button" class="qual-btn qual-neg" data-value="negative">NEG</button>
+            <button type="button" class="qual-btn qual-pos" data-value="positive">POS</button>
+          </div>
+        </div>
+      `;
+      const toggle = field.querySelector('.qualitative-toggle');
+      toggle.querySelectorAll('.qual-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          toggle.querySelectorAll('.qual-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          labValues[lab.id] = btn.dataset.value || null;
+        });
+      });
+    } else {
+      // Quantitative field
+      const rangeText = `${lab.low}–${lab.high}`;
+      field.innerHTML = `
+        <label class="lab-label">${lab.name}</label>
+        <div class="lab-input-row">
+          <input
+            type="number"
+            step="any"
+            class="lab-input"
+            id="lab-${lab.id}"
+            placeholder="${rangeText}"
+            inputmode="decimal"
+          >
+          <span class="lab-unit">${lab.unit}</span>
+        </div>
+        <span class="lab-range">${rangeText} ${lab.unit}</span>
+      `;
+      const input = field.querySelector('input');
+      input.addEventListener('input', () => {
+        const value = parseFloat(input.value);
+        labValues[lab.id] = isNaN(value) ? null : value;
+        updateFieldStatus(field, lab, value);
+      });
+    }
+
+    form.appendChild(field);
+  }
+
+  container.appendChild(form);
+
+  // Action buttons
+  const actions = document.createElement('div');
+  actions.className = 'lab-actions';
+  actions.innerHTML = `
+    <button class="btn-secondary" id="clear-btn">Clear All</button>
+    <button class="btn-primary" id="evaluate-btn">Evaluate</button>
+  `;
+  container.appendChild(actions);
+
+  // Results area (hidden initially)
+  const resultsArea = document.createElement('div');
+  resultsArea.className = 'lab-results-area';
+  resultsArea.id = 'lab-results';
+  resultsArea.style.display = 'none';
+  container.appendChild(resultsArea);
+
+  // Event handlers
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    labValues = {};
+    form.querySelectorAll('input').forEach(input => {
+      input.value = '';
+      input.closest('.lab-field').classList.remove('low', 'high', 'critical-low', 'critical-high', 'normal');
+    });
+    form.querySelectorAll('.qual-btn').forEach(btn => btn.classList.remove('active'));
+    resultsArea.style.display = 'none';
+  });
+
+  document.getElementById('evaluate-btn').addEventListener('click', () => {
+    evaluatePanel(panel, resultsArea);
+  });
+}
+
+/**
+ * Update field visual status based on value
+ */
+function updateFieldStatus(field, lab, value) {
+  field.classList.remove('low', 'high', 'critical-low', 'critical-high', 'normal');
+
+  if (isNaN(value) || value === null || value === undefined) return;
+
+  if (lab.criticalLow !== undefined && value < lab.criticalLow) {
+    field.classList.add('critical-low');
+  } else if (lab.criticalHigh !== undefined && value > lab.criticalHigh) {
+    field.classList.add('critical-high');
+  } else if (value < lab.low) {
+    field.classList.add('low');
+  } else if (value > lab.high) {
+    field.classList.add('high');
+  } else {
+    field.classList.add('normal');
+  }
+}
+
+/**
+ * Evaluate panel and display results
+ */
+function evaluatePanel(panel, resultsArea) {
+  const results = [];
+  const abnormals = [];
+  const criticals = [];
+
+  for (const lab of panel.labs) {
+    const value = labValues[lab.id];
+    if (value === null || value === undefined) continue;
+
+    if (lab.isQualitative) {
+      // Qualitative result
+      if (value === 'positive') {
+        abnormals.push({
+          name: lab.name,
+          value: 'POSITIVE',
+          status: 'abnormal',
+          message: 'Positive'
+        });
+      }
+    } else {
+      // Quantitative result
+      let status = 'normal';
+      let severity = 'normal';
+      let message = `Normal (${lab.low}–${lab.high})`;
+
+      if (lab.criticalLow !== undefined && value < lab.criticalLow) {
+        status = 'critical-low';
+        severity = 'critical';
+        message = `CRITICAL LOW (<${lab.criticalLow})`;
+        criticals.push({ name: lab.name, value, unit: lab.unit, status, message });
+      } else if (lab.criticalHigh !== undefined && value > lab.criticalHigh) {
+        status = 'critical-high';
+        severity = 'critical';
+        message = `CRITICAL HIGH (>${lab.criticalHigh})`;
+        criticals.push({ name: lab.name, value, unit: lab.unit, status, message });
+      } else if (value < lab.low) {
+        status = 'low';
+        severity = 'abnormal';
+        message = `Low (${lab.low}–${lab.high})`;
+        abnormals.push({ name: lab.name, value, unit: lab.unit, status, message });
+      } else if (value > lab.high) {
+        status = 'high';
+        severity = 'abnormal';
+        message = `High (${lab.low}–${lab.high})`;
+        abnormals.push({ name: lab.name, value, unit: lab.unit, status, message });
+      }
+
+      results.push({
+        name: lab.name,
+        value,
+        unit: lab.unit,
+        status,
+        severity,
+        message
+      });
+    }
+  }
+
+  // Render results
+  resultsArea.innerHTML = '';
+  resultsArea.style.display = 'block';
+
+  if (results.length === 0) {
+    resultsArea.innerHTML = '<p class="no-results">No values entered. Enter lab values above and tap Evaluate.</p>';
+    return;
+  }
+
+  // Critical values alert
+  if (criticals.length > 0) {
+    const criticalAlert = document.createElement('div');
+    criticalAlert.className = 'critical-alert';
+    criticalAlert.innerHTML = `
+      <div class="alert-header">⚠️ CRITICAL VALUES</div>
+      ${criticals.map(c => `
+        <div class="critical-item">
+          <strong>${c.name}:</strong> ${c.value} ${c.unit} — ${c.message}
+        </div>
+      `).join('')}
+    `;
+    resultsArea.appendChild(criticalAlert);
+  }
+
+  // Abnormal values
+  if (abnormals.length > 0) {
+    const abnormalSection = document.createElement('div');
+    abnormalSection.className = 'results-section abnormal-section';
+    abnormalSection.innerHTML = `
+      <h3>Abnormal Values</h3>
+      <div class="results-grid">
+        ${abnormals.map(a => `
+          <div class="result-row ${a.status}">
+            <span class="result-name">${a.name}</span>
+            <span class="result-value">${a.value}${a.unit ? ' ' + a.unit : ''}</span>
+            <span class="result-message">${a.message}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    resultsArea.appendChild(abnormalSection);
+  }
+
+  // All values summary
+  const allSection = document.createElement('div');
+  allSection.className = 'results-section';
+  allSection.innerHTML = `
+    <h3>All Results</h3>
+    <div class="results-grid">
+      ${results.map(r => `
+        <div class="result-row ${r.status}">
+          <span class="result-name">${r.name}</span>
+          <span class="result-value">${r.value} ${r.unit}</span>
+          <span class="result-indicator ${r.status}"></span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  resultsArea.appendChild(allSection);
+
+  // AI interpretation placeholder
+  const aiSection = document.createElement('div');
+  aiSection.className = 'ai-interpretation';
+  aiSection.innerHTML = `
+    <h3>🤖 AI Interpretation</h3>
+    <p class="ai-coming-soon">AI-powered clinical interpretation coming soon. This will analyze patterns, suggest differential diagnoses, and link to relevant consults.</p>
+  `;
+  resultsArea.appendChild(aiSection);
+
+  // Scroll to results
+  resultsArea.scrollIntoView({ behavior: 'smooth' });
 }

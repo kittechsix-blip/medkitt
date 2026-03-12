@@ -2,7 +2,7 @@
 // Network-first for code, cache-first for images
 // Ensures updates load immediately without manual cache clearing
 
-const CACHE_NAME = 'medkitt-v172';
+const CACHE_NAME = 'medkitt-v173';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -29,6 +29,7 @@ const ASSETS_TO_CACHE = [
   './services/info-service.js',
   './services/lab-parser.js',
   './data/info-pages.js',
+  './data/lab-panels.js',
   './components/lab-interpreter.js',
   './components/tree-wizard.js',
   './components/reference-table.js',
