@@ -9,7 +9,6 @@ import { renderCalculator, renderCalculatorList } from './components/calculator.
 import { renderDrugList } from './components/drug-store.js';
 import { renderConsultWizard } from './components/consult-wizard.js';
 import { ACUTE_STROKE_WIZARD } from './data/wizard-consults/acute-stroke.js';
-import { renderLabInterpreter } from './components/lab-interpreter.js';
 import { initDrugs } from './services/drug-service.js';
 import { initCategories } from './services/category-service.js';
 import { initInfoPages } from './services/info-service.js';
@@ -218,12 +217,6 @@ function handleShare(params) {
     // Redirect to the actual tree — replace hash so back button doesn't loop
     window.location.replace('#/tree/' + treeId);
 }
-function handleLabInterpreter(_params) {
-    setHomeTheme(false);
-    updateTabBar('');
-    const main = clearMain();
-    renderLabInterpreter(main);
-}
 function handleNotFound() {
     setHomeTheme(false);
     updateTabBar('');
@@ -270,7 +263,6 @@ async function init() {
     router.on('/calculators', handleCalculatorList);
     router.on('/calculator/:id', handleCalculator);
     router.on('/wizard/:id', handleWizard); // New wizard route
-    router.on('/lab-interpreter', handleLabInterpreter); // Lab Interpreter
     router.onNotFound(handleNotFound);
     // Start routing
     router.start();
