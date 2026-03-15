@@ -104,6 +104,7 @@ const TREE_REGISTRY = {
   'meningitis':       { prefix: 'MENINGITIS',          entryNodeId: 'mening-start',       categoryId: 'infectious-disease' },
   'sah':              { prefix: 'SAH',                 entryNodeId: 'sah-start',          categoryId: 'neurology' },
   'delirium':         { prefix: 'DELIRIUM',            entryNodeId: 'delirium-start',     categoryId: 'neurology' },
+  'acid-base':        { prefix: 'ACID_BASE',           entryNodeId: 'ab-start',           categoryId: 'nephro-rheum-endo' },
 };
 
 // Cross-listing: which consults appear in multiple categories
