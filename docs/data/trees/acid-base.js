@@ -13,6 +13,13 @@ export const ACID_BASE_NODES = [
         title: 'Acid-Base Assessment',
         body: '[Acid-Base Steps Summary](#/info/ab-summary) — stepwise approach to both Traditional and Stewart methods.\n\n**Order labs:** ABG or VBG, BMP (Na, Cl, HCO3, BUN, Cr, Glucose), lactate, albumin, beta-hydroxybutyrate, serum osmolality.\n\n[ABG vs VBG Evidence](#/info/ab-abg-vbg) — VBG pH agrees within 0.03-0.05 of ABG in most clinical settings.\n\nChoose your diagnostic approach:',
         citation: [4, 9, 11],
+        calculatorLinks: [
+            { id: 'anion-gap', label: 'Anion Gap' },
+            { id: 'delta-gap', label: 'Delta Gap' },
+            { id: 'winters-formula', label: "Winter's Formula" },
+            { id: 'osmolar-gap', label: 'Osmolar Gap' },
+            { id: 'stewart-sig', label: 'Stewart SID/SIG' },
+        ],
         options: [
             {
                 label: 'Traditional Approach (Boston / AG / Delta Gap)',
@@ -183,6 +190,7 @@ export const ACID_BASE_NODES = [
         module: 3,
         title: 'High Anion Gap Metabolic Acidosis',
         body: '**MUDPILES Differential:** [7]\n• **M**ethanol\n• **U**remia\n• **D**iabetic ketoacidosis\n• **P**araldehyde / Phenformin\n• **I**ron / INH (isoniazid)\n• **L**actic acidosis\n• **E**thylene glycol\n• **S**alicylates\n\nMost HAGMA is ultimately attributable to **lactate**, **ketone bodies**, or **renal acids**.\n\n**Check:** Lactate, beta-hydroxybutyrate (BHB), toxicology screen.\n\n[Lactate & Ketone Pathophysiology](#/info/ab-lactate-ketones)\n\nProceed to Delta Gap to assess for mixed metabolic disorders.',
+        calculatorLinks: [{ id: 'osmolar-gap', label: 'Osmolar Gap Calculator' }],
         citation: [5, 7, 16],
         next: 'ab-delta',
     },
@@ -485,6 +493,10 @@ export const ACID_BASE_NODES = [
         module: 6,
         title: 'Treatment Considerations',
         body: '**Sodium Bicarbonate:**\n[Sodium Bicarbonate](#/drug/sodium-bicarbonate/metabolic acidosis) — indications, dosing, and evidence.\n\n**Indications for bicarbonate:** [12][17]\n• pH < 6.9 with AKI (BICAR-ICU: NNT 6)\n• TCA overdose (sodium channel blockade)\n• Salicylate toxicity (urinary alkalinization)\n• Life-threatening hyperkalemia\n• Bicarbonate-losing conditions (severe diarrhea, RTA)\n\n**NOT recommended:** [3][17]\n• Routine cardiac arrest or CPR\n• Routine DKA (unless pH < 6.9)\n• Routine lactic acidosis (no hemodynamic benefit proven)\n\n[Fluid Selection Guide](#/info/ab-fluids-guide) — NS vs balanced crystalloids.',
+        calculatorLinks: [
+            { id: 'anion-gap', label: 'Anion Gap' },
+            { id: 'stewart-sig', label: 'Stewart SID/SIG' },
+        ],
         citation: [1, 2, 3, 12, 13, 17],
         next: 'ab-disposition',
     },
@@ -493,6 +505,10 @@ export const ACID_BASE_NODES = [
         type: 'result',
         module: 6,
         title: 'Disposition',
+        calculatorLinks: [
+            { id: 'anion-gap', label: 'Anion Gap' },
+            { id: 'winters-formula', label: "Winter's Formula" },
+        ],
         body: '**ICU Admission:** [18]\n• pH ≤ 7.25 (in-hospital mortality up to 25%)\n• Lactate > 4 mmol/L with hemodynamic instability or failure to clear with fluids\n• Toxic alcohol ingestion\n• Refractory acidosis requiring continuous bicarbonate infusion\n• Altered mental status, need for advanced ventilatory support, hemodynamic instability\n\n**Floor Admission:**\n• Correctable cause identified, responding to treatment\n• DKA or AKA on insulin/dextrose protocol\n• Needs ongoing monitoring (serial labs, ABGs)\n• Chronic process with acute exacerbation\n\n**Discharge Considerations:**\n• Chronic compensated disorder at baseline\n• Resolved transient cause (e.g., mild AKA responsive to fluids/dextrose/thiamine within 3-4 hours)\n• Reliable follow-up, appropriate health literacy\n• Mild DKA with appropriate outpatient resources (per recent ADA guidelines) [1]',
         recommendation: 'Emergency clinicians should have a low threshold for hospitalization in patients with acid-base disturbances associated with severe respiratory disease, ketoacidosis, sepsis, poisonings, or any acute condition not likely reversible within 3-4 hours of ED management.',
         confidence: 'recommended',
