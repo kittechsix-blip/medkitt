@@ -160,6 +160,15 @@ export const DEFAULT_CATEGORIES = [
                 entryNodeId: 'ft-start',
             },
             {
+                id: 'delirium',
+                title: 'Delirium Management',
+                subtitle: 'Safety → Screening → Etiology → De-escalation → Pharmacology → Disposition',
+                categoryId: 'emergency-medicine',
+                version: '1.0',
+                nodeCount: 30,
+                entryNodeId: 'delirium-start',
+            },
+            {
                 id: 'diarrhea',
                 title: 'Acute Diarrhea',
                 subtitle: 'Assessment → Red Flags → Diagnostics → Treatment → Disposition',
@@ -283,6 +292,15 @@ export const DEFAULT_CATEGORIES = [
                 version: '1.0',
                 nodeCount: 28,
                 entryNodeId: 'na-start',
+            },
+            {
+                id: 'acid-base',
+                title: 'Acid-Base Disturbances',
+                subtitle: 'Traditional vs Stewart \u2192 AG \u2192 Delta \u2192 SID/SIG \u2192 Treatment',
+                categoryId: 'nephro-rheum-endo',
+                version: '1.0',
+                nodeCount: 34,
+                entryNodeId: 'ab-start',
             }
         ],
         isCustom: false,
@@ -327,6 +345,15 @@ export const DEFAULT_CATEGORIES = [
                 version: '1.0',
                 nodeCount: 25,
                 entryNodeId: 'sah-start',
+            },
+            {
+                id: 'delirium',
+                title: 'Delirium Management',
+                subtitle: 'Safety → Screening → Etiology → De-escalation → Pharmacology → Disposition',
+                categoryId: 'neurology',
+                version: '1.0',
+                nodeCount: 30,
+                entryNodeId: 'delirium-start',
             }
         ],
         isCustom: false,

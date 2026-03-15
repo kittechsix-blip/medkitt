@@ -191,6 +191,10 @@ async function loadHardcodedFallback(treeId: string): Promise<TreeConfig | null>
       const m = await import('../data/trees/sodium.js');
       return { nodes: m.SODIUM_NODES, entryNodeId: 'na-start', categoryId: 'nephro-rheum-endo', moduleLabels: m.SODIUM_MODULE_LABELS, citations: m.SODIUM_CITATIONS };
     },
+    'acid-base': async () => {
+      const m = await import('../data/trees/acid-base.js');
+      return { nodes: m.ACID_BASE_NODES, entryNodeId: 'ab-start', categoryId: 'nephro-rheum-endo', moduleLabels: m.ACID_BASE_MODULE_LABELS, citations: m.ACID_BASE_CITATIONS };
+    },
     'croup': async () => {
       const m = await import('../data/trees/croup.js');
       return { nodes: m.CROUP_NODES, entryNodeId: 'croup-start', categoryId: 'pediatrics', moduleLabels: m.CROUP_MODULE_LABELS, citations: m.CROUP_CITATIONS };
@@ -274,6 +278,10 @@ async function loadHardcodedFallback(treeId: string): Promise<TreeConfig | null>
     'meningitis': async () => {
       const m = await import('../data/trees/meningitis.js');
       return { nodes: m.MENINGITIS_NODES, entryNodeId: 'mening-start', categoryId: 'infectious-disease', moduleLabels: m.MENINGITIS_MODULE_LABELS, citations: m.MENINGITIS_CITATIONS };
+    },
+    'delirium': async () => {
+      const m = await import('../data/trees/delirium.js');
+      return { nodes: m.DELIRIUM_NODES, entryNodeId: 'delirium-start', categoryId: 'neurology', moduleLabels: m.DELIRIUM_MODULE_LABELS, citations: m.DELIRIUM_CITATIONS };
     },
   };
 
